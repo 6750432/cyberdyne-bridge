@@ -1,0 +1,8 @@
+{
+  "name": "cyberdyne-body-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cyberdyne-Bridge 的身体插件（手 + 腿）。全部本地确定性逻辑，不经过任何大模型。依赖只装在这里，绝不动主链的 package.json。",
+  "main": "proto_body.js",
+  "dependencies": {}
+}

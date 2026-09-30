@@ -1,0 +1,31 @@
+# ═══════════════════════════════════════════════════════════════
+# 危险物品 —— 小家伙**绝对不碰**的东西（fail-closed）
+# ═══════════════════════════════════════════════════════════════
+# 一行一个 MC 物品名。空行和 # 开头的行忽略。
+#
+# ★ 这份名单必须跟手侧插件里那份**完全一致**：
+#     node/plugins/body/proto_body.js  →  const 危险物品 = new Set([...])
+#   两份不一致就报错（测数据.py 会逐条比对）。
+#   理由：这是**两道独立的闸** —— 脑侧拒单、手侧拒执行。任何一道漏了都不行，
+#   而两份名单漂移是最容易出的事（改了一边忘了另一边）。
+#
+# ★ 名单里的每一项都必须是真 MC 物品名（拿 minecraft-data 核），
+#   写错一个字母 = 那道闸对那个东西**完全失效**，所以校验必须严格。
+#
+# 改完记得跑：python3 外挂/动作面/测数据.py
+
+tnt
+flint_and_steel
+lava_bucket
+fire_charge
+end_crystal
+respawn_anchor
+command_block
+chain_command_block
+repeating_command_block
+barrier
+structure_block
+jigsaw
+light
+bedrock
+debug_stick

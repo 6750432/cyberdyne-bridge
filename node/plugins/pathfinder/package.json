@@ -1,0 +1,10 @@
+{
+  "name": "cyberdyne-pathfinder-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cyberdyne-Bridge 的可选寻路外挂。依赖只装在这里，绝不动主链的 package.json。",
+  "main": "proto_pathfinder.js",
+  "dependencies": {
+    "mineflayer-pathfinder": "^2.4.5"
+  }
+}
