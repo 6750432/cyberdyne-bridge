@@ -3,7 +3,7 @@
   "mc_host": "127.0.0.1",
   "mc_port": 25565,
   "mc_version": "1.21.1",
-  "bot_name": "XiaoJiaHuo",
+  "bot_name": "DeepSeek",
   "_transport说明": "auto = Linux/macOS 走 Unix socket，Windows 自动退化为 127.0.0.1 TCP；也可强制 unix / tcp",
   "transport": "auto",
   "unix_socket": "./cyberdyne.sock",
@@ -144,7 +144,7 @@
     },
     "llm": {
       "_enable说明": "★ 默认关。关着的时候主链是纯规则系统，一次云端调用都不会发生",
-      "enable": false,
+      "enable": true,
       "_provider说明": "从 Cherry Studio 数据库取密钥时用哪个供应商",
       "provider": "deepseek",
       "api_base": "https://api.deepseek.com/v1",
@@ -254,7 +254,7 @@
   },
   "m6": {
     "_说明": "★ M6·自主心跳：没活干的时候，它自己找活。**默认关**（主人 2026-10-01 钦定：调试期间必须手动开）。",
-    "enable": false,
+    "enable": true,
     "_enable说明": "总开关。默认 false。主人一句「自己找点事做」打开，「别自己找事」关掉。",
     "心跳秒": 60,
     "_心跳秒说明": "两次心跳之间至少隔多久。60 秒 —— 主人拍板：30 秒太败家，一分钟一次刚刚好。",
@@ -291,7 +291,7 @@
     "_记忆段上限说明": "塞进 prompt 的【记忆】段字数硬上限（默认 300 字 ≈ 225 token）。",
     "世界": "default",
     "_世界说明": "这条记忆属于哪个世界/服务器。将来玩第二个世界时，卡不会串味。",
-    "自己名字": "XiaoJiaHuo",
+    "自己名字": "DeepSeek",
     "_自己名字说明": "它自己在游戏里的名字 —— 记忆不许把自己当成「别人」记进人卡（实测抓到过）。"
   }
 }
