@@ -89,7 +89,14 @@ def 打补丁(数):
     import bridge
     补丁模块 = importlib.import_module("补丁")
     importlib.reload(补丁模块)
-    r = 补丁模块.装上(bridge, 数=数, 开关=True)
+    try:
+        r = 补丁模块.装上(bridge, 数=数, 开关=True)
+    except 补丁模块.锚点错 as e:
+        # ★ 锚点对不上就**拒绝启动**，绝不勉强跑。
+        #   （这在装上() 里是靠"干跑一次组Prompt"验的：锚点没了就抛。）
+        return [], [f"★ 锚点错：{e}"], {"开关装上了": False}
+    except Exception as e:
+        return [], [f"{type(e).__name__}: {e}"], {"开关装上了": False}
     报 = 补丁模块.报个话(bridge)
     if not r["好"]:
         return [], [r["为什么"]], 报

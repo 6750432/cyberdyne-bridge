@@ -237,6 +237,18 @@ def 跑自检(打日志=print):
             except (TypeError, ValueError):
                 实 = None
             查.断言(f"任务栈.{名} 的参数名还是 {参}", 实 == 参, 实)
+    # 第 4 步还要挂这两个（指令层口令 + prompt 包壳）
+    指类, 译类 = getattr(bridge, "指令层", None), getattr(bridge, "翻译器", None)
+    if 指类 is not None:
+        函 = getattr(指类, "解析", None)
+        实 = list(__import__("inspect").signature(函).parameters) if callable(函) else None
+        查.断言("指令层.解析 的参数名还是 ['self', '说话人', '原文']",
+                实 == ["self", "说话人", "原文"], 实)
+    if 译类 is not None:
+        函 = getattr(译类, "组Prompt", None)
+        实 = list(__import__("inspect").signature(函).parameters) if callable(函) else None
+        查.断言("翻译器.组Prompt 的参数名还是 ['self','s','用途','任务状况','说话人','原话']",
+                实 == ["self", "s", "用途", "任务状况", "说话人", "原话"], 实)
 
     return 查
 
