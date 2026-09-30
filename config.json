@@ -276,7 +276,7 @@
     "_memory_enable说明": "记忆总开关。关掉之后不写也不读，prompt 回到 M6 的样子（心跳照旧能跑，只是目标又变短视）。",
     "memory_in_prompt": true,
     "_memory_in_prompt说明": "要不要把记忆塞进 prompt。关掉就只是默默攒着，不给 LLM 看。",
-    "expand_actions": false,
+    "expand_actions": true,
     "_expand_actions说明": "★ M7b·动作面扩展（合成/箱子存取）的开关。默认关 —— 主人定了先专注 M7a 记忆，动作面下一轮再开。",
     "容量": {
       "地点": 400,

@@ -23,7 +23,25 @@ ROOT="$(pwd)"
 # ⚠ bash 里**不能用中文变量名**（locale 是 C）—— 我第一版写成 `在跑=$(…)`，
 #   bash 把它当命令去执行，结果护栏变成"永远拒绝启动"的假阳性。
 #   2026-10-01 当场抓到，改成 ASCII 名。
-RUNNING=$(ps -eo pid,comm,args --no-headers | awk '$2=="python3" && /bridge\.py/ && !/awk/ {print $1}' | tr '\n' ' ')
+RUNNING=$(
+  # ★ 判据与 重启脑.sh 完全一致：读 /proc，不看 ps 的 args
+  #   （外挂模式下命令行里没有 bridge.py，而且 locale=C 会把中文路径显示成 ??????
+  #     —— 2026-10-01 实机就因为这两条同时成立，护栏失效、起了三个脑）
+  python3 - <<'PY' | tr '\n' ' '
+import os
+for 名 in sorted(os.listdir('/proc')):
+    if not 名.isdigit():
+        continue
+    try:
+        行 = ' '.join(x.decode('utf-8', 'replace')
+                     for x in open(f'/proc/{名}/cmdline', 'rb').read().split(b'\0') if x)
+        通 = open(f'/proc/{名}/comm').read().strip()
+    except Exception:
+        continue
+    if 通 == 'python3' and ('bridge.py' in 行 or '大脑外挂.py' in 行):
+        print(名)
+PY
+)
 if [ -n "$RUNNING" ]; then
   echo "★ 已经有一个脑在跑了（pid：$RUNNING）—— 拒绝再起一个。"
   echo "  要先停的话：bash tools/重启.sh      （它会把手和脑一起重启）"

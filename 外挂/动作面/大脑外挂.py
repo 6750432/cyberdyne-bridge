@@ -47,7 +47,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 日志文件 = os.path.join(日志目录, "外挂-动作面.log")
 
 # 外挂自己认的命令行开关 —— 传主链之前必须摘掉，免得主链看不懂
-自己的开关 = ("--自检", "--json", "--假装开关开", "--安静", "--演练")
+自己的开关 = ("--自检", "--json", "--假装开关开", "--安静", "--演练", "--看prompt")
 
 
 def 记(文本, 屏幕=True):
@@ -113,6 +113,8 @@ def 主():
     ap.add_argument("--安静", action="store_true", help="少说话")
     ap.add_argument("--演练", action="store_true",
                     help="一路走到交棒前就停（**不起主循环、不连 socket**）—— 验收用")
+    ap.add_argument("--看prompt", action="store_true",
+                    help="把打了补丁之后真正会发出去的 prompt 打出来（验收用，不起主循环）")
     参, 剩下 = ap.parse_known_args()
 
     # ── ① 先确认主链文件真的在（这是 fail-closed 的第一道）──
@@ -195,6 +197,23 @@ def 主():
         记(f"补丁已打上：{len(打了)} 处（**只改内存，磁盘上的 bridge.py 一个字节没动**）")
         for x in 打了:
             记("  + " + x, 屏幕=False)
+
+    # ── ③.9 验收用：把真正会发出去的 prompt 打出来 ──
+    if 参.看prompt:
+        import bridge as _b, tempfile
+        译 = _b.翻译器({"prompt_limit": 6000}, lambda *a, **k: None,
+                     tempfile.mkdtemp(prefix="看prompt-"),
+                    任务栈=_b.任务栈({"task_enable": True, "expand_actions": 开},
+                                   lambda *a, **k: None, lambda o: None,
+                                   tempfile.mkdtemp()),
+                    三觉=None, 人格="", 允许动作=_b.任务栈.允许动作, 记忆=None)
+        for 用途 in ("心跳", "翻译"):
+            文 = 译.组Prompt({}, 用途=用途, 任务状况="没有任务")
+            print(f"\n──────── 用途={用途}（{len(文)} 字）────────")
+            for 行 in 文.split("\n"):
+                if "步骤类型" in 行 or "只能用这" in 行:
+                    print(行)
+        return 0
 
     # ── ④ 进主循环（这就是和主链唯一的接触面）──
     if 参.演练:
