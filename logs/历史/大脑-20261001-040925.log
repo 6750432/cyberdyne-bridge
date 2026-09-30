@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/<用户>/cyberdyne-bridge/bridge.py", line 3421, in <module>
+    主()
+  File "/home/<用户>/cyberdyne-bridge/bridge.py", line 3261, in 主
+    翻译 = 翻译器(cfg.get("m5") or {}, 说, os.path.join(ROOT, "logs"),
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/<用户>/cyberdyne-bridge/bridge.py", line 2107, in __init__
+    self.心跳器 = 心跳器        # M6：自主找事的总开关
+                  ^^^^^^
+NameError: name '心跳器' is not defined. Did you mean: '心跳'?

@@ -1,0 +1,76 @@
+[01:35:45] [手] 把「XiaoJiaHuo」送进 127.0.0.1:25565（1.21.1，离线模式）…
+[01:35:45] [手] 证据链开写：/home/<用户>/cyberdyne-bridge/logs/全程-20261001.jsonl（追加）
+[01:35:45] [手] 证据链开写：/home/<用户>/cyberdyne-bridge/logs/账本-20261001.jsonl（追加）
+[01:35:45] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[01:35:45] [手] 寻路插件挂上了：mineflayer-pathfinder
+[01:35:45] [手] 身体插件挂上了：body（会 sneak、jump、jumpattack、swimdown、dig、place、craft、use）
+[01:35:45] [手] 服务器探针开了：每 500ms 问一次 [mintstar] 的血量。
+[01:35:45] [手] 接线口已就绪：[unix] /home/<用户>/cyberdyne-bridge/cyberdyne.sock
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[01:35:45] [手] 他已经站在世界里了。
+[01:35:52] [手] 大脑接上了：unix（当前 1 个连接）
+[01:35:52] [手] 采样率切成 5Hz（每 200ms 推一次）
+[01:36:19] [手] 大脑接上了：unix（当前 2 个连接）
+[01:36:19] [手] 大脑断开了（剩 1 个连接）
+[01:36:20] [手] 撤退结束，站住。
+[01:36:26] [手] 挥了一下「mintstar」（出手时 1.1 格）
+[01:36:27] [手] 挥了一下「mintstar」（出手时 1.9 格）
+[01:36:37] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[01:36:40] [手] 撤退结束，站住。
+[01:36:40] [手] 采样率切成 5Hz（每 200ms 推一次）
+[01:36:42] [手] 大脑接上了：unix（当前 2 个连接）
+[01:36:42] [手] 挥了一下「zombie」（出手时 2.9 格）
+[01:36:42] [手] 挥了一下「zombie」（出手时 2.2 格）
+[01:36:44] [手] 挥了一下「zombie」（出手时 1.9 格）
+[01:36:45] [手] 大脑断开了（剩 1 个连接）
+[01:36:53] [手] 挥了一下「mintstar」（出手时 1.8 格）
+[01:36:54] [手] 挥了一下「mintstar」（出手时 1.9 格）
+[01:36:56] [手] 挥了一下「mintstar」（出手时 1.3 格）
+[01:36:57] [手] 挥了一下「mintstar」（出手时 1.3 格）
+[01:36:58] [手] 挥了一下「mintstar」（出手时 1.8 格）
+[01:36:59] [手] 挥了一下「mintstar」（出手时 1.7 格）
+[01:37:01] [手] 吃了一个 cooked_beef。
+[01:37:01] [手] 挥了一下「mintstar」（出手时 2.0 格）
+[01:37:02] [手] 挥了一下「mintstar」（出手时 1.7 格）
+[01:37:04] [手] 他倒下了。
+[01:37:04] [手] 他重生了，看看背包里还剩什么。
+[01:37:05] [手] 撤退结束，站住。
+[01:37:06] [手] 已经申请重生。
+[01:37:07] [手] 挥了一下「mintstar」（出手时 1.6 格）
+[01:37:10] [手] 挥了一下「mintstar」（出手时 2.1 格）
+[01:37:14] [手] 挥了一下「mintstar」（出手时 2.1 格）
+[01:37:15] [手] 撤退结束，站住。
+[01:37:15] [手] 挥了一下「mintstar」（出手时 1.9 格）
+[01:37:16] [手] 挥了一下「mintstar」（出手时 1.6 格）
+[01:37:19] [手] 挥了一下「mintstar」（出手时 1.1 格）
+[01:37:20] [手] 挥了一下「mintstar」（出手时 2.2 格）
+[01:37:21] [手] 挥了一下「mintstar」（出手时 1.1 格）
+[01:37:22] [手] 挥了一下「mintstar」（出手时 1.5 格）
+[01:37:25] [手] 挥了一下「mintstar」（出手时 1.2 格）
+[01:37:26] [手] 挥了一下「mintstar」（出手时 1.9 格）
+[01:37:27] [手] 挥了一下「mintstar」（出手时 1.3 格）
+[01:37:27] [手] 他倒下了。
+[01:37:27] [手] 吃了一个 cooked_beef。
+[01:37:27] [手] 撤退结束，站住。
+[01:37:27] [手] 他重生了，看看背包里还剩什么。
+[01:37:29] [手] 已经申请重生。
+[01:37:30] [手] 挥了一下「mintstar」（出手时 0.2 格）
+[01:37:31] [手] 挥了一下「mintstar」（出手时 1.7 格）
+[01:37:32] [手] 挥了一下「mintstar」（出手时 1.9 格）
+[01:37:32] [手] 撤退结束，站住。
+[01:37:34] [手] 挥了一下「mintstar」（出手时 2.2 格）
+[01:37:34] [手] 挥了一下「mintstar」（出手时 2.0 格）
+[01:37:35] [手] 挥了一下「mintstar」（出手时 0.4 格）
+[01:37:36] [手] 挥了一下「mintstar」（出手时 1.6 格）
+[01:37:38] [手] 收到 SIGTERM，收工。
+[01:37:38] [手] 连接结束：disconnect.quitting

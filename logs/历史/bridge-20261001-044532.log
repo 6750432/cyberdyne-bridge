@@ -1,0 +1,25 @@
+[04:44:23] [手] 把「XiaoJiaHuo」送进 127.0.0.1:25565（1.21.1，离线模式）…
+[04:44:23] [手] 证据链开写：/home/<用户>/cyberdyne-bridge/logs/全程-20261001.jsonl（追加）
+[04:44:23] [手] 证据链开写：/home/<用户>/cyberdyne-bridge/logs/账本-20261001.jsonl（追加）
+[04:44:23] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[04:44:23] [手] 寻路插件挂上了：mineflayer-pathfinder
+[04:44:23] [手] 身体插件挂上了：body（会 sneak、jump、jumpattack、swimdown、dig、place、craft、use、furnace_put、furnace_take）
+[04:44:23] [手] 服务器探针开了：每 500ms 问一次 [mintstar] 的血量。
+[04:44:23] [手] 接线口已就绪：[unix] /home/<用户>/cyberdyne-bridge/cyberdyne.sock
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[04:44:24] [手] 他已经站在世界里了。
+[04:44:31] [手] 大脑接上了：unix（当前 1 个连接）
+[04:44:40] [手] 听见 mintstar 说：看看周围
+[04:44:44] [手] 听见 mintstar 说：你记得什么
+[04:45:30] [手] 收到 SIGTERM，收工。
+[04:45:30] [手] 连接结束：disconnect.quitting

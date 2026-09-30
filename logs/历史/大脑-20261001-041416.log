@@ -1,0 +1,21 @@
+[04:13] Cyberdyne-Bridge M3 启动，大脑在外面。
+           看住「XiaoJiaHuo」。
+           反射层：跑、吃、保命、还手；指令层：听得懂话；采样：平静 1Hz / 战斗 5Hz。
+[04:13] 接线口连上了 [unix] /home/<用户>/cyberdyne-bridge/./cyberdyne.sock
+           指令层已上线；大模型层开着（deepseek-chat）。
+[04:13] 小家伙出生了，站在 (-4, 78, 2)
+           血量 15.9/20，朝向 yaw=5.5 pitch=0.0
+           四下无人
+[04:13] 听懂了：「看看周围」→ look
+[04:13] mintstar 说话了：「看看周围」
+[04:13] 【视觉】
+现在是第 ? 天的上午（白天·下雨），我在?，站着 [-3, 78, 2]
+周围主要是：stone×338
+看得见的东西：stone(-15, 75, -10)、stone(-15, 75, -8)、stone(-15, 75, -6)、stone(-15, 75, -4)、stone(-15, 75, -2)、stone(-15, 75, 0)
+[04:13] 「mintstar」说「今天跑了好远，腿有点酸」—— 这句我没学过，先老实说不会，绝不乱动。（听不懂第 1 条）
+[04:13] 大脑内部出了个意外（TypeError: 大模型层.能问() takes 1 positional argument but 2 were given），我断开重连，继续盯着。
+[04:13] 接线口连上了 [unix] /home/<用户>/cyberdyne-bridge/./cyberdyne.sock
+           指令层已上线；大模型层开着（deepseek-chat）。
+[04:14] 采样速率 1Hz（平静档，身边没有敌人）。
+[04:14] 他还在 (-4, 78, 2)，身边没人｜血 15.9/20｜已经待了 1分9秒
+[04:14] 他和世界的连接断了：disconnect.quitting

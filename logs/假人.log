@@ -1,0 +1,15 @@
+[假人] 打人模式：目标「XiaoJiaHuo」
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[假人] PreyBot 站进去了，坐标 (1.5, 78, 0.5)
+[假人] 被踢：[object Object]
+[假人] 掉线：socketClosed
