@@ -1,0 +1,10 @@
+{
+  "name": "cyberdyne-bridge",
+  "version": "0.0.1",
+  "private": true,
+  "type": "commonjs",
+  "description": "Cyberdyne-Bridge M0 - hand inside",
+  "dependencies": {
+    "mineflayer": "^4.39.0"
+  }
+}
