@@ -205,6 +205,18 @@ def 跑自检(打日志=print):
     查.断言("bridge 模块上还没有外挂的记号（没打过补丁）",
             not hasattr(bridge, "_动作面外挂"))
 
+    # ── J~M 外置数据（第 2 步）：四份数据 + 跟主链/手侧的核对，全在 数据.py 里 ──
+    try:
+        if 外挂目录 not in sys.path:
+            sys.path.insert(0, 外挂目录)
+        import importlib
+        数据模块 = importlib.import_module("数据")
+        importlib.reload(数据模块)
+        数据模块.核对(查, bridge)
+    except Exception as e:
+        查.起组("J 外置数据")
+        查.断言("外置数据模块（数据.py）能加载", False, f"{type(e).__name__}: {e}")
+
     return 查
 
 

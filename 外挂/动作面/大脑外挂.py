@@ -146,6 +146,22 @@ def 主():
     开, 出处 = 读开关(假装=参.假装开关开)
     记(f"动作面开关 = {'开' if 开 else '关'}（出处：{出处}）")
 
+    # ── ③.5 报一下外置数据的家底（第 2 步：数据都搬到 data/ 和 prompts/ 了）──
+    try:
+        import importlib
+        数据模块 = importlib.import_module("数据")
+        importlib.reload(数据模块)
+        数 = 数据模块.载入()
+        记(f"外置数据：物品映射 {len(数['物品映射'])} 条 / "
+            f"危险物品 {len(数['危险物品'])} 条 / "
+            f"动作词表 基础 {len(数['动作词表']['基础'])} + 扩展 {len(数['动作词表']['扩展'])} 个 / "
+            f"MC {数['版本']}")
+        记(f"（出处：{os.path.relpath(数据模块.数据文件, ROOT)} 和 "
+            f"{os.path.relpath(数据模块.prompt目录, ROOT)}/）", 屏幕=False)
+    except Exception as e:
+        记(f"★ 外置数据读不了（{type(e).__name__}: {e}）—— 拒绝启动。")
+        return 2
+
     if not 开:
         记("开关关着 → 一个补丁都不打，按基线跑（行为与基线逐字节相同）")
         打了, 缺的 = [], []
