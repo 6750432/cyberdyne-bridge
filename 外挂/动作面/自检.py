@@ -217,6 +217,27 @@ def 跑自检(打日志=print):
         查.起组("J 外置数据")
         查.断言("外置数据模块（数据.py）能加载", False, f"{type(e).__name__}: {e}")
 
+    # ── N 补丁要挂的方法签名（第 3 步）──
+    # 补丁是靠"换掉同名方法"工作的，而它得按**位置**拿到参数（步 / 任 / 现在 / s）。
+    # 主链哪天给某个方法改个参数名、或者换了顺序，补丁就会静默错位 ——
+    # 所以把参数名逐个钉住，对不上就拒绝启动。
+    查.起组("N 补丁要挂的方法签名（对不上就拒绝启动）")
+    if isinstance(栈, type):
+        import inspect
+        想要 = {
+            "接": ["self", "名字", "步骤", "s"],
+            "_看完成了没": ["self", "步", "s", "任"],
+            "_下发": ["self", "步", "任", "现在", "s"],
+            "_挂探针": ["self", "步骤", "s"],
+        }
+        for 名, 参 in 想要.items():
+            函 = getattr(栈, 名, None)
+            try:
+                实 = list(inspect.signature(函).parameters) if callable(函) else None
+            except (TypeError, ValueError):
+                实 = None
+            查.断言(f"任务栈.{名} 的参数名还是 {参}", 实 == 参, 实)
+
     return 查
 
 
