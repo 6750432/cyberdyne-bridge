@@ -56,6 +56,7 @@ _原 = {}
 _已装 = False
 _主链 = None
 _记 = None
+_车钩 = None        # 车钩给我们留的把手（要摸活着的任务栈实例）
 
 统计 = {"接到意图": 0, "推演成功": 0, "推演失败": 0, "定位失败": 0}
 
@@ -458,7 +459,8 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
                 "为什么": "开关关着 —— 一个补丁都不打（行为与基线逐字节相同）"}
     if _已装 or getattr(bridge, "_生存常识外挂", None):
         return {"好": False, "打了": [], "为什么": "已经打过了，不重复打"}
-    _主链, _记 = bridge, 日志
+    global _车钩
+    _主链, _记, _车钩 = bridge, 日志, 车钩
     try:
         import 求解器 as _求解器          # noqa: F401
     except Exception as e:
@@ -500,7 +502,32 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
         统计["接到意图"] += 1
         _说(f"生存常识：接到意图「要 {目标}」—— 本地推演，不请示大模型")
         import 求解器
-        r = 求解器.求解(目标, 1, 背包=_背包(s), 方块在哪=可用方块(s))
+        背 = _背包(s)
+        if not 背:
+            # 看不见背包 → 顺手让手侧盯上全量（下一拍就有了）
+            实例 = None
+            if _车钩 is not None:
+                活 = _车钩.活实例("任务栈")
+                实例 = 活[0] if 活 else None
+            if _盯背包(实例):
+                _说("生存常识：看不见背包，已经让手侧盯上全量了（下一拍再看）")
+        r = 求解器.求解(目标, 1, 背包=背, 方块在哪=可用方块(s))
+
+        # ★ 手上有就不用干了 —— 但得**说清楚**，不能交一份空计划下去
+        #   （任务栈接到空步骤表会拒单，主人只会看到「任务失败」）
+        if r["好"] and not r["计划"]:
+            统计["手上已有"] = 统计.get("手上已有", 0) + 1
+            手里 = 背.get(目标)
+            说明 = (f"我手上已经有「{目标}」了（{手里} 个），不用再做"
+                   if 手里 else f"不用做什么，「{目标}」已经够了")
+            _说(f"生存常识：{说明}")
+            try:
+                self.说(f"[{time.strftime('%H:%M')}] {说明}。要不要我拿它去干点啥？",
+                       紧急=True)
+            except Exception:
+                pass
+            _记账(self, 用途, 目标, 说明)
+            return None, None, 说明
         if not r["好"]:
             统计["推演失败"] += 1
             _说(f"生存常识：推演不出来 —— {r['为什么']}")
@@ -559,6 +586,9 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
     # 类属性？不 —— `bridge.翻译器` 拿到的是**类本身**
     译.收输出 = 新收输出
     打 = ["翻译器.收输出()  ← 认得「意图」，本地推演成步骤表"]
+    t = _补盯背包(bridge)
+    if t:
+        打.append(t)
     p = _装提示词(bridge)
     if p:
         打.append(p)
@@ -580,17 +610,63 @@ def _记账(译, 用途, 目标, 原因):
 
 
 def _背包(s):
-    """从状态帧里读背包 → {物品名: 个数}。读不到就给空（求解器会从头推）。"""
-    物 = (s or {}).get("inv") or (s or {}).get("背包") or []
+    """从状态帧里读背包 → {物品名: 个数}。
+
+    ★★ 2026-10-07 主人当场抓到的 bug：
+       状态帧里这个字段叫 **`items`**（`bridge.py:1657` 的 `_物品数量` 读的就是它），
+       我原来写的 `inv` / `背包` **一个都不存在** —— 于是车厢**永远以为自己是空手**。
+       主人把工具塞给它了，它照样从零开始盘算「撸树→木镐→…」，
+       在石山上找不到木头，就一直出去找、永远不挖矿。
+
+    ⚠ 而且 `items` **只在「被盯梢的物品」里才有**：手侧的 `物品快照()` 只报
+      `看的物品` 名单里的东西，而主链平时不盯背包（`_挂探针` 开始盯、
+      `_撤探针` 就清空）。所以光改字段名还不够 —— 还得让它**一直盯着全量**，
+      见 `_盯背包()`。
+    """
+    物 = (s or {}).get("items")
     出 = {}
-    if isinstance(物, list):
+    if isinstance(物, dict):
+        for k, v in 物.items():
+            try:
+                出[str(k)] = int(v or 0)
+            except (TypeError, ValueError):
+                pass
+    elif isinstance(物, list):        # 兼容别的写法
         for 条 in 物:
             if isinstance(条, dict) and 条.get("name"):
                 出[条["name"]] = int(条.get("count") or 1)
-    elif isinstance(物, dict):
-        for k, v in 物.items():
-            出[str(k)] = int(v or 1)
-    return 出
+    return {k: v for k, v in 出.items() if v}
+
+
+def _盯背包(实例):
+    """让手侧**一直**报背包全量（`*` = 所有物品）。"""
+    if 实例 is None:
+        return False
+    try:
+        实例.发({"cmd": "watch_items", "list": ["*"]})
+        return True
+    except Exception:
+        return False
+
+
+def _补盯背包(bridge):
+    """包一层 `任务栈._撤探针`：主链清空盯梢之后，我们**顺手再把背包盯回来**。
+
+    ★ 不这么做的话，每做完一个任务背包就看不见了 —— 而车厢恰恰是在
+      「没任务」的时候（心跳）才被问话，也就是**永远看不见**。
+    """
+    栈类 = getattr(bridge, "任务栈", None)
+    if 栈类 is None or not callable(getattr(栈类, "_撤探针", None)):
+        return None
+    _原["_撤探针"] = 栈类._撤探针
+
+    def 新撤探针(self):
+        r = _原["_撤探针"](self)
+        _盯背包(self)          # 清完立刻盯回来
+        return r
+
+    栈类._撤探针 = 新撤探针
+    return "任务栈._撤探针()  ← 清完盯梢顺手把背包盯回来（不然看不见主人的工具）"
 
 
 def 卸下(bridge):
@@ -605,6 +681,9 @@ def 卸下(bridge):
             译.组Prompt = _原组["组Prompt"]
         if "组Prompt" in _原:
             译.组Prompt = _原["组Prompt"]
+    栈 = getattr(bridge, "任务栈", None)
+    if 栈 is not None and "_撤探针" in _原:
+        栈._撤探针 = _原["_撤探针"]
     _原.clear()
     _原组.clear()
     清探索()
