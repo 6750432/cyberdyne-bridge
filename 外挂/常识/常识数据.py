@@ -27,7 +27,7 @@ import os
 import re
 import sys
 
-# 外挂/常识/数据.py → 仓库根
+# 外挂/常识/常识数据.py → 仓库根
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 _缓存 = None

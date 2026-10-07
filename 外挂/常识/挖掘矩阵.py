@@ -42,7 +42,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import 数据 as 数据模块          # noqa: E402
+import 常识数据 as 数据模块          # noqa: E402
 
 _档位 = None          # {工具名: 档位整数}；None 表示还没算
 _档位说明 = ""
