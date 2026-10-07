@@ -89,23 +89,28 @@ def 载入(版本="1.21.1", 重载=False):
             "掉落": tuple(编号到名.get(d, f"#{d}") for d in (b.get("drops") or [])),
         }
 
-    # 配方：键是结果物品 ID → 换成名字，并按产物聚起来
-    产物到配方 = {}
-    for 键, 条 in 配方原.items():
-        try:
-            产物号 = int(键)
-        except (TypeError, ValueError):
-            继续 = 条 if isinstance(条, list) else [条]
-            for r in 继续:
-                if isinstance(r, dict) and isinstance(r.get("result"), dict):
-                    产物号 = r["result"]["id"]
-                else:
-                    continue
-                _收配方(产物到配方, 编号到名, r)
-            continue
-        for r in (条 if isinstance(条, list) else [条]):
-            if isinstance(r, dict):
-                _收配方(产物到配方, 编号到名, r)
+    # ── 配方：**优先用服务端 jar 里那 1290 条**（含烧炼/高炉/切石/锻造）──
+    #    minecraft-data 的 recipes.json 只有合成，而且把「木镐」展开成了 11 个变体
+    #    （每种木板一条，没有 tag）；jar 版就一条 `wooden_pickaxe.json`，
+    #    用料写的是 `#minecraft:planks` 这个**标签**，而标签定义 jar 里也带着。
+    #    所以「哪些木板能互换」由原版自己说了算 —— 不用我们去猜、去推。
+    产物到配方, 标签, 跳过 = {}, {}, {}
+    try:
+        import 原版配方 as 原版模块
+        原 = 原版模块.载入()
+        产物到配方 = 原["配方"]
+        标签 = 原["标签"]
+        跳过 = 原.get("跳过") or {}
+        配方来源 = (f"服务端 jar（{len(产物到配方)} 种产物，"
+                   f"{len(标签)} 个标签，含烧炼/高炉/切石/锻造）")
+    except Exception as e:
+        # ★ jar 读不了就退回 minecraft-data 那份（只有合成），
+        #   并且**把这件事写在明面上** —— 不静默用一份残缺的数据。
+        配方来源 = f"⚠ minecraft-data 兜底（jar 读不了：{type(e).__name__}: {e}）"
+        for 键, 条 in 配方原.items():
+            for r in (条 if isinstance(条, list) else [条]):
+                if isinstance(r, dict):
+                    _收配方(产物到配方, 编号到名, r)
 
     # 方块 → 哪个方块掉这个物品（给「挖掘获取」用）
     掉落索引 = {}
@@ -121,6 +126,9 @@ def 载入(版本="1.21.1", 重载=False):
         "编号到名": 编号到名,
         "名到编号": 名到编号,
         "产物到配方": 产物到配方,
+        "标签": 标签,                    # {标签名: [物品名,…]} —— 原版自己定义的等价类
+        "配方来源": 配方来源,
+        "跳过": 跳过,                    # 建模不了的配方类型（染色/烟花那种特殊合成）
         "掉落索引": 掉落索引,
     }
     return _缓存
@@ -200,4 +208,6 @@ if __name__ == "__main__":
     print(f"  版本 {数['版本']}")
     print(f"  物品 {len(数['物品'])} 个 / 方块 {len(数['方块'])} 个 / "
           f"有配方的产物 {len(数['产物到配方'])} 种 / 掉落索引 {len(数['掉落索引'])} 种")
-    print(f"  木头种类 {len(木头种类())} 种：{'、'.join(木头种类())}")
+    print(f"  配方来源：{数['配方来源']}")
+    print(f"  物品标签 {len(数['标签'])} 个；建模不了的配方类型：{len(数['跳过'])} 种")
+    print(f"  木头种类 {len(木头种类())} 种（从数据推的）")
