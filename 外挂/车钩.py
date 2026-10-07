@@ -660,6 +660,17 @@ class 列车:
 
     def 挂(self, 名):
         with self.锁:
+            # ★ 认不出来就**重新扫一遍磁盘** —— 车厢可能是刚写好的。
+            #   原来车厢表只在起车时发现一次，于是「新车厢热挂」永远失败，
+            #   只能重启脑。（2026-10-07 实机撞到：挂了半天说「没有叫生存常识的车厢」。）
+            if 名 not in self.车厢表:
+                try:
+                    for 新名, 节 in 发现车厢().items():
+                        self.车厢表.setdefault(新名, 节)
+                    if 名 in self.车厢表:
+                        记(f"重新扫盘发现新车厢：{名}")
+                except 清单错 as e:
+                    记(f"重新扫盘时清单有问题：{e}")
             if 名 in self.编组:
                 return {"好": True, "编组": list(self.编组), "备注": f"{名} 已经在车上了"}
             if 名 not in self.车厢表:
