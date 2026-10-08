@@ -1,0 +1,100 @@
+==============================================================================
+  扫「吞异常」—— 出错了没人知道的地方
+==============================================================================
+  扫了 39 个 .py（主链 1，其它 38）
+
+── 🔴🔴 **纯静默** —— 块里只有 pass/continue，出事了事后连查都没得查 —— 63 处 ──
+   ⚪主链 bridge.py:410  except OSError  → continue
+   ⚪主链 bridge.py:3461  except OSError  → pass
+   🔧车厢 tools/录制.py:51  except socket.timeout  → continue
+   🔧车厢 tools/录制.py:53  except OSError  → break
+   🔧车厢 tools/看护.py:41  except OSError  → continue
+   🔧车厢 外挂/生存常识/补丁.py:1168  except (TypeError, ValueError)  → pass
+   🔧车厢 外挂/车钩.py:827  except socket.timeout  → continue
+   🔧车厢 外挂/车钩.py:829  except OSError  → break
+   ⚪主链 bridge.py:414  except Exception  → pass
+   ⚪主链 bridge.py:425  except Exception  → continue
+   ⚪主链 bridge.py:439  except Exception  → pass
+   ⚪主链 bridge.py:451  except Exception  → pass
+   ⚪主链 bridge.py:1432  except Exception  → pass
+   ⚪主链 bridge.py:1439  except Exception  → pass
+   ⚪主链 bridge.py:1958  except Exception  → pass
+   ⚪主链 bridge.py:1993  except Exception  → continue
+   ⚪主链 bridge.py:2005  except Exception  → pass
+   ⚪主链 bridge.py:2047  except Exception  → pass
+   ⚪主链 bridge.py:2072  except Exception  → pass
+   ⚪主链 bridge.py:2522  except Exception  → pass
+   ⚪主链 bridge.py:2770  except Exception  → pass
+   ⚪主链 bridge.py:2936  except Exception  → pass
+   ⚪主链 bridge.py:3481  except Exception  → pass
+   ⚪主链 bridge.py:3493  except Exception  → pass
+   ⚪主链 bridge.py:3658  except Exception  → pass
+   ⚪主链 bridge.py:3761  except Exception  → pass
+   ⚪主链 bridge.py:3801  except Exception  → pass
+   ⚪主链 bridge.py:3807  except Exception  → pass
+   🔧车厢 tools/rcon.py:72  except Exception  → pass
+   🔧车厢 tools/分析打击.py:47  except Exception  → continue
+   🔧车厢 tools/回放.py:113  except Exception  → pass
+   🔧车厢 tools/录制.py:65  except Exception  → continue
+   🔧车厢 tools/测任务.py:104  except Exception  → pass
+   🔧车厢 tools/看护.py:47  except Exception  → continue
+   🔧车厢 tools/看护.py:69  except Exception  → pass
+   🔧车厢 tools/看护.py:121  except Exception  → pass
+   🔧车厢 tools/看护.py:134  except Exception  → pass
+   🔧车厢 外挂/分饭/补丁.py:50  except Exception  → pass
+   🔧车厢 外挂/分饭/补丁.py:140  except Exception  → pass
+   🔧车厢 外挂/分饭/补丁.py:164  except Exception  → pass
+   🔧车厢 外挂/动作面/大脑外挂.py:60  except Exception  → pass
+   🔧车厢 外挂/动作面/补丁.py:554  except Exception  → pass
+   🔧车厢 外挂/受限脚本/补丁.py:144  except Exception  → pass
+   🔧车厢 外挂/受限脚本/补丁.py:180  except Exception  → pass
+   🔧车厢 外挂/常识/原版配方.py:184  except Exception  → continue
+   🔧车厢 外挂/常识/原版配方.py:200  except Exception  → continue
+   🔧车厢 外挂/常识/原版配方.py:236  except Exception  → pass
+   🔧车厢 外挂/常识/原版配方.py:246  except Exception  → pass
+   🔧车厢 外挂/挖空守卫/补丁.py:293  except Exception  → pass
+   🔧车厢 外挂/挖空守卫/补丁.py:303  except Exception  → pass
+   🔧车厢 外挂/挖空守卫/补丁.py:335  except Exception  → pass
+   🔧车厢 外挂/生存常识/补丁.py:158  except Exception  → pass
+   🔧车厢 外挂/生存常识/补丁.py:162  except Exception  → pass
+   🔧车厢 外挂/生存常识/补丁.py:919  except Exception  → pass
+   🔧车厢 外挂/生存常识/补丁.py:954  except Exception  → pass
+   🔧车厢 外挂/生存常识/补丁.py:988  except Exception  → pass
+   🔧车厢 外挂/生存常识/补丁.py:1052  except Exception  → pass
+   🔧车厢 外挂/生存常识/补丁.py:1100  except Exception  → pass
+   🔧车厢 外挂/车钩.py:116  except Exception  → pass
+   🔧车厢 外挂/车钩.py:743  except Exception  → pass
+   🔧车厢 外挂/车钩.py:855  except Exception  → pass
+   🔧车厢 外挂/车钩.py:860  except Exception  → pass
+   🔧车厢 外挂/车钩ctl.py:151  except Exception  → pass
+
+── 🔴 有动作但**不出声** —— 记了个标志位就继续，天知地知它不知 —— 23 处 ──
+   ⚪主链 bridge.py:2881  except (FileNotFoundError, ConnectionRefusedError, OSError)  → Expr、If、Expr
+   ⚪主链 bridge.py:2914  except (json.JSONDecodeError, UnicodeDecodeError)  → Expr、continue
+   🔧车厢 tools/看护.py:214  except KeyboardInterrupt  → Expr
+   🔧车厢 外挂/动作面/自检.py:237  except (TypeError, ValueError)  → Assign
+   🔧车厢 外挂/常识/求解器.py:485  except 求解不出  → Expr、Expr、Expr、Expr、continue
+   ⚪主链 bridge.py:3476  except Exception  → Assign
+   ⚪主链 bridge.py:3685  except Exception  → Assign
+   🔧车厢 tools/回放.py:71  except Exception  → Expr、continue
+   🔧车厢 外挂/分饭/补丁.py:76  except Exception  → Assign
+   🔧车厢 外挂/动作面/自检.py:156  except Exception  → Assign、Assign、Expr
+   🔧车厢 外挂/动作面/自检.py:216  except Exception  → Expr、Expr
+   🔧车厢 外挂/常识/常识数据.py:106  except Exception  → Assign、For
+   🔧车厢 外挂/测车钩.py:182  except Exception  → Expr
+   🔧车厢 外挂/生存常识/补丁.py:85  except Exception  → Assign
+   🔧车厢 外挂/生存常识/补丁.py:341  except Exception  → Assign
+   🔧车厢 外挂/生存常识/补丁.py:794  except Exception  → Assign
+   🔧车厢 外挂/生存常识/补丁.py:841  except Exception  → Assign
+   🔧车厢 外挂/生存常识/补丁.py:887  except Exception  → Assign
+   🔧车厢 外挂/生存常识/补丁.py:1141  except Exception  → Assign
+   🔧车厢 外挂/生存常识/补丁.py:1301  except Exception  → If
+   🔧车厢 外挂/车钩.py:193  except Exception  → Expr、continue
+   🔧车厢 外挂/车钩.py:198  except Exception  → Expr、continue
+   🔧车厢 外挂/车钩.py:531  except Exception  → Expr
+
+──────────────────────────────────────────────────────────────────────────────
+  合计 **86** 处吞异常：**纯静默 63** 处、有动作不出声 23 处
+  按异常类型：裸 0、Exception 73、具体类型 13
+  其中主链 26 处（**红线：不许改**，列给主人看）
+──────────────────────────────────────────────────────────────────────────────
