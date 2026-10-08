@@ -264,15 +264,26 @@ def _遮挡情报(状态, p):
     返回 dict，或 None（= 手侧没给这一格的情报 → 调用方**照旧放行**）。
     """
     try:
-        石 = ((状态 or {}).get("scan") or {}).get("石头")
-        if not isinstance(石, dict):
-            return None
-        位 = 石.get("p")
-        if not (isinstance(位, (list, tuple)) and len(位) >= 3):
-            return None
-        if [int(位[0]), int(位[1]), int(位[2])] != [int(x) for x in list(p)[:3]]:
-            return None      # 情报只cover"最近的石头"那一块，不是这一格
-        return 石
+        扫 = (状态 or {}).get("scan") or {}
+        目标 = [int(x) for x in list(p)[:3]]
+        # ★★★ 2026-10-08 晚 实机抓到的「口径不一致」（T3，而且是我自己写的）：
+        #   手侧能算**任何方块**的遮挡（挖之前现算 ✓），可我只从 `scan.石头`
+        #   那一份里取情报 ✗ —— 而 `scan.石头` 只有"最近的石头"那一块。
+        #   于是要挖的是一根 oak_log 时，车厢这边**拿不到任何遮挡情报** ✗
+        #   → 「先挖掉挡着的」插不进去 → 它每秒重试同一镐：
+        #     `[16:01] 「dig」没做成：「oak_log」前面挡着「oak_leaves」，我得先把那一块挖掉`
+        #   现在两份都看：`scan.石头`（最近的石头）+ `scan.可交互`
+        #   （求解器真正会瞄的那几格 = 那 6 个名额）。情报里带着 裸露/视线/挡前 ✓
+        候选 = [扫.get("石头")] + list(扫.get("可交互") or [])
+        for 条 in 候选:
+            if not isinstance(条, dict):
+                continue
+            位 = 条.get("p")
+            if not (isinstance(位, (list, tuple)) and len(位) >= 3):
+                continue
+            if [int(位[0]), int(位[1]), int(位[2])] == 目标:
+                return 条
+        return None
     except Exception:
         return None
 
