@@ -256,6 +256,27 @@ function startBot() {
   });
 
   // M2：重生了 = 家当全掉在死亡点。先报一声，再给应急包一次机会。
+  // ★★★ 对齐协议：物理世界一变，扫描立刻作废（1 个 tick 内生效）
+  try {
+    bot.on('blockUpdate', (老块, 新块) => {
+      扫描脏 = true;
+      if (老块 && 新块 && 老块.name !== 新块.name) {
+        log(`[对齐] 方块变了 ${老块.position} ：${老块.name} → ${新块.name}`
+          + `（扫描已作废，200ms 内重算）`);
+      }
+    });
+  } catch (e) { /* 挂不上也不许把整个手弄死 */ }
+  // ★★★ 对齐协议：底图 5Hz（200ms 一拍）—— 脏了就重算，不脏就按 200ms 兜底
+  setInterval(() => {
+    try {
+      if (!bot || !bot.entity) return;
+      const 太久 = !上次扫描 || (Date.now() - 上次扫描) >= 200;
+      if (!扫描脏 && !太久) return;
+      扫环境(扫描参数.半径, 扫描参数.步长);
+      扫描脏 = false;
+    } catch (e) { /* 定时刷新失败：绝不许影响别的 */ }
+  }, 200);
+
   bot.on('spawn', () => {
     if (死过) {
       重生时刻 = Date.now();
@@ -457,6 +478,13 @@ async function 读熔炉() {
  * 结果限量（方块类别最多 8 类、可交互方块最多 6 条、实体最多 10 条）。 */
 let 扫描 = null;                    // 最近一次扫描结果（脑那边用完为止）
 let 上次扫描 = 0;
+// ★★★ 2026-10-08 对齐协议（需求二）：雷达刷新率与服务器 tick 对齐。
+//   ① **底图 5Hz**：每 200ms 重算一次全量扫描，保证认知不落后于物理世界。
+//   ② **事件级即时覆写**：挂 `blockUpdate` —— 只要方块被挖掉/放下，
+//      立刻把这份扫描**作废**（下一拍 200ms 内必然重算），
+//      不再出现"拿旧地图指导新身体"（实机就是这么把泥土当原木挖的）。
+let 扫描脏 = true;
+let 扫描参数 = { 半径: 12, 步长: 2 };
 
 const 兴趣方块 = new Set(['crafting_table', 'furnace', 'blast_furnace', 'smoker', 'chest',
   'barrel', 'bed', 'white_bed', 'torch', 'lantern', 'water', 'lava', 'farmland', 'wheat',
@@ -708,6 +736,10 @@ function snapshot() {
     // ── M4·猎手 ──
     deaths: 死亡次数,
     // ── M5·视觉与触觉要用的事实 ──
+    // ★★★ 2026-10-08 对齐协议：**同一把时间尺**。
+    //   全链路一律用 Unix epoch 毫秒：`t`（整帧）、`scan.t`（那一份扫描）。
+    //   车厢/主链判"新不新"都拿 Date.now() 去减，不再各算各的。
+    t: Date.now(),
     scan: 扫描,                       // 最近一次 scan_environment 的结果（脑用完可清）
     durability: 耐久快照(),           // 手持 + 四件护甲的耐久
     // ── M4c·事实通道（没人盯就是 null，快照不白胖）──
@@ -944,7 +976,10 @@ function 收命令(sock, 行) {
     // M4c：三条事实通道。**只加读事实的，不加动作动词**（动词表不膨胀）。
     case 'scan_environment': {
       // M5.1：扫一眼周围。**纯读**，不动世界、不改状态、不发服务器请求。
-      const 出 = 扫环境(msg.半径, msg.步长);
+      扫描参数 = { 半径: Number(msg.半径) || 扫描参数.半径,
+                   步长: Number(msg.步长) || 扫描参数.步长 };
+      const 出 = 扫环境(扫描参数.半径, 扫描参数.步长);
+      扫描脏 = false;
       回执(sock, 'scan_environment', !出.出错, 出.出错 || null,
            { 方块类: (出.方块 || []).length, 实体: (出.实体 || []).length });
       break;
@@ -955,15 +990,38 @@ function 收命令(sock, 行) {
       break;
     }
     case 'watch_blocks': {
-      看的方块 = Array.isArray(msg.list)
-        ? msg.list.filter(Array.isArray).slice(0, 32)
+      // ★★★ 2026-10-08 对齐协议：**合并（Merge），不是覆盖（Override）**。
+      //   主链接单时发的是"这一次任务要盯的那几格"，车厢还要盯它自己关心的
+      //   （当前那一格 / 身边四格）—— 谁后发谁说了算的话，先发的就白盯了 ✗
+      //   （实机就是这么把背包快照清成 {oak_log:0} 的。）
+      //   规矩：给空列表 = 显式清空；显式 `替换:true` = 仍是覆盖；其余一律并集。
+      const 来 = Array.isArray(msg.list)
+        ? msg.list.filter(Array.isArray)
             .map((p) => [Number(p[0]), Number(p[1]), Number(p[2])])
         : [];
+      if (msg.替换 || !来.length) {
+        看的方块 = 来.slice(0, 32);
+      } else {
+        const 见 = new Set(看的方块.map((p) => p.join(',')));
+        for (const p of 来) {
+          const k = p.join(',');
+          if (!见.has(k)) { 见.add(k); 看的方块.push(p); }
+        }
+        看的方块 = 看的方块.slice(0, 32);
+      }
       回执(sock, 'watch_blocks', true, null, { 盯着: 看的方块.length });
       break;
     }
     case 'watch_items': {
-      看的物品 = Array.isArray(msg.list) ? msg.list.map(String).slice(0, 32) : [];
+      // ★★★ 同上：**合并**。主链"只盯 oak_log"不许把车厢的 `["*"]`（全量）冲掉 ——
+      //   冲掉了背包快照就只剩 `{oak_log:0}`，车厢过滤掉 0 就成了"空背包"，
+      //   求解器以为它一无所有（实机铁证）。
+      const 来物 = Array.isArray(msg.list) ? msg.list.map(String) : [];
+      if (msg.替换 || !来物.length) {
+        看的物品 = 来物.slice(0, 32);
+      } else {
+        看的物品 = Array.from(new Set(看的物品.concat(来物))).slice(0, 32);
+      }
       回执(sock, 'watch_items', true, null, { 盯着: 看的物品.length });
       break;
     }

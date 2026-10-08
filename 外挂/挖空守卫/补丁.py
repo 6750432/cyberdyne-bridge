@@ -216,6 +216,35 @@ def 装上(bridge, 数=None, 日志=None, **kw):
         except Exception as e:
             print(f"[挖空守卫] 换坐标时出岔子（不影响主链）：{e}", flush=True)
         try:
+            # ★★★ 需求一：**目标驱动**。挖步骤带着"要什么"（`方块`），
+            #   执行时拿**当帧**扫描重新搜一遍；整片扫描里压根没有那样东西
+            #   → 说明它得先去别处找（或先撸树），**立刻失败**，
+            #   让心跳拿新状态重新规划 —— 绝不抱着陈坐标空挥到超时。
+            if 步.get("动作") == "挖" and 步.get("方块"):
+                想 = str(步.get("方块"))
+                扫 = (s or {}).get("scan") or {}
+                可有 = [c for c in (扫.get("可交互") or [])
+                       if isinstance(c, dict) and str(c.get("name")) == 想]
+                石 = 扫.get("石头")
+                if isinstance(石, dict) and str(石.get("name")) == 想:
+                    可有.append(石)
+                老 = 步.get("p")
+                老在近处 = False
+                if isinstance(老, (list, tuple)) and len(老) >= 3:
+                    for c in 可有:
+                        q = c.get("p")
+                        if (isinstance(q, (list, tuple)) and len(q) >= 3
+                                and all(abs(float(q[i]) - float(老[i])) < 0.5 for i in range(3))):
+                            老在近处 = True
+                            break
+                if not 可有 and not 老在近处:
+                    _态(栈类)["找不到_" + 想] = int(_态(栈类).get("找不到_" + 想, 0)) + 1
+                    print(f"[挖空守卫] ★ 当帧扫描里**压根没有「{想}」** —— "
+                          f"这个坐标是陈的，我不挥。让它失败重规划。", flush=True)
+                    return False
+        except Exception as e:
+            print(f"[挖空守卫] 目标驱动检查出岔子（不影响主链）：{e}", flush=True)
+        try:
             if 步.get("动作") == "挖":
                 p = 步.get("p")
                 if isinstance(p, (list, tuple)) and len(p) >= 3:

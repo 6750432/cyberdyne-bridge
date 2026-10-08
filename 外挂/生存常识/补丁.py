@@ -1118,14 +1118,31 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None, 数=None):
     return {"好": True, "为什么": "", "打了": 打}
 
 
-def _记账(译, 用途, 目标, 原因):
-    """把车厢自己的结论也写进 LLM 审计 —— 不然审计里只有里面那层
-    「没有 act 字段」，看不出真正发生了什么。"""
+def _记账(译, 用途, 目标, 原因, 结果="常识推演后定位失败"):
+    """把车厢自己的结论写进 LLM 审计。
+
+    ★★★ 2026-10-08 对齐协议：**强类型断言 —— 缺字段直接报错，不准静默**。
+       上一版这里是 `except Exception: pass`：我把 `_记账(...)` 那行弄丢以后，
+       「定位失败」的原因**整整一个下午不落日志**，我全靠猜 ✗
+       这就是 T2「静默失败」本人 —— 所以这里改成 fail-loud：
+         · 缺字段 / 空白   → **抛 ValueError**
+         · 原因不是字符串   → **抛 TypeError**
+         · 写不进审计       → **出声报**（不再吞）
+    """
+    字段 = {"用途": 用途, "结果": 结果, "目标": 目标, "原因": str(原因)[:300]}
+    坏 = [k for k, v in 字段.items() if v is None or (isinstance(v, str) and not v.strip())]
+    if 坏:
+        raise ValueError(f"_记账 缺字段：{'、'.join(坏)}（整包：{字段}）")
+    if 原因 is not None and not isinstance(原因, str) and not isinstance(原因, (list, tuple)):
+        raise TypeError(f"_记账 的「原因」得是字符串/列表，拿到 {type(原因).__name__}")
+    写不进去 = None
     try:
-        译._记账({"用途": 用途, "结果": "常识推演后定位失败",
-                "目标": 目标, "原因": str(原因)[:300]})
-    except Exception:
-        pass
+        译._记账(字段)
+    except Exception as e:                     # noqa: BLE001 —— 但**必须出声**
+        写不进去 = f"{type(e).__name__}: {e}"
+    if 写不进去:
+        _报(f"★ _记账 写不进审计：{写不进去} ｜ 本来要记：{字段}")
+    return 写不进去
 
 
 def _背包(s):
