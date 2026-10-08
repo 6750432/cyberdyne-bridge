@@ -62,7 +62,13 @@ const 不许挖 = new Set([
 //   改成点名那几个真·矿物块。
 const 石头系 = /(_ore|stone|deepslate|cobblestone|bricks|concrete|obsidian|netherrack|furnace|anvil|terracotta|sandstone|prismarine|basalt|blackstone|tuff|calcite|dripstone|quartz|(iron|gold|diamond|emerald|coal|copper|lapis|redstone|netherite|amethyst|raw_iron|raw_gold|raw_copper)_block)/;
 function 该用什么工具(名) {
-  if (石头系.test(名) && !/leaves|wool|_log|_wood/.test(名)) return 'pickaxe';
+  // ★ 2026-10-08 晚 实机：它站在草地上，却因为「我手里没有镐子，挖不了「grass_block」」
+  //   而拒绝挖脚下的草 ✗ —— 草方块/土/沙/砾**本来就不用镐子**（徒手就掉）。
+  //   排除表：树叶/羊毛/原木 + 草土沙砾 + 几种看着像石头其实不是的。
+  if (石头系.test(名)
+      && !/leaves|wool|_log|_wood|grass_block|dirt|_soil|sand|gravel|clay|farmland|_path|soul_sand|moss_block|mycelium|podzol|snow|mud/.test(名)) {
+    return 'pickaxe';
+  }
   return null;
 }
 function 是这类工具(名, 类) {

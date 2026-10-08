@@ -173,6 +173,20 @@ def 挑块(状态, 想要=None, 我=None):
         pass
 
     # ── ②③ 本地内存：只翻**扫过的区块**（没扫过的不存在 = 反透视）──
+    # ★ 2026-10-08 晚 实机：手侧 21:35:51 明明报过「(-151,75,158)：oak_leaves → air」，
+    #   我的记忆**还把它当新的**换上去 ✗。规矩：**在当帧扫得到的范围里，
+    #   没看见它 = 它已经没了**（手侧的对齐事件就是这么工作的）。
+    有坐标 = set()
+    try:
+        扫2 = (状态 or {}).get("scan") or {}
+        for k in ("可交互", "石头"):
+            v = 扫2.get(k)
+            for 条 in (v if isinstance(v, list) else ([v] if isinstance(v, dict) else [])):
+                if isinstance(条, dict) and isinstance(条.get("p"), (list, tuple)):
+                    有坐标.add(tuple(int(x) for x in 条["p"][:3]))
+    except Exception:
+        pass
+
     if not 候:
         for 区, 堆 in _记忆.items():
             if 区 not in _已知区块:
@@ -186,6 +200,9 @@ def 挑块(状态, 想要=None, 我=None):
                     if 情报.get("裸露") is False:
                         continue
                     到 = _距(我, 位)
+                    # ⚠ 2026-10-08 晚 我自己撤掉的一条：本来想用"当帧没看见它 = 它没了"，
+                    #   但**雷达快照里的方块表是抽样**（可交互才 6 格）→ "不在表里" ≠ "没了" ✗
+                    #   要真判陈没陈，得让手侧把"刚变成空气的坐标"报上来（下一步）。
                     if 到 > 最远["隔壁区块"]:
                         continue
                     可去, 险, _ = _安全性(状态, 名, 位)
