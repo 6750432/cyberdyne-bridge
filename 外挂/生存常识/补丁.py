@@ -54,6 +54,155 @@ for p in (常识目录,):
 
 _原 = {}
 _已装 = False
+_原下发 = {}
+_原超时 = {}
+
+
+def _盯方块(实例, 坐标表):
+    """让手侧雷达盯上这几格（当前要用的排最前面）。"""
+    if 实例 is None:
+        return False
+    全 = [p for p in (坐标表 or []) if isinstance(p, (list, tuple)) and len(p) >= 3]
+    if not 全:
+        return False
+    try:
+        实例.发({"cmd": "watch_blocks",
+                "list": [[float(v) for v in p[:3]] for p in 全[:32]]})
+        return True
+    except Exception:
+        return False
+
+
+_常识数 = None
+
+
+def _数表():
+    global _常识数
+    if _常识数 is None:
+        try:
+            import importlib
+            _常识数 = importlib.import_module("常识数据").载入()
+        except Exception:
+            _常识数 = {}
+    return _常识数
+
+
+def _料够吗(名, 要几个, 背包):
+    """**当下背包**够不够合成「名」。返回 (够吗, 缺什么)。
+
+    ★★★ 2026-10-08 实机：计划里第 4 步「合成 oak_planks」，
+      可走到那儿时木头**已经被前几步用掉了** —— 计划建在快照上，执行时状态飘了。
+      跟坐标那件事是**同一个根**（T1：資訊有卻不用）。
+    """
+    数 = _数表()
+    配方 = None
+    for r in ((数.get("产物到配方") or {}).get(str(名)) or []):
+        if r.get("方式") == "合成":
+            配方 = r
+            break
+    if 配方 is None:
+        return True, ""                      # 没配方就不管（烧炼什么的另说）
+    缺 = []
+    for 料, n in (配方.get("材料") or {}).items():
+        要 = int(n) * max(int(要几个 or 1), 1)
+        if str(料).startswith("#"):
+            候 = (数.get("标签") or {}).get(str(料)[1:]) or []
+            有 = sum(int((背包 or {}).get(c, 0) or 0) for c in 候)
+        else:
+            有 = int((背包 or {}).get(料, 0) or 0)
+        if 有 < 要:
+            缺.append(f"{料}×{要 - 有}")
+    return (not 缺), "、".join(缺)
+
+
+def _活三觉():
+    """摸出活着的三觉（视觉层）实例 —— 要扫描得靠它。"""
+    if _车钩 is None:
+        return None
+    try:
+        活 = _车钩.活实例("三觉")
+        return 活[0] if 活 else None
+    except Exception:
+        return None
+
+
+def _扫描多旧(s):
+    """这份扫描多少秒了。**测不出来就返回 None** —— 测不出来不许拦，
+    否则手侧哪天不报 `t` 了，整条链路会被自己的守卫锁死（这个坑得先堵上）。"""
+    try:
+        t = ((s or {}).get("scan") or {}).get("t")
+        if not t:
+            return None
+        return (time.time() * 1000 - float(t)) / 1000.0
+    except Exception:
+        return None
+
+
+def _活着任务栈():
+    """摸出活着的任务栈实例 —— 车厢要靠它给手侧发话。"""
+    if _车钩 is None:
+        return None
+    try:
+        活 = _车钩.活实例("任务栈")
+        return 活[0] if 活 else None
+    except Exception:
+        return None
+
+
+def _报(文):
+    """安全日志 —— `_记` 没接上时**绝不能让日志把功能带崩**，但也不能把真相吞掉。"""
+    try:
+        if _记:
+            _记(文)
+            return
+    except Exception:
+        pass
+    try:
+        print(f"[生存常识] {文}", flush=True)
+    except Exception:
+        pass
+
+
+def _拾方位(栈, 任, 现在, s, 步):
+    """围着掉落物**转圈走**。True=已下发 / False=没得捡 / None=不接管。
+
+    主人 2026-10-08：「识别到掉落物自己往掉落物附近多走几圈啊」。
+    主链原来那套是等它自己进吸附范围，可它站在 2~3 格外干等 60 秒（实机就是这么超时）。
+    """
+    if not isinstance(任, dict):
+        return None
+    掉落 = [d for d in ((s or {}).get("drops") or []) if isinstance(d, dict)]
+    名 = str(步.get("物品") or "")
+    if 名:
+        掉落 = [d for d in 掉落 if str(d.get("name") or "") == 名]
+    if not 掉落:
+        任["拾_等"] = int(任.get("拾_等") or 0) + 1
+        if 任["拾_等"] == 1:
+            原样 = (s or {}).get("drops")
+            _报(f"[探针] 「拾 {名}」没目标 ｜ s.drops = {原样!r}")
+        return False if 任["拾_等"] <= 900 else None
+    掉落.sort(key=lambda d: d.get("dist", 99))
+    p = 掉落[0].get("pos") or []
+    if not (isinstance(p, (list, tuple)) and len(p) >= 3):
+        return None
+    if float(现在) - float(任.get("拾_上次") or 0) < 1.8:
+        return True
+    任["拾_上次"] = float(现在)
+    i = int(任.get("拾_圈") or 0)
+    任["拾_圈"] = i + 1
+    dx, dz = _拾方位表[i % len(_拾方位表)]
+    try:
+        栈.发({"cmd": "goto",
+              "p": [float(p[0]) + dx, float(p[1]), float(p[2]) + dz]})
+    except Exception as e:
+        _报(f"围圈捡东西没发出去：{e}")
+        return None
+    if i % len(_拾方位表) == 0:
+        _报(f"绕着掉落物转圈捡（第 {i // len(_拾方位表) + 1} 圈，"
+           f"它在 {float(掉落[0].get('dist', 0)):.1f} 格外）")
+    return True
+_拾方位表 = ((0.7, 0.0), (0.5, 0.5), (0.0, 0.7), (-0.5, 0.5),
+            (-0.7, 0.0), (-0.5, -0.5), (0.0, -0.7), (0.5, -0.5), (0.0, 0.0))
 _主链 = None
 _记 = None
 _车钩 = None        # 车钩给我们留的把手（要摸活着的任务栈实例）
@@ -79,6 +228,13 @@ def 扫描表(状态):
         名, p = 条.get("name"), 条.get("p")
         if 名 and isinstance(p, (list, tuple)) and len(p) >= 3:
             表.setdefault(名, [int(p[0]), int(p[1]), int(p[2])])
+    # ★★ 石头类不在「兴趣方块」名单里 → 站在草地上就找不到石头坐标，
+    #   求解器会去挑「黑石」（下界的东西）。手侧单开了一项 `scan.石头`。
+    石 = 扫.get("石头")
+    if isinstance(石, dict):
+        名, p = 石.get("name"), 石.get("p")
+        if 名 and isinstance(p, (list, tuple)) and len(p) >= 3:
+            表.setdefault(str(名), [int(p[0]), int(p[1]), int(p[2])])
     return 表
 
 
@@ -100,6 +256,8 @@ def 可用方块(状态):
       把脚下那块加进去，它就会正确地挑 `cobblestone`。
     """
     表 = 扫描表(状态)
+    _报(f"[探针-可用] 扫描表给了 {sorted(表)} ｜ scan.石头="
+        f"{((状态 or {}).get('scan') or {}).get('石头')!r}")
     脚名, 脚位 = 脚下是什么(状态)
     if 脚名 and 脚位:
         表.setdefault(脚名, 脚位)
@@ -165,6 +323,52 @@ def 找坐标(步骤, 状态, 扫描缓存, 要挖吗=False):
 _动作名 = {"挖": "挖", "放": "放", "合成": "合成", "走到": "走到"}
 
 
+空气名 = ("air", "cave_air", "void_air")
+_掉落反表 = None
+
+
+def 挖了掉什么(块名):
+    """挖这块会掉什么。外置数据里只有「掉落物 → 哪些块掉它」，反过来查一遍。"""
+    global _掉落反表
+    if _掉落反表 is None:
+        try:
+            import importlib
+            数 = importlib.import_module("常识数据").载入()
+            _掉落反表 = {}
+            for 掉, 块们 in (数.get("掉落索引") or {}).items():
+                for b in (块们 or []):
+                    _掉落反表.setdefault(b, 掉)
+        except Exception:
+            _掉落反表 = {}
+    return _掉落反表.get(str(块名), str(块名))
+
+
+def 身边空位(状态, 我=None):
+    """★ 用**雷达**找「身边哪一格是空的」—— 放方块就放这儿，不猜。
+
+    主人 2026-10-07：「妈的都有雷达了还不知道放哪儿？」
+    坐标是白拿的（我 ± 1），「是不是空的」正是雷达该回答的事。
+    返回 (空位列表, 还没读数的那几格)。
+    """
+    我 = 我 or (状态 or {}).get("pos")
+    if not (isinstance(我, (list, tuple)) and len(我) >= 3):
+        return [], []
+    x, y, z = int(我[0] // 1), int(我[1]), int(我[2] // 1)
+    候选 = [(x + 1, y, z), (x - 1, y, z), (x, y, z + 1), (x, y, z - 1)]
+    已知 = {}
+    for 条 in ((状态 or {}).get("blocks") or []):
+        p = 条.get("p")
+        if isinstance(p, (list, tuple)) and len(p) >= 3:
+            已知[(int(p[0]), int(p[1]), int(p[2]))] = str(条.get("name") or "")
+    空, 没读数 = [], []
+    for c in 候选:
+        if c not in 已知:
+            没读数.append(list(c))
+        elif 已知[c] in 空气名:
+            空.append(list(c))
+    return 空, 没读数
+
+
 def 落坐标(计划, 状态):
     """符号化计划 → 具体步骤表。返回 (步骤表, 失败原因)。
 
@@ -175,6 +379,7 @@ def 落坐标(计划, 状态):
     """
     扫 = 扫描表(状态)
     步骤, 缺 = [], []
+    _挖过 = {}          # (块名, 坐标) → 挖了几次（第二次起往下走一格）
     炉位 = None                      # 放炉子那一刻的位置，后面烧东西要用
     # 脚下那块：`地面` 字段给名字，自身坐标给位置 —— 这是**唯一**
     # 不用扫描报坐标就能确定位置的方块（而且不是猜的）。
@@ -214,13 +419,37 @@ def 落坐标(计划, 状态):
                 if 我:
                     旁边 = [我[0] + 1, 我[1], 我[2]]
                     步骤.append({"动作": "走到", "p": 旁边, "到点": 1.5})
-                    步骤.append({"动作": "挖", "p": list(脚位)})
+                    步骤.append({"动作": "挖", "p": list(脚位), "方块": 名})
+                    if 名:
+                        步骤.append({"动作": "走到", "p": list(脚位), "到点": 3.0})
+                        步骤.append({"动作": "拾", "物品": 挖了掉什么(名), "数量": 1})
                     _说(f"  · 挖 {名}：它就在我脚下 —— 先挪开一格再挖（不猜坐标）")
                     continue
             if p is None:
                 缺.append(f"挖 {名}：{因}")
                 continue
-            步骤.append({"动作": "挖", "p": p})
+            # 同一个块要挖好几下时（3 个木头、3 块石头），原样重复同一坐标 ——
+            # 第二下就是对着空气挥镐。往**下一格**走：树干往下长，石头下面还是石头。
+            记数 = _挖过.setdefault((名, tuple(p)), 0)
+            _挖过[(名, tuple(p))] = 记数 + 1
+            if 记数:
+                p = [p[0], p[1] - 记数, p[2]]
+            # ★★★ 2026-10-08：挖 步骤必须**带上要挖什么**！
+            #   实机抓到的：计划挖 oak_log，它却挖回来 6 个 dirt ——
+            #   树早砍了、那格现在是土，而判据只看「那格变空气了没」，
+            #   于是**挖错东西照样算完成**，整条链接下来全是假的。
+            # ★★★ 2026-10-08 实机：**得先走过去再挖**！
+            #   原来写成「挖 → 走到 → 拾」，结果目标在 14 格外，挖的够得着范围
+            #   只有 4.5 格 → 一下都挖不动，白等 60 秒超时。
+            #   正确顺序：走到（到点 3.0，正好在够得着范围内）→ 挖 → 拾。
+            if 名:
+                步骤.append({"动作": "走到", "p": list(p), "到点": 3.0})
+            步骤.append({"动作": "挖", "p": p, "方块": 名} if 名
+                        else {"动作": "挖", "p": p})
+            if 名:
+                # 挖下来的东西掉地上没人捡 → 下一步「合成木板」报「要工作台」。
+                # 走过去会自动吸附，再补一步「拾」兜底。
+                步骤.append({"动作": "拾", "物品": 挖了掉什么(名), "数量": 1})
             continue
 
         if 动 == "放":
@@ -228,12 +457,21 @@ def 落坐标(计划, 状态):
             if 位 is None:
                 缺.append(f"放 {步.get('方块')}：状态帧里没有我自己的坐标")
                 continue
-            # ⚠ 手侧的 放() 要求**目标格是空气**（它再挑一个实心邻面当参考）。
-            #   「我自己站的那格」是我唯一**确定**是空气的位置，
-            #   所以先放这儿 —— 实机可能要挪一格，那属于现场校准。
-            步骤.append({"动作": "放", "p": 位, "方块": 步.get("方块")})
+            # ★★ 2026-10-07 实机翻车 + 主人一句点醒：
+            #   原来放「我自己站的那格」—— 可 MC 不许把方块放在自己占着的那格上。
+            #   改成**问雷达**：身边 4 格哪格是 air 就放哪格。
+            空, 没读数 = 身边空位(状态, 位)
+            if 空:
+                放位 = 空[0]
+            elif 没读数:
+                return None, (f"雷达还没盯我身边那 {len(没读数)} 格"
+                              f"（放{步.get('方块')}要先知道旁边哪格是空的）")
+            else:
+                放位 = [位[0] + 1, 位[1], 位[2]]      # 四周全堵着 → 先挖开一格
+                步骤.append({"动作": "挖", "p": list(放位)})
+            步骤.append({"动作": "放", "p": 放位, "方块": 步.get("方块")})
             if "furnace" in str(步.get("方块") or ""):
-                炉位 = list(位)
+                炉位 = list(放位)
             continue
 
         if 动 in ("烧炼", "高炉"):
@@ -383,7 +621,7 @@ def 清探索(目标方块=None):
 #
 #   ★ 挖到空气也无所谓：手侧会回「那里是空气」，而主链的完成判据是
 #     「那一格现在是空气了吗」—— 本来就是空气，直接算完成。不会卡。
-每趟爬几格 = 6
+每趟爬几格 = 3
 
 
 def 找镐子(背包):
@@ -410,13 +648,23 @@ def 安排一趟挖上去(状态, 背包, 方向=(1, 0)):
     dx, dz = 方向
 
     步骤 = []
-    for i in range(每趟爬几格):
-        x = x0 + dx * (i + 1)
-        y = y0 + i
-        z = z0 + dz * (i + 1)
-        步骤.append({"动作": "挖", "p": [x, y + 1, z]})      # 前方头部
-        步骤.append({"动作": "挖", "p": [x, y + 2, z]})      # 再上一格
-        步骤.append({"动作": "走到", "p": [x, y + 1, z], "到点": 1.5})
+    # ⓪ 先把自己站的地方头顶清空 —— 不然它窝在 1 格高的缝里，**跳都跳不起来**。
+    #    （主人 2026-10-07：「阶梯得两格高他才能跳上去啊」）
+    步骤.append({"动作": "挖", "p": [x0, y0 + 2, z0]})
+
+    # ★★ 实测第二个坑：**它原地根本没动**。主链到达判据只看「水平 ≤ 到点」，
+    #   目标只在前方 1 格时它站原地就判「到了」→ 下一步「挖」先把腿打断 → 迈不出去。
+    #   所以：目标放到前方 **2 格**，到点收紧到 **1.0**，逼它真迈出去。
+    列数 = 每趟爬几格 * 2
+    每列挖几格 = 3          # 站上去以后头上足 2 格
+    for k in range(1, 列数 + 1):
+        x = x0 + dx * k
+        z = z0 + dz * k
+        y = y0 + k // 2
+        for 层 in range(每列挖几格):
+            步骤.append({"动作": "挖", "p": [x, y + 层, z]})
+        if k % 2 == 0:                                   # 每 2 格走一步（斜坡）
+            步骤.append({"动作": "走到", "p": [x, y, z], "到点": 1.0})
     return 步骤, (f"前面被石头挡着，我手里有{镐} —— "
                 f"干脆**挖一条阶梯往上爬**（{每趟爬几格} 格台阶），出去就见天了")
 
@@ -500,6 +748,71 @@ def 安排一趟探索(目标方块, 状态, 缺的方块名, 背包=None):
 }
 
 
+造词 = ("造", "做", "来一", "来把", "来个", "要一", "要个", "要块", "给我", "弄一",
+        "搞一", "整一", "撸一", "砍一", "挖一", "准备", "备一")
+_物品表 = {}
+_上次原话 = {"说话人": None, "原话": "", "时刻": 0.0}
+
+
+地表特征词 = ("_log", "_leaves", "grass_block", "sand", "sandstone", "sugar_cane",
+            "bamboo", "water", "lily_pad", "kelp", "seagrass", "vine", "cocoa",
+            "snow", "ice", "clay", "pumpkin", "melon", "mushroom", "dandelion",
+            "poppy", "flower", "sapling", "moss", "grass")
+上地表词 = ("上地表", "上去", "挖上去", "回到地面", "爬上去", "上地面", "surface", "up")
+
+
+def 像在地下(状态):
+    """附近一个地表特征方块都没有 → 那就当它在地底下。"""
+    for 条 in ((状态 or {}).get("scan", {}).get("方块") or []):
+        if any(词 in str(条.get("name", "")) for 词 in 地表特征词):
+            return False
+    return True
+
+
+def 要上地表(目标):
+    return isinstance(目标, str) and 目标.strip() in 上地表词
+
+
+def 认物品(原, 表):
+    """从一句中文里认出物品名。**取最长匹配** —— 否则「石」会把「石镐」顶掉。"""
+    候 = [(str(k), v) for k, v in (表 or {}).items() if k and str(k) in 原]
+    if not 候:
+        return None
+    候.sort(key=lambda kv: -len(kv[0]))
+    return 候[0][1]
+
+
+def _名字表():
+    """中文名 → 物品 id。优先用车钩给的「数」，拿不到就自己 import 外置数据。"""
+    global _物品表
+    if _物品表:
+        return _物品表
+    try:
+        import importlib
+        m = importlib.import_module("数据")
+        _物品表 = dict((m.载入() or {}).get("物品映射") or {})
+    except Exception:
+        _物品表 = {}
+    return _物品表
+
+
+def 认口令(最久前=90.0):
+    """主人刚说的话里有没有「造 XX / 做 XX / 给我来个 XX」→ 直接给物品名。
+
+    ★ 聊天那条路上大模型**十次有九次只回白话**，一个 `意图` 字段都不吐 ——
+      光答应不干活。这里本地直接接单。
+    """
+    原 = str(_上次原话.get("原话") or "").strip()
+    if not 原:
+        return None
+    if time.time() - float(_上次原话.get("时刻") or 0) > 最久前:
+        return None
+    if not any(w in 原 for w in 造词):
+        return None
+    表 = _名字表()
+    return 认物品(原, 表) if 表 else None
+
+
 def 认意图(解析):
     """从模型输出里认出「这是一个意图」。不是意图就返回 None。"""
     if not isinstance(解析, dict):
@@ -518,8 +831,15 @@ def 认意图(解析):
 
 # ══════════════════════════ 装上 / 卸下 ══════════════════════════
 
-def 装上(bridge, 开关=True, 车钩=None, 日志=None):
-    global _已装, _主链, _记
+def 装上(bridge, 开关=True, 车钩=None, 日志=None, 数=None):
+    global _已装, _主链, _记, _物品表
+    if 数 is not None:
+        try:
+            # ⚠ 车钩的「数」是**外置数据字典**，不是函数 —— 第一版当函数调，静默拿到空表
+            _物品表 = dict((数.get("物品映射") if isinstance(数, dict)
+                            else 数("物品映射", {})) or {})
+        except Exception:
+            _物品表 = {}
     if not 开关:
         return {"好": False, "打了": [],
                 "为什么": "开关关着 —— 一个补丁都不打（行为与基线逐字节相同）"}
@@ -544,7 +864,12 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
         动作, 任务, 原因 = _原["收输出"](self, 文本, s, 用途=用途)
         # ★ 老路子**成了**就原样放行 —— 一个字不动
         #   （任务书、单步动作都走这条，宪法检查、字段体检全在里头）
-        if 任务 is not None or 动作 is not None:
+        # ★★ 两道门的第一道：实测聊天路上大模型只回白话，主链把它包成
+        #   `{"act":"say","text":"石镐！好耶…"}`，于是「有事儿就放行」把本地兜底
+        #   又一次挡在门外 —— 主人只看得见它答应，看不见它干活。
+        #   规矩：**主人的明确造物口令 > 它自己的闲聊**。
+        抢 = 认口令() if 用途 == "闲聊" else None
+        if not 抢 and (任务 is not None or 动作 is not None):
             return 动作, 任务, 原因
         # ★ 老路子**没成**，才轮到问一句：它是「意图」吗？
         #   （第一版写成「有理由就早退」，于是意图被那句
@@ -554,13 +879,16 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
         # ★ 走这儿 = 模型给的不是任务书、也不是单步动作 —— 那它是不是「意图」？
         import json as _json
         原文 = str(文本 or "").strip()
-        if not (原文.startswith("{") and 原文.endswith("}")):
-            return 动作, 任务, 原因
-        try:
-            解析 = _json.loads(原文)
-        except Exception:
-            return 动作, 任务, 原因
-        目标 = 认意图(解析)
+        # ★★ 第二道门：原来「不是 JSON 就直接 return」，兜底压根没机会开口。
+        #   两条路都走：① JSON → 认 `意图`；② 白话 → 从主人的原话里认出「造 XX」。
+        if 原文.startswith("{") and 原文.endswith("}"):
+            try:
+                解析 = _json.loads(原文)
+            except Exception:
+                解析 = None
+        else:
+            解析 = None
+        目标 = (认意图(解析) if 解析 is not None else None) or 抢
         if not 目标:
             return 动作, 任务, 原因
         记箱子(s)          # 顺手把见到的箱子记下来（物资闭环要用）
@@ -569,6 +897,30 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
         _说(f"生存常识：接到意图「要 {目标}」—— 本地推演，不请示大模型")
         import 求解器
         背 = _背包(s)
+        # ★★ 2026-10-07 主人：「先让他上地表」。
+        #   它手上有镐子、又困在石头底下 → 站在那儿重复"我已经有了"没意义，
+        #   不如**挖条阶梯往上爬**。
+        记箱子(s)
+        想要上地表 = 要上地表(目标)
+        已经有 = ((not 想要上地表) and 背.get(目标, 0) > 0 and 像在地下(s))
+        _报(f"[探针-分支] 目标={目标!r} 想要上地表={想要上地表} 已经有={已经有} "
+            f"｜ 地下={像在地下(s)} ｜ 背包={背}")
+        if 想要上地表 or 已经有:
+            _报("[探针-分支] ★ 走的是「上地表/已经有」这一支")
+            爬, 说 = 安排一趟挖上去(s, 背)
+            if 爬:
+                统计["挖阶梯"] = 统计.get("挖阶梯", 0) + 1
+                if 已经有:
+                    说 = (f"我手上已经有「{目标}」了（{背.get(目标)} 个）—— "
+                        f"而且我在石头底下，先挖条阶梯上地表")
+                _说(f"生存常识：{说}")
+                try:
+                    self.说(f"[{time.strftime('%H:%M')}] {说}", 紧急=True)
+                except Exception:
+                    pass
+                _记账(self, 用途, 目标, 说)
+                return None, {"名字": "常识：挖阶梯上地表", "为什么": 说,
+                             "步骤": 爬}, None
         if not 背:
             # 看不见背包 → 顺手让手侧盯上全量（下一拍就有了）
             实例 = None
@@ -577,6 +929,15 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
                 实例 = 活[0] if 活 else None
             if _盯背包(实例):
                 _说("生存常识：看不见背包，已经让手侧盯上全量了（下一拍再看）")
+            # ★★★ 2026-10-08 实机：它嘴上说「下一拍再看」，**可压根没等** ——
+            #   接着就拿这个"空背包"去推演了 ✗ 求解器以为它一无所有，
+            #   于是走「出去找」，最后拐去「挖阶梯上地表」（实机日志就是这么写的）。
+            #   规矩：**看不见背包就不许规划**，跟「扫描太旧不许规划」同一个道理。
+            #   ⚠ 但要分得清「看不见」（根本没有 items 这个键）和「真的空」（items 是 {}）——
+            #     从零起步时背包本来就是空的，那时候必须照常干活，不许死锁。
+            if not isinstance((s or {}).get("items"), dict):
+                return None, None, "看不见背包，先等手侧把全量盯上"
+            _说("生存常识：背包是空的（但**看得见**）—— 照常推演")
         r = 求解器.求解(目标, 1, 背包=背, 方块在哪=可用方块(s))
 
         # ★ 手上有就不用干了 —— 但得**说清楚**，不能交一份空计划下去
@@ -604,6 +965,13 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
         步骤, 因 = 落坐标(r["计划"], s)
         if 步骤 is None:
             统计["定位失败"] += 1
+            记账因 = 因
+            if "雷达还没盯" in str(因):
+                空, 没读数 = 身边空位(s)
+                if 没读数 and _盯方块(_活着任务栈(), 没读数):
+                    统计["指雷达"] = 统计.get("指雷达", 0) + 1
+                    记账因 = f"{因}（已把雷达指过去）"
+                return None, None, 记账因
             _记账(self, 用途, 目标, 因)
             # ★★ 如果卡的是「周围压根没有某个方块」—— 别站那儿干等，
             #    **自己出门找**。按心跳一趟一趟走，边走边等新扫描。
@@ -622,10 +990,22 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
                     _记账(self, 用途, 目标, 说明)
                     return None, {"名字": f"常识：出去找 {目标}",
                                  "为什么": 说明, "步骤": 探}, None
+            _记账(self, 用途, 目标, 因)      # ★ 我上一版把记日志弄丢了，补回来
             _说(f"生存常识：推演出来了，但定位不到目标 —— {因}")
             self.说(f"[{time.strftime('%H:%M')}] 我知道怎么做「{目标}」，"
                     f"可我看不见要挖的东西：{因}", 紧急=True)
             return None, None, f"定位不到：{因}"
+
+        # ★★★ 兜底闸：数据还是太旧就**宁可不规划**。
+        #   规划出一串陈坐标 = 挖错东西却"顺利"完成，比不干活更坏（T1/T2 同理）。
+        旧秒 = _扫描多旧(s)
+        if 旧秒 is not None and 旧秒 > 90.0:
+            三 = _活三觉()
+            if 三 is not None:
+                三.要扫描()
+            _说(f"生存常识：这份扫描已经 {旧秒:.0f} 秒了，坐标不敢信 —— "
+                f"刚要了一份新的，下一拍再推演")
+            return None, None, f"扫描太旧（{旧秒:.0f} 秒），先要新的"
 
         # ★★ 到**这一步**才算真成了，才清探索的账。
         #    原来写在「推演成功」那一刻 —— 可推演成功 ≠ 坐标解析成功，
@@ -643,6 +1023,13 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
                 _说(f"生存常识：顺路把「{目标}」带回家放进箱子")
             elif 为啥:
                 _说(f"生存常识：{为啥}")
+        # ★ 主人 2026-10-07：「最后的石镐要扔出来给我」。
+        #   只对**主人亲口下的令**加这一步（心跳自己找的活不加，免得乱丢东西）。
+        if 抢:
+            谁 = str(_上次原话.get("说话人") or "")
+            步骤.append({"动作": "给", "物品": str(目标), "数量": 1, "谁": 谁})
+            _说(f"生存常识：做好之后把「{目标}」递给 {谁 or '主人'}")
+            _上次原话["原话"] = ""          # 一句令只接一次，别反复接单
         _说(f"生存常识：推演出 {len(步骤)} 步")
         for i, 步 in enumerate(步骤, 1):
             _说(f"  {i:2d}. {步.get('动作')} {步.get('物品') or 步.get('块') or 步.get('p')}")
@@ -650,6 +1037,72 @@ def 装上(bridge, 开关=True, 车钩=None, 日志=None):
                      "步骤": 步骤}, None
 
     # 类属性？不 —— `bridge.翻译器` 拿到的是**类本身**
+    # ★★ 指挥层记原话：大模型在聊天路上只回白话，兜底要用主人原话；
+    #   `组Prompt` 那条路压根没把原话带过来（第一版就是这么静默失效的）。
+    #   **指令层百分百看得见原话** —— 在这儿记一笔最稳。
+    指 = getattr(bridge, "指令层", None)
+    原解析 = getattr(指, "解析", None) if 指 is not None else None
+    if callable(原解析):
+        def 新解析(self, 说话人, 原文=""):
+            try:
+                if 原文 and 说话人:
+                    _上次原话["说话人"] = str(说话人)
+                    _上次原话["原话"] = str(原文)
+                    _上次原话["时刻"] = time.time()
+            except Exception:
+                pass
+            return 原解析(self, 说话人, 原文)
+
+        指.解析 = 新解析
+
+    # ★★ 包一层 `任务栈._下发`：
+    #   ① 「放」要**指名放哪样** —— 主链不带方块名，手侧就"随便挑一个方块"
+    #      （实机挑了 dirt），而完成判据是「那格变成 `方块` 了没」→ 永远对不上。
+    #   ② 「拾」由我们接管 —— 绕过主链那套"站着等吸附"，改成**绕着掉落物走**。
+    _栈 = getattr(bridge, "任务栈", None)
+    if _栈 is not None and callable(getattr(_栈, "_下发", None)):
+        _原下发[id(_栈)] = _栈._下发
+
+        def 新下发(self, 步, 任, 现在, s):
+            if 步.get("动作") == "拾":
+                圈 = _拾方位(self, 任, 现在, s, 步)
+                if 圈 is not None:
+                    return 圈
+            # （挖坐标的「以当帧为准」搬去挖空守卫了 —— 那道「别挥空镐」的闸在更外层，
+            #   在这儿改写根本轮不到。）
+            if 步.get("动作") == "放" and 步.get("方块"):
+                p = 步.get("p")
+                if isinstance(p, (list, tuple)) and len(p) >= 3:
+                    self.发({"cmd": "place",
+                             "p": [float(v) for v in p[:3]],
+                             "item": str(步.get("方块"))})
+                    self.上次下发 = 现在
+                    return True
+            return _原下发[id(_栈)](self, 步, 任, 现在, s)
+
+        _栈._下发 = 新下发
+
+    # ★★ 材料不够 → **立刻失败**（不是傻等 60 秒）——跟挖的陈坐标同一套道理
+    原超时 = getattr(_栈, "_这步超时", None) if _栈 is not None else None
+    if callable(原超时):
+        _原超时[id(_栈)] = 原超时
+
+        def 新超时(self, 步):
+            基 = 原超时(self, 步)
+            try:
+                if 步.get("动作") == "合成" and 步.get("物品"):
+                    任 = self.任务 if isinstance(getattr(self, "任务", None), dict) else {}
+                    缺 = 任.get("_料不够_" + str(步.get("物品")))
+                    if 缺:
+                        _报(f"★ 合成「{步.get('物品')}」料不够（缺 {缺}）—— "
+                            f"不干等 {float(基) / 1000:.0f} 秒，立刻报失败")
+                        return 0.5
+            except Exception:
+                pass
+            return 基
+
+        _栈._这步超时 = 新超时
+
     译.收输出 = 新收输出
     打 = ["翻译器.收输出()  ← 认得「意图」，本地推演成步骤表"]
     t = _补盯背包(bridge)
@@ -724,6 +1177,26 @@ def _补盯背包(bridge):
     栈类 = getattr(bridge, "任务栈", None)
     if 栈类 is None or not callable(getattr(栈类, "_撤探针", None)):
         return None
+    # ★★★ 2026-10-08 实机总根（背包那一半）：
+    #   手侧的 `watch_items` 是「**最后发的那个说了算**」—— 主链接单时发的是
+    #   「只盯 oak_log」（任务里 拾 那步要的），把车厢的 `["*"]`（全量）**覆盖掉了** ✗
+    #   于是背包快照只有 `{oak_log: 0}` → 车厢过滤掉 0 → **空背包** →
+    #   求解器以为它一无所有 → 走「出去找」→ 拐去「挖阶梯上地表」。
+    #   规矩：**每次挂探针都顺手把全量 `*` 补上**（后发的说了算，那就最后发）。
+    if callable(getattr(栈类, "_挂探针", None)):
+        _原["_挂探针"] = 栈类._挂探针
+
+        def 新挂探针(self, 步骤, s):
+            r = _原["_挂探针"](self, 步骤, s)
+            try:
+                self.发({"cmd": "watch_items", "list": ["*"]})
+            except Exception as e:
+                _报(f"补盯全量背包没发出去：{e}")
+            return r
+
+        栈类._挂探针 = 新挂探针
+        _报("挂探针包壳装上了：接单时会把背包全量补盯上（不然主链只盯任务要的那几样）")
+
     _原["_撤探针"] = 栈类._撤探针
 
     def 新撤探针(self):
@@ -748,8 +1221,12 @@ def 卸下(bridge):
         if "组Prompt" in _原:
             译.组Prompt = _原["组Prompt"]
     栈 = getattr(bridge, "任务栈", None)
+    if 栈 is not None and id(栈) in _原下发:
+        栈._下发 = _原下发.pop(id(栈))
     if 栈 is not None and "_撤探针" in _原:
         栈._撤探针 = _原["_撤探针"]
+    if 栈 is not None and "_挂探针" in _原:
+        栈._挂探针 = _原["_挂探针"]
     _原.clear()
     _原组.clear()
     清探索()
@@ -859,6 +1336,19 @@ def _装提示词(bridge):
     _原组["组Prompt"] = 译.组Prompt
 
     def 新组Prompt(self, s, 用途="翻译", 任务状况="没有任务", 说话人=None, 原话=None):
+        # ★★★ 2026-10-08 实机总根：手侧的扫描是**缓存的**，
+        #   而大脑只在它超过 180 秒时才要新的 → 计划建在**最多 3 分钟前**的坐标上，
+        #   树早被砍光了它还在挖老地方（实测：计划挖 oak_log，挖回来 6 个 dirt）。
+        #   手侧那一刀：**在这里提前要**。组 Prompt 到收输出之间隔着一次大模型往返
+        #   （2~10 秒），新扫描正好在这段时间里到货 —— 收输出拿到的是新鲜数据。
+        try:
+            旧 = _扫描多旧(s)
+            if 旧 is not None and 旧 > 2.0:
+                三 = _活三觉()
+                if 三 is not None and 三.要扫描():
+                    _报(f"扫描已经 {旧:.0f} 秒没更新了 —— 先要一份新的再规划")
+        except Exception as e:
+            _报(f"要扫描时出岔子（不影响主链）：{e}")
         文 = _原组["组Prompt"](self, s, 用途=用途, 任务状况=任务状况,
                              说话人=说话人, 原话=原话)
         if not isinstance(文, str):

@@ -490,6 +490,15 @@ function 扫环境(半径, 步长) {
     // 方块统计（抽样）
     const 计 = {}, 有意思 = [], 险 = [];
     const 地面计 = {};
+    // ★★ 2026-10-07：石头类**不在**「兴趣方块」名单里，所以它站在草地上
+    //   就找不到石头的坐标，求解器只好去挑「黑石」（下界的东西，实例里压根没有）。
+    //   这里单独给它一个最近的坐标 —— **不占「可交互」那 6 个名额**，
+    //   免得石头把箱子、矿石挤出去。
+    // ⚠ 只留「挖了真能当镐子料」的：原版 `#stone_tool_materials` 这一家。
+    //   花岗岩/安山岩挖了只掉自己，不算数 —— 别把它们混进来误导求解器。
+    const 石头家 = new Set(['stone', 'cobblestone', 'deepslate', 'cobbled_deepslate',
+      'blackstone', 'cobbled_deepslate']);
+    let 石头位 = null, 石头距 = Infinity;
     for (let dx = -半径; dx <= 半径; dx += 步长) {
       // ⚠ 只看"脚上下这几格"：原来 dy 从 -3 到 5 一路抽，结果整屏都是地下石头，
       // 摘要里除了 stone 什么都看不见（实测）。地面那层（dy=-1）**单独统计**，
@@ -502,6 +511,13 @@ function 扫环境(半径, 步长) {
           计[b.name] = (计[b.name] || 0) + 1;
           if (危险方块.has(b.name) && 险.length < 4) {
             险.push({ name: b.name, p: [Math.round(p.x + dx), Math.round(p.y + dy), Math.round(p.z + dz)] });
+          }
+          if (石头家.has(b.name)) {
+            const d2 = dx * dx + dz * dz;
+            if (d2 < 石头距) {
+              石头距 = d2;
+              石头位 = { name: b.name, p: [Math.round(p.x + dx), Math.round(p.y + dy), Math.round(p.z + dz)] };
+            }
           }
           if (兴趣方块.has(b.name) && 有意思.length < 6) {
             有意思.push({ name: b.name, p: [Math.round(p.x + dx), Math.round(p.y + dy), Math.round(p.z + dz)] });
@@ -524,6 +540,26 @@ function 扫环境(半径, 步长) {
       出.地面 = 排行.length ? 排行[0][0] : null;
     } catch (e) { 出.地面 = null; }
     出.可交互 = 有意思;
+    // ★★ 2026-10-08 实机：它站在**草地**上，而上面那圈只抽 dy=0..2（脚上下三格）——
+    //   **脚下那层石头压根没被看到** ✗ 于是求解器找不到石头、走「出去找」，
+    //   还拐去「挖阶梯上地表」。石头单开一路，**连脚下一层一起抽**。
+    try {
+      for (let dy = -3; dy <= 0; dy += 1) {
+        for (let dx = -半径; dx <= 半径; dx += 步长) {
+          for (let dz = -半径; dz <= 半径; dz += 步长) {
+            const b2 = bot.blockAt(p.offset(dx, dy, dz));
+            if (!b2 || !石头家.has(b2.name)) continue;
+            const d2 = dx * dx + dz * dz + dy * dy * 4;
+            if (d2 < 石头距) {
+              石头距 = d2;
+              石头位 = { name: b2.name,
+                         p: [Math.round(p.x + dx), Math.round(p.y + dy), Math.round(p.z + dz)] };
+            }
+          }
+        }
+      }
+    } catch (e) { /* 找不到就算了，别影响别的 */ }
+    出.石头 = 石头位;          // ★ 最近的一块石头类方块（给"挖石头"用坐标）
     出.危险 = 险;
 
     // 实体（复用同一份 entities，限量）

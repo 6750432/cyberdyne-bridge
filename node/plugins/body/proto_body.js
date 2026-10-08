@@ -27,7 +27,7 @@ try { Vec3 = require('vec3').Vec3; } catch (e) { Vec3 = null; }
 
 const 能力表 = ['sneak', 'jump', 'jumpattack', 'swimdown',
                 'dig', 'place', 'craft', 'use', 'furnace_put', 'furnace_take',
-                'chest_take', 'chest_put'];
+                'chest_take', 'chest_put', '递'];
 
 /* 绝对坐标 → Vec3。优先用 vec3，取不到就用一个相对偏移凑一个出来
  * （bot.entity.position 本身就是 Vec3，offset 出来的也是） */
@@ -55,7 +55,12 @@ const 不许挖 = new Set([
 /* ★ M4c 补丁①：方块 → 需要哪一类工具。只列"不给工具就挖不动"的 ——
  * 石头系（含矿、砖、混凝土…）必须有镐子，不然挖了也不掉东西；
  * 木头/泥土/沙子徒手能挖，所以不列（不拦）。 */
-const 石头系 = /(_ore|stone|deepslate|cobblestone|bricks|concrete|obsidian|netherrack|furnace|anvil|terracotta|sandstone|prismarine|basalt|blackstone|tuff|calcite|dripstone|quartz|_block$)/;
+// ⚠⚠ 2026-10-07 实机翻车：原来是 `...|_block$`，**`grass_block` 也落网** ——
+//   于是它「手里没有镐子，挖不了 grass_block」，站在草地上啥也挖不动。
+//   `_block$` 本意是管 iron_block / coal_block 那种真要用镐的，
+//   但它顺手把 snow_block、hay_block、melon 这些无辜的也抓了。
+//   改成点名那几个真·矿物块。
+const 石头系 = /(_ore|stone|deepslate|cobblestone|bricks|concrete|obsidian|netherrack|furnace|anvil|terracotta|sandstone|prismarine|basalt|blackstone|tuff|calcite|dripstone|quartz|(iron|gold|diamond|emerald|coal|copper|lapis|redstone|netherite|amethyst|raw_iron|raw_gold|raw_copper)_block)/;
 function 该用什么工具(名) {
   if (石头系.test(名) && !/leaves|wool|_log|_wood/.test(名)) return 'pickaxe';
   return null;
@@ -222,6 +227,15 @@ async function 挖(bot, a) {
    * 实测事故：它"手里攥着煤在挖石头" —— equipForBlock 静默失败，然后硬挖被服务端中止，
    * 表现是 `Digging aborted` 刷屏、任务永远超时。
    * 规矩：**挖之前先查有没有对应的工具；没有就直接拒，绝不硬上**。 */
+  try {
+    // ★ 2026-10-08 探针：实机报「我手里没有镐子，挖不了 stone」，可背包里**确实有**
+    //   wooden_pickaxe —— 得看清到底走的是哪一支。
+    const _包 = bot.inventory.items().map((i) => i.name);
+    console.log(`[探针-挖] 目标=${块.name} ｜ 背包共 ${_包.length} 种：`
+      + `${_包.join('、') || '（空）'} ｜ 手上=${bot.heldItem ? bot.heldItem.name : '空的'}`
+      + ` ｜ 要的工具=${该用什么工具(块.name) || '不用'}`);
+  } catch (e) { /* 探针绝不许影响功能 */ }
+
   const 要 = 该用什么工具(块.name);
   if (要) {
     const 手 = bot.inventory.items().filter((i) => 是这类工具(i.name, 要));
@@ -344,6 +358,43 @@ async function 使用(bot, a) {
   return { ok: true, 用了: 块.name, 距离: Number(距离.toFixed(2)) };
 }
 
+/* ══════════════ 递东西（2026-10-07 主人：「让他学会分我点吃的」）══════════════
+ * 把背包里的东西**丢给对方**。先转向他再丢 —— 不然会丢到自己背后去，白瞎。
+ * 零新依赖：mineflayer 自带 bot.toss(type, metadata, count)。
+ * ⚠ 别自作聪明改成"塞进对方背包" —— 那需要对方是实体交互，跨版本不稳；
+ *   丢在地上让他捡，是最稳、也最像"人"的做法。
+ */
+async function 递东西(bot, 参数) {
+  const 名 = String(参数.物品 || 参数.name || 参数.id || '');
+  const 数 = 钳(Number(参数.数量 != null ? 参数.数量 : 1), 1, 64, 1);
+  const 谁 = 参数.谁 ? String(参数.谁) : null;
+
+  let 堆 = bot.inventory.items();
+  if (名) 堆 = 堆.filter((i) => i.name === 名);
+  if (!堆.length) {
+    return { ok: false, why: 名 ? `我包里没有「${名}」` : '我包是空的', 递了: 0 };
+  }
+  const 件 = 堆.slice().sort((a, b) => b.count - a.count)[0];
+
+  // 先转向对方：有名字就找名字，没名字就找最近的那个玩家
+  try {
+    let 对 = (谁 && bot.players[谁] && bot.players[谁].entity) || null;
+    if (!对) {
+      let 最近 = Infinity;
+      for (const p of Object.values(bot.players)) {
+        if (!p.entity || p.entity === bot.entity) continue;
+        const d = p.entity.position.distanceTo(bot.entity.position);
+        if (d < 最近) { 最近 = d; 对 = p.entity; }
+      }
+    }
+    if (对) await bot.lookAt(对.position.offset(0, 1.4, 0), true);
+  } catch (e) { /* 转不过去也照丢，别因为这个把饭扣下 */ }
+
+  const 丢 = Math.min(数, 件.count);
+  await bot.toss(件.type, 件.metadata != null ? 件.metadata : null, 丢);
+  return { ok: true, 递了: 丢, 物品: 件.name, 对谁: 谁 || '最近的玩家' };
+}
+
 /* ══════════════════════════ 出口 ══════════════════════════ */
 
 const 表 = {
@@ -351,6 +402,7 @@ const 表 = {
   dig: 挖, place: 放, craft: 合成, use: 使用,
   furnace_put: 熔炉放料, furnace_take: 熔炉取成品,
   chest_take: 箱子里取, chest_put: 往箱子里放,
+  递: 递东西,
 };
 
 /* ══════════════════════════ 熔炉（M4c）══════════════════════════
