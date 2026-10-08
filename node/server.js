@@ -1002,12 +1002,14 @@ function 收命令(sock, 行) {
       if (msg.替换 || !来.length) {
         看的方块 = 来.slice(0, 32);
       } else {
-        const 见 = new Set(看的方块.map((p) => p.join(',')));
-        for (const p of 来) {
-          const k = p.join(',');
-          if (!见.has(k)) { 见.add(k); 看的方块.push(p); }
-        }
-        看的方块 = 看的方块.slice(0, 32);
+        // ⚠⚠ 2026-10-08 实机：朴素合并会**一直攒** —— 32 个名额被旧位置占满，
+        //   它一走动，新的"身边四格"就永远挤不进来（车厢报「雷达还没盯我身边那 4 格」
+        //   报了一整轮）✗
+        //   规矩：**新的排最后（最新），旧的从尾巴掉出去**。
+        const 新集 = new Set(来.map((p) => p.join(',')));
+        const 留旧 = 看的方块.filter((p) => !新集.has(p.join(',')));
+        看的方块 = 留旧.concat(来);
+        if (看的方块.length > 32) 看的方块 = 看的方块.slice(看的方块.length - 32);
       }
       回执(sock, 'watch_blocks', true, null, { 盯着: 看的方块.length });
       break;
@@ -1020,7 +1022,11 @@ function 收命令(sock, 行) {
       if (msg.替换 || !来物.length) {
         看的物品 = 来物.slice(0, 32);
       } else {
-        看的物品 = Array.from(new Set(看的物品.concat(来物))).slice(0, 32);
+        // 同上：新的排最后，旧的从尾巴掉出去（免得 `"*"` 被一堆老名字挤没）
+        const 新物集 = new Set(来物);
+        const 留旧物 = 看的物品.filter((x) => !新物集.has(x));
+        看的物品 = 留旧物.concat(来物);
+        if (看的物品.length > 32) 看的物品 = 看的物品.slice(看的物品.length - 32);
       }
       回执(sock, 'watch_items', true, null, { 盯着: 看的物品.length });
       break;
