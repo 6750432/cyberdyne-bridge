@@ -27,6 +27,7 @@ import time
 名字 = "挖空守卫"
 _态表 = {}      # id(任务栈类) → 状态
 _原件 = {}      # id(任务栈类) → 装之前存下的原函数
+_原收输出 = {}  # 装之前那一层 翻译器.收输出（卸下要还回去）
 
 空气名 = ("air", "cave_air", "void_air")
 
@@ -304,6 +305,28 @@ def 装上(bridge, 数=None, 日志=None, **kw):
             pass
         return 基
 
+    # ★★★ 2026-10-08「悄悄早退」专治：
+    #   实机铁证：车厢在「分支探针」之后**再也不打任何日志** ——
+    #   既没「推演出 N 步」也没「定位失败」。真相是它的逻辑**抛了异常**，
+    #   而主链那边有 26 处吞异常（红线，不能改），于是一声不响地没了 ✗
+    #   本车厢**挂得最晚 = 在最外层**，正好在这儿接住：
+    #   谁炸了、炸在哪一行，**带堆栈出声**，绝不静默。
+    译 = getattr(bridge, "翻译器", None)
+    原收输出 = getattr(译, "收输出", None) if 译 is not None else None
+    if callable(原收输出):
+        _原收输出["f"] = 原收输出
+        def 新收输出(self, 文本, s, 用途="翻译"):
+            try:
+                return _原收输出["f"](self, 文本, s, 用途=用途)
+            except Exception as e:
+                import traceback
+                print(f"★★ [挖空守卫] 推演链路上有人炸了（{type(e).__name__}: {e}）"
+                      f" —— **这就是「悄悄早退」的真相**：\n"
+                      f"{traceback.format_exc()}", flush=True)
+                return None, None, f"推演链路炸了：{type(e).__name__}: {e}"
+
+        译.收输出 = 新收输出
+
     栈类._挂探针, 栈类._看完成了没 = _挂探针, _看完成了没
     栈类._下发, 栈类._这步超时 = _下发, _这步超时
     return {"好": True, "为什么": "雷达看门狗上岗：空气不挥、同格不连发、三次就撒手",
@@ -317,6 +340,9 @@ def 卸下(bridge):
         return {"好": True, "为什么": "本来就没装", "打了": []}
     for 名, 函 in 原.items():
         setattr(栈类, 名, 函)
+    译 = getattr(bridge, "翻译器", None)
+    if 译 is not None and _原收输出.get("f") is not None:
+        译.收输出 = _原收输出.pop("f")
     _态表.pop(id(栈类), None)
     return {"好": True, "为什么": "雷达交还给主链，我不看门了", "打了": list(原)}
 
