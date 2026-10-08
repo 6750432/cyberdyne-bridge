@@ -525,6 +525,7 @@ const 危险方块 = new Set(['lava', 'fire', 'magma_block', 'sweet_berry_bush',
  *   规矩：**上报坐标一律 floor，跟 blockAt 对齐**。
  */
 function 扫环境(半径, 步长) {
+  挂声呐();      // 懒挂：有 bot 了就挂一次（挂着就什么都不做）
   const 出 = { t: Date.now() };
   try {
     const p = bot.entity.position;
@@ -635,6 +636,8 @@ function 扫环境(半径, 步长) {
       const 现在 = Date.now();
       出.没了 = 最近没了.filter((x) => 现在 - x.t < 60000).map((x) => x.p);
     } catch (e) { 出.没了 = []; }
+
+    try { 出.声呐 = 声呐窗.slice(-8); } catch (e) { 出.声呐 = []; }   // ★ 最近的动静
 
     出.方块 = Object.entries(计).sort((a, b) => b[1] - a[1]).slice(0, 8)
       .map(([name, count]) => ({ name, count }));
@@ -1355,6 +1358,47 @@ function 装寻路插件() {
 // M4：身体插件（手 + 腿）。规矩和 pathfinder 一模一样：
 // 自己一个目录、自己的 package.json；不在 / 加载炸 → 当没装，命令回退「不认识」。
 let 身体插件 = null;
+
+/* ★★★ 2026-10-08 晚：把「声呐外挂」接进来（主人：「我也觉得值得接」）
+ *   它听的是**动静**（mineflayer 三个声音事件），不是字 —— 跟脑侧那只「耳朵」两回事 ✓
+ *   搬进来的就是 outbox 里那份（K0-K3 验收过的），接口照它自己文档写的用：
+ *     探针.on('urgent', f => …)   要命声即刻
+ *     探针.on('frame',  f => …)   其余合并成帧
+ *   ⚠ 它是**手侧**的东西：声音事件只有手能收到（脑那边没有 bot ✗）
+ */
+let 声呐 = null;
+let 声呐挂过 = false;
+let 最近出口 = null;          // 最近一次来问话的 socket（无人问时往外推事件要用）
+const 声呐窗 = [];            // 攒着最近几条，随状态帧一起报（免得刷屏）
+
+function 挂声呐() {
+  if (声呐挂过 || !bot || !bot.entity) return;
+  try {
+    const { SonarProbe } = require(path.join(ROOT, 'node', 'plugins', 'sonar', 'proto_sonar.js'));
+    声呐 = new SonarProbe({ 站位: [bot.entity.position.x, bot.entity.position.y,
+                                 bot.entity.position.z] });
+    声呐.attach(bot);
+    声呐.on('urgent', (f) => {
+      try {
+        log(`[声呐] ★ ${f && (f.名 || f.名字) || '动静'} —— ${JSON.stringify(f).slice(0, 140)}`);
+        声呐窗.push({ 级别: 'urgent', ...f });
+        if (声呐窗.length > 20) 声呐窗.shift();
+        if (最近出口) send(最近出口, { type: 'event', kind: '声呐', 级别: 'urgent', ...f });
+      } catch (e) { /* 报不出去也不许影响听 */ }
+    });
+    声呐.on('frame', (f) => {
+      try {
+        声呐窗.push({ 级别: 'frame', ...f });
+        if (声呐窗.length > 20) 声呐窗.shift();
+      } catch (e) { /* 无所谓 */ }
+    });
+    if (typeof 声呐.syncFromBot === 'function') 声呐.syncFromBot(bot);
+    声呐挂过 = true;
+    log('[声呐] 挂上了：开始听附近的动静（要命的即刻报，其余合并）');
+  } catch (e) {
+    log(`[声呐] 挂不上：${e.message}`);
+  }
+}
 let 找过身体了 = false;
 
 function 装身体插件() {

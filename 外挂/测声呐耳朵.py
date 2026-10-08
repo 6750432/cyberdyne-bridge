@@ -162,6 +162,18 @@ def 主():
     得5 = 耳.接单(b4, 无状态, {"kind": "chat", "from": "m", "text": "gei wo ge shi gao"})
     试("D3 ★★ 还没有扫描帧 → 说清「等下一拍」，不瞎接", "等下一拍" in str(得5), str(得5))
 
+    # ══════════ E 听动静（声呐报上来的音效）══════════
+    print("── E 组：听动静 ──")
+    叙3 = 假叙事者()
+    得6 = 耳.听动静(叙3, {"级别": "urgent", "名": "zombie", "方位": "后", "距": "10-20"})
+    试("E1 ★★★ 要命的动静 → **当场喊出来**（不是默默记一笔）",
+       任何 if False else any("我听见" in x for x in 叙3.说的话), str(得6) + str(叙3.说的话))
+    试("E2 ★★ 喊的话里有方位和距离（否则听见了也不知道往哪看）",
+       any("后" in x and "10-20" in x for x in 叙3.说的话), str(叙3.说的话))
+    试("E3 普通动静只落账不刷屏", 耳.听动静(叙3, {"级别": "frame", "名": "step"}) is None)
+    试("E4 ★★ 落账文件写上了（logs/声呐.jsonl）",
+       __import__("os").path.exists(__import__("os").path.join(ROOT, "logs", "声呐.jsonl")))
+
     print("\n" + "═" * 62)
     print(f"声呐耳朵车厢：{len(通过)} 过 / {len(失败)} 失败")
     for f in 失败:

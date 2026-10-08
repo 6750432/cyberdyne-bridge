@@ -29,8 +29,12 @@
 · 找不到元件（翻译器/任务栈/认口令）就**什么都不做**，并说清为什么 ✓
 """
 
+import json
+import os
 import sys
 import time
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 _日志 = None
 _原件 = {}
@@ -58,6 +62,48 @@ def _找认口令模块():
                 return m
         except Exception:
             continue
+    return None
+
+
+def 听动静(叙事者, e):
+    """手侧声呐报上来的"动静"（音效）—— 落在 logs/声呐.jsonl，要命的当场喊出来。
+
+    ★ 跟"耳朵"是两件事：耳朵听**字**（聊天口令），这里听**动静**（音效事件）✓
+      主人 2026-10-08 晚：「他现在在自己没事的时候能听见附近的动静了？」
+      —— 手侧声呐（outbox 里那份 K0-K3 验收过的）接上之后，这就成立了 ✓
+    """
+    try:
+        级 = str((e or {}).get("级别") or "")
+        名 = str((e or {}).get("名") or (e or {}).get("名字") or "动静")
+        # ⚠ 键名认多一点：手侧那份声呐用的是它自己的字段名，
+        #   我这边别再"猜一个键" ✗（E2 就是这么挂的：我用「距」，它读「距离/环」）
+        方 = ""
+        for k in ("方位", "方向", "方", "dir", "bearing"):
+            方 = str((e or {}).get(k) or "")
+            if 方:
+                break
+        距 = ""
+        for k in ("距离", "距", "环", "ring", "dist"):
+            距 = (e or {}).get(k) or ""
+            if 距:
+                break
+        位 = (e or {}).get("位置") or (e or {}).get("坐标") or (e or {}).get("p")
+        try:
+            路 = os.path.join(ROOT, "logs", "声呐.jsonl")
+            os.makedirs(os.path.dirname(路), exist_ok=True)
+            with open(路, "a", encoding="utf-8") as f:
+                f.write(json.dumps({"级别": 级, "名": 名, "方位": 方, "距": 距,
+                                    "位": 位, "t": round(time.time(), 3)},
+                                   ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+        if 级 == "urgent":          # 要命的即刻喊；frame 只落账，不刷屏 ✓
+            尾巴 = f"（{方} {距}）".strip("（）") if (方 or 距) else ""
+            叙事者.说(f"[{time.strftime('%H:%M')}] 我听见「{名}」"
+                     + (f" —— {尾巴}" if 尾巴 else "") + "！", 紧急=True)
+            return f"听见动静：{名} {尾巴}"
+    except Exception as ex:
+        print(f"[声呐耳朵] 听动静出岔子（不影响主链）：{ex}", flush=True)
     return None
 
 
@@ -139,6 +185,8 @@ def 装上(bridge, 日志=None, **kw):
     def 看事件(self, e):
         r = 原看事件(self, e)              # ★ 原件先跑完，行为一个字不改
         try:
+            if isinstance(e, dict) and e.get("kind") == "声呐":
+                听动静(self, e)
             if isinstance(e, dict) and e.get("kind") == "chat":
                 说明 = 接单(bridge, self, e)
                 if 说明:
