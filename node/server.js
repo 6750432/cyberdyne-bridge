@@ -493,6 +493,18 @@ const 兴趣方块 = new Set(['crafting_table', 'furnace', 'blast_furnace', 'smo
   'sugar_cane', 'pumpkin', 'melon', 'gravel', 'clay', 'snow', 'ice']);
 const 危险方块 = new Set(['lava', 'fire', 'magma_block', 'sweet_berry_bush', 'cactus', 'powder_snow']);
 
+/* ★★★★ 2026-10-08 **今天所有怪事的同一个总根**：
+ *   查方块用的是 `bot.blockAt(坐标)` —— 它内部**向下取整（floor）**；
+ *   可我们上报坐标时用的却是 `Math.round` ✗
+ *   而玩家的坐标**永远是 *.5**（站在方块正中央）→
+ *     查的是 floor(-168.5) = -169 那一格的方块（橡木 ✓），
+ *     报出去的却是 round(-168.5) = -168（空气 ✗）
+ *   → **每一个「可交互」/「危险」/「石头」坐标都差一格** ✗
+ *   实机铁证：扫描说 oak_log 在 [-168,81,151]，可那格是 air；
+ *             真橡木在 [-169,81,150]（查对了、报歪了）。
+ *   这就是「挖回来 6 个 dirt」「陈坐标」「石头对不上」的总根。
+ *   规矩：**上报坐标一律 floor，跟 blockAt 对齐**。
+ */
 function 扫环境(半径, 步长) {
   const 出 = { t: Date.now() };
   try {
@@ -538,17 +550,17 @@ function 扫环境(半径, 步长) {
           if (!b || b.name === 'air' || b.name === 'cave_air' || b.name === 'void_air') continue;
           计[b.name] = (计[b.name] || 0) + 1;
           if (危险方块.has(b.name) && 险.length < 4) {
-            险.push({ name: b.name, p: [Math.round(p.x + dx), Math.round(p.y + dy), Math.round(p.z + dz)] });
+            险.push({ name: b.name, p: [Math.floor(p.x + dx), Math.floor(p.y + dy), Math.floor(p.z + dz)] });
           }
           if (石头家.has(b.name)) {
             const d2 = dx * dx + dz * dz;
             if (d2 < 石头距) {
               石头距 = d2;
-              石头位 = { name: b.name, p: [Math.round(p.x + dx), Math.round(p.y + dy), Math.round(p.z + dz)] };
+              石头位 = { name: b.name, p: [Math.floor(p.x + dx), Math.floor(p.y + dy), Math.floor(p.z + dz)] };
             }
           }
           if (兴趣方块.has(b.name) && 有意思.length < 6) {
-            有意思.push({ name: b.name, p: [Math.round(p.x + dx), Math.round(p.y + dy), Math.round(p.z + dz)] });
+            有意思.push({ name: b.name, p: [Math.floor(p.x + dx), Math.floor(p.y + dy), Math.floor(p.z + dz)] });
           }
         }
       }
@@ -581,7 +593,7 @@ function 扫环境(半径, 步长) {
             if (d2 < 石头距) {
               石头距 = d2;
               石头位 = { name: b2.name,
-                         p: [Math.round(p.x + dx), Math.round(p.y + dy), Math.round(p.z + dz)] };
+                         p: [Math.floor(p.x + dx), Math.floor(p.y + dy), Math.floor(p.z + dz)] };
             }
           }
         }
@@ -604,7 +616,7 @@ function 扫环境(半径, 步长) {
     实体.sort((a, b) => a.dist - b.dist);
     出.实体 = 实体.slice(0, 10);
     出.实体总数 = 实体.length;
-    出.我 = [Math.round(p.x), Math.round(p.y), Math.round(p.z)];
+    出.我 = [Math.floor(p.x), Math.floor(p.y), Math.floor(p.z)];
   } catch (e) {
     出.出错 = e.message;
   }
