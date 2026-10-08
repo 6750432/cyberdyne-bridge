@@ -226,6 +226,63 @@ def 出计划(状态, 想要=None, 我=None):
     return 步, 块["为什么"]
 
 
+def 扫到过(状态):
+    """当帧雷达里**确实有**的 (方块名, 坐标) 集合 —— 用来判"这一步的陈没陈"。"""
+    有 = set()
+    try:
+        扫 = (状态 or {}).get("scan") or {}
+        for k in ("可交互", "石头"):
+            v = 扫.get(k)
+            for 条 in (v if isinstance(v, list) else ([v] if isinstance(v, dict) else [])):
+                if isinstance(条, dict) and 条.get("name") and isinstance(条.get("p"), (list, tuple)):
+                    有.add((str(条["name"]), tuple(int(x) for x in 条["p"][:3])))
+        for 条 in (状态 or {}).get("blocks") or []:
+            if isinstance(条, dict) and 条.get("name") and isinstance(条.get("p"), (list, tuple)):
+                有.add((str(条["name"]), tuple(int(x) for x in 条["p"][:3])))
+    except Exception:
+        pass
+    return 有
+
+
+def 补陈坐标(状态, 任):
+    """★★★ 2026-10-08 晚，主人的火气换来的：**有实时雷达，就不许拿着陈坐标往下推。**
+
+    实机（他亲眼所见）：计划里的「挖 oak_leaves@[-151,75,158]」那一格**早就没了**，
+    守卫原话「当帧扫描里压根没有「oak_leaves」——这个坐标是陈的，我不挥」，
+    于是它站在那儿每 200ms 重下、15 分钟 3150 次、60 秒超时、「干不了了」。
+
+    规矩：计划里每个「挖」步骤，都拿**当帧雷达**对一遍 ——
+      · 坐标还在、方块名还对 ✓ → 一个字不动
+      · 已经不是那个方块 / 压根不在扫描里 ✗ → 拿**方块名重新查一次雷达**
+        （手边 → 本区块 → 隔壁区块）→ 查到就把整步的坐标换成新的 ✓
+        查不到 → 把这步标 `跳过`（宁可不干，也别对着空气挥 ✗）
+    返回 (改了几处, 说明)。
+    """
+    改 = 0
+    说明 = []
+    有 = 扫到过(状态)
+    for 步 in (任 or {}).get("步骤") or []:
+        if 步.get("动作") != "挖":
+            continue
+        名 = 步.get("方块")
+        p = 步.get("p")
+        if not (名 and isinstance(p, (list, tuple)) and len(p) >= 3):
+            continue
+        键 = (str(名), tuple(int(x) for x in p[:3]))
+        if 键 in 有:
+            continue                       # 还是新鲜的 ✓ 不动
+        块 = 挑块(状态, 名)                 # ★ 重新查雷达（这就是"实时"）
+        if 块:
+            步["p"] = list(块["p"])
+            改 += 1
+            说明.append(f"{名} 的坐标换成 {list(块['p'])}（{块['层级']}）")
+        else:
+            步["跳过"] = True
+            改 += 1
+            说明.append(f"{名} 现在扫过的地方都没有 → 这步标作废，不挥空镐")
+    return 改, "；".join(说明[:3])
+
+
 def 报个话(bridge=None):
     """给探针/自检看的一张小账。"""
     return {"区块数": len(_已知区块), "方块种数": sum(len(v) for v in _记忆.values()),
@@ -250,7 +307,16 @@ def 装上(bridge, 日志=None, **kw):
     def 收输出(self, 输出, 状态, 用途=None, *a, **k):
         _记(状态)                      # ★ 每一拍都喂内存 —— 这就是本地 RAG 的养料
         动作, 任, 因 = 原(self, 输出, 状态, 用途, *a, **k)
-        # ★ 只在**别人都定位不到**的时候才出手（顺序 90 = 最外层，所以看得到上游结论）
+        # ★★ 第一道：**上游给了计划也要过一遍"陈坐标"**（主人的火气换来的规矩）
+        try:
+            if 任 is not None and (任.get("步骤") or []):
+                改, 说 = 补陈坐标(状态, 任)
+                if 改:
+                    _说(f"就地取材：计划里有 {改} 处是陈的 —— {说}")
+                    return 动作, 任, 因
+        except Exception as e:
+            print(f"[就地取材] 补陈坐标出岔子（不影响主链）：{e}", flush=True)
+        # ★ 第二道：**别人都定位不到**的时候才整盘接手（顺序 90 = 最外层，看得到上游结论）
         try:
             if 任 is None and 因 and ("定位不到" in str(因) or "压根没有" in str(因)
                                     or "整个被埋住" in str(因)):
