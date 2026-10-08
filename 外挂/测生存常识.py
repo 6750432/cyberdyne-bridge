@@ -671,6 +671,24 @@ def 主():
     #   直接调 任务栈._下发 的调用链会把参数错位（踩过），
     #   那一段改用**实机日志**验（车厢会打「挖「oak_log」的坐标是陈的…换成…」）。
 
+    # ══════════ P 组：拼音口令（2026-10-08 晚，主人打不出中文）══════════
+    #   手侧原文：`听见 mintstar 说：ni bang wo zuo yi ge shi gao`
+    #   —— Linux 输入法在 MC 聊天框里基本没用，主人只能敲拼音 ✗
+    print("── P 组：拼音口令 ──")
+    试("P1 ★★★ 拼音换成汉字（「shi gao」不许被「shi」切碎）",
+       常.补拼音("gei wo ge shi gao") == "给我 ge 石镐", 常.补拼音("gei wo ge shi gao"))
+    试("P2 中文原样不动（原来那条路一个字没改）",
+       常.补拼音("帮我做个石镐") == "帮我做个石镐", 常.补拼音("帮我做个石镐"))
+    try:
+        import time as _t
+        常._上次原话.update({"原话": "ni bang wo zuo yi ge shi gao",
+                           "时刻": _t.time(), "说话人": "mintstar"})
+        得 = 常.认口令()
+        试("P3 ★★★ 主人的真实原话「ni bang wo zuo yi ge shi gao」→ 认出口令",
+           得 == "stone_pickaxe", f"认出：{得!r}")
+    except Exception as e:
+        试("P3 ★★★ 拼音口令能被认出口令", False, f"抛异常：{e}")
+
     print(f"\n{'═' * 62}")
     print(f"生存常识车厢：{len(通过)} 过 / {len(失败)} 失败")
     for x in 通过:
