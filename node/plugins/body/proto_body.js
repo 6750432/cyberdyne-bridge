@@ -110,6 +110,22 @@ async function 潜行(bot, a) {
 // 跳跃。count 可以连跳。
 async function 跳跃(bot, a) {
   const 次 = 钳(a.count, 1, 5, 1);
+  /* ★★★ 2026-10-08 主人点名的 T1「資訊有卻不用」决策点②：**跳跃不查头顶**。
+   *   人在这儿顶着天花板按 jump，是白按 —— 头撞砖，跳不起来，
+   *   而日志上却报「成功了」✗ 这跟「对着空气挥镐」是**同一类静默失败**。
+   *   规矩：**跳之前先看头上那一格**，堵着就直接拒，并说清楚撞的是什么。
+   *   （身体占 脚/脚+1 两格，所以要看的是 脚+2 —— 跳起来会顶到它。） */
+  try {
+    if (bot && bot.entity && bot.entity.position) {
+      const 头顶 = bot.blockAt(bot.entity.position.offset(0, 2, 0));
+      const 通得过 = ['air', 'cave_air', 'void_air', 'water', 'lava',
+                      'seagrass', 'kelp', 'tall_seagrass', 'snow'];
+      if (头顶 && 通得过.indexOf(头顶.name) < 0) {
+        return { ok: false, why: `头顶是「${头顶.name}」，跳起来会撞头 —— 我不跳`,
+                 取消: '头顶不通', 头顶: 头顶.name };
+      }
+    }
+  } catch (e) { /* 查不了就不拦（不许因为探路把自己弄瘫） */ }
   for (let i = 0; i < 次; i++) {
     bot.setControlState('jump', true);
     await 等(100);
