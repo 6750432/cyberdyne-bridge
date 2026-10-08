@@ -61,16 +61,46 @@ const 不许挖 = new Set([
 //   但它顺手把 snow_block、hay_block、melon 这些无辜的也抓了。
 //   改成点名那几个真·矿物块。
 const 石头系 = /(_ore|stone|deepslate|cobblestone|bricks|concrete|obsidian|netherrack|furnace|anvil|terracotta|sandstone|prismarine|basalt|blackstone|tuff|calcite|dripstone|quartz|(iron|gold|diamond|emerald|coal|copper|lapis|redstone|netherite|amethyst|raw_iron|raw_gold|raw_copper)_block)/;
-function 该用什么工具(名) {
-  // ★ 2026-10-08 晚 实机：它站在草地上，却因为「我手里没有镐子，挖不了「grass_block」」
-  //   而拒绝挖脚下的草 ✗ —— 草方块/土/沙/砾**本来就不用镐子**（徒手就掉）。
-  //   排除表：树叶/羊毛/原木 + 草土沙砾 + 几种看着像石头其实不是的。
-  if (石头系.test(名)
-      && !/leaves|wool|_log|_wood|grass_block|dirt|_soil|sand|gravel|clay|farmland|_path|soul_sand|moss_block|mycelium|podzol|snow|mud/.test(名)) {
-    return 'pickaxe';
+/* ══════════ 方块交互表（**物理常识是查出来的，不是猜出来的**）══════════
+ *
+ * 主人 2026-10-08 晚 的指令。上面那个 `石头系` 正则 + 排除表，就是"硬造物理规则"的活标本 ✗
+ *   —— 补一次漏一次（先 `_block$` 抓了 grass_block，再加排除表，下次换个方块又是坑）。
+ *
+ * 现在改成**查表**：
+ *   来源 minecraft-data（1.21.1 官方数据，本机 node_modules 里就有）
+ *   生成 tools/生成方块交互表.js → 外挂/常识/方块交互表.json（1044 个方块）
+ *   读法 `{ 硬: 硬度, 要: [要什么工具才掉东西]（**空 = 徒手就掉**）, 类: 最快用什么 }`
+ *
+ * ⚠ 查不到时**不拦**（fail-open）：宁可像从前那样多挖一次，
+ *   也不要因为表里没写就把活卡死。
+ */
+const _方块表 = (() => {
+  /* ⚠ 别用 `path.join` —— 这个文件**没有 require('path')** ✗
+   *   第一版就是这么写的：require 抛错 → 被 catch 吞掉 → 表变成 null →
+   *   于是"查表"退化成"什么都不要求"✗（C2/C3 两条断言当场叫了）。
+   *   又一次证明：**静默的 catch 比抛出来更害人**（闸二扫出来的那 86 处同理）。 */
+  for (const 尾 of ['../../../外挂/常识/方块交互表.json',
+                    '../../外挂/常识/方块交互表.json']) {
+    try { return require(__dirname + '/' + 尾); } catch (e) { /* 换路径再试 */ }
   }
   return null;
+})();
+const _类到英文 = { 镐子: 'pickaxe', 斧头: 'axe', 铲子: 'shovel',
+                    锄头: 'hoe', 剑: 'sword', 剪刀: 'shears' };
+
+function 该用什么工具(名) {
+  try {
+    const 条 = _方块表 && _方块表.方块 && _方块表.方块[名];
+    if (条) {
+      // ★ 表说"不用工具"（要 = 空数组）→ null = 徒手/任意工具都行 ✓
+      //   这就是 grass_block / dirt / sand / gravel / oak_log 的真相 ✓
+      if (!条.要 || !条.要.length) return null;
+      return _类到英文[条.要[0]] || null;    // 例：stone → 'pickaxe'
+    }
+  } catch (e) { /* 查表出错 = 当查不到 */ }
+  return null;    // 表里没有 → 不要求工具（fail-open，绝不卡死）
 }
+
 function 是这类工具(名, 类) {
   return typeof 名 === 'string' && 名.endsWith('_' + 类);
 }
