@@ -100,8 +100,12 @@ def 发过的(命令):
 # ══════════════════ A ★ 开关关着 = 补丁绝对没加载 ══════════════════
 def 用例_关着绝对没加载():
     # ① 跑真入口：开关关着的演练，必须报「补丁模块已加载 = false」
+    #    ★ 2026-10-08 修：**必须自己指定「假装关」**。
+    #      以前是靠"希望 config.json 里是关的" —— 车厢正常开着的时候这条永远红，
+    #      而且红得没意义（它要验的是"关着会怎样"，不是"现在是不是关着"）。
+    #      测试要**自己说了算**，不能看环境脸色：这就是 T3「口徑不一致」。
     r = subprocess.run([sys.executable, os.path.join(外挂目录, "大脑外挂.py"),
-                        "--演练", "--json"],
+                        "--演练", "--json", "--假装开关关"],
                        cwd=ROOT, capture_output=True, text=True, timeout=300)
     末 = [l for l in r.stdout.strip().split("\n") if l.startswith("{")]
     断言("开关关着时，演练能跑完（退出码 0）", r.returncode == 0 and 末, r.returncode)

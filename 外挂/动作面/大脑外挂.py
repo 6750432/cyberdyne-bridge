@@ -47,7 +47,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 日志文件 = os.path.join(日志目录, "外挂-动作面.log")
 
 # 外挂自己认的命令行开关 —— 传主链之前必须摘掉，免得主链看不懂
-自己的开关 = ("--自检", "--json", "--假装开关开", "--安静", "--演练", "--看prompt")
+自己的开关 = ("--自检", "--json", "--假装开关开", "--假装开关关", "--安静", "--演练", "--看prompt")
 
 
 def 记(文本, 屏幕=True):
@@ -63,8 +63,15 @@ def 记(文本, 屏幕=True):
         print(行, flush=True)
 
 
-def 读开关(假装=False):
-    """开关的**唯一出处**是 config.json 的 m7.expand_actions。"""
+def 读开关(假装=False, 假装关=False):
+    """开关的**唯一出处**是 config.json 的 m7.expand_actions。
+
+    ★ 2026-10-08 补：以前只有 `--假装开关开`，**没有「假装关」**。
+      结果 测动作面.py 那条「关着时补丁数为 0」就变成**看 config 脸色的测试** ——
+      车厢正常开着的时候它永远红 ✗ 而红得没有意义（它想验的是"关着会怎样"，
+      不是"现在是不是关着"）。
+      自给自足的测试才是测试：现在两个方向都能**自己说了算**，config.json 一动不用动。
+    """
     路 = os.path.join(ROOT, "config.json")
     try:
         with open(路, encoding="utf-8") as f:
@@ -74,6 +81,8 @@ def 读开关(假装=False):
         return False, f"配置读不到：{e}"
     m7 = 配置.get("m7") or {}
     开 = bool(m7.get("expand_actions", False))
+    if 假装关:
+        return False, "命令行 --假装开关关（演练用，config.json 没动）"
     if 假装:
         return True, "命令行 --假装开关开（演练用，config.json 没动）"
     return 开, "config.json 的 m7.expand_actions"
@@ -110,6 +119,8 @@ def 主():
     ap.add_argument("--json", action="store_true", help="自检按 json 输出")
     ap.add_argument("--假装开关开", dest="假装开关开", action="store_true",
                     help="演练：把开关当成开着的（config.json 不动）")
+    ap.add_argument("--假装开关关", dest="假装开关关", action="store_true",
+                    help="演练：把开关当成关着的（config.json 不动）—— 用来验「关着时一个补丁都不打」")
     ap.add_argument("--安静", action="store_true", help="少说话")
     ap.add_argument("--演练", action="store_true",
                     help="一路走到交棒前就停（**不起主循环、不连 socket**）—— 验收用")
@@ -159,7 +170,7 @@ def 主():
         记("  · " + 条["文本"], 屏幕=False)
 
     # ── ③ 看开关 ──
-    开, 出处 = 读开关(假装=参.假装开关开)
+    开, 出处 = 读开关(假装=参.假装开关开, 假装关=参.假装开关关)
     记(f"动作面开关 = {'开' if 开 else '关'}（出处：{出处}）")
 
     # ── ③.5 报一下外置数据的家底（第 2 步：数据都搬到 data/ 和 prompts/ 了）──
