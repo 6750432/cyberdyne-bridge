@@ -70,6 +70,77 @@ function 是这类工具(名, 类) {
 }
 const 工具名 = { pickaxe: '镐子', axe: '斧头', shovel: '铲子' };
 
+/* ══════════ 视线遮挡与前置挖掘（2026-10-08 主人亲眼所见）══════════
+ *
+ * 实机事故：小家伙隔着泥土挖里面的石头 —— 它拿到雷达给的石头坐标，
+ * 走过去，然后对着**被泥土包住**的那块挥镐，挖不动（服务端直接中止），
+ * 在原地打转好几分钟；最后是**主人亲自把泥土挖掉**，它才拿到圆石。
+ * 三个毛病一起犯：
+ *   ① 手侧只挑"最近的石头"，**不看它露没露出来**；
+ *   ② 计划里没有"先把挡着的挖掉"这一步；
+ *   ③ 挖不动时给的理由说不清是"看不见"还是"够不着"，所以上面没法重规划。
+ *
+ * 这里一次给三样东西：`看遮挡()` / `未暴露` / `挡着`。
+ *
+ * ⚠ fail-closed：**只有"六个面全是实心"才算完全包裹**（那是不容含糊的）。
+ *   视线那条路查不出来（某些版本没有 world.raycast）时按"未知"处理，
+ *   **不拒** —— 否则探路工具一坏，它就彻底不干活了。
+ *   分得清"确定被埋"和"查不出来"，是这一段的全部难点。
+ */
+const _能穿 = new Set(['air', 'cave_air', 'void_air', 'water', 'lava', 'seagrass',
+  'kelp', 'tall_seagrass', 'snow', 'torch', 'wall_torch', 'grass', 'tall_grass',
+  'fern', 'large_fern', 'dead_bush', 'vine', 'rail', 'scaffolding']);
+
+function 看遮挡(bot, 块) {
+  const 出 = { 裸露: false, 视线: null, 挡: [] };
+  try {
+    if (!bot || !块 || !块.position) return 出;
+    const 六 = [[0, -1, 0], [0, 1, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]];
+    let 通面 = 0;
+    for (const [dx, dy, dz] of 六) {
+      let 邻 = null;
+      try { 邻 = bot.blockAt(块.position.offset(dx, dy, dz)); } catch (e) { 邻 = null; }
+      if (邻 && !_能穿.has(邻.name)) {
+        if (出.挡.length < 4) {
+          出.挡.push({ name: 邻.name, p: 邻.position.toArray(), 相对: [dx, dy, dz] });
+        }
+      } else {
+        通面++;
+      }
+    }
+    出.裸露 = 通面 > 0;
+    /* 视线：从眼睛朝方块中心射一条线，长度取"差一点点到不了方块"——
+     * 这样打中的就是**挡在前面的**东西；什么都没打中 = 通 ✓
+     * （取满长会打中目标方块自己，那就永远"通"了 ✗） */
+    try {
+      const 眼 = bot.entity.position.offset(0, 1.62, 0);
+      const 心 = 块.position.offset(0.5, 0.5, 0.5);
+      const 向 = 心.minus(眼);
+      const 长 = 向.norm();
+      let 通 = null;
+      if (长 <= 0.6) 通 = true;
+      else if (bot.world && typeof bot.world.raycast === 'function') {
+        const 中 = bot.world.raycast(眼, 向.scaled(1 / 长), Math.max(0.1, 长 - 0.05));
+        if (!中) 通 = true;
+        else {
+          const p = 中.position;
+          通 = !!(p && p.x === 块.position.x && p.y === 块.position.y && p.z === 块.position.z);
+          if (!通 && p) {
+            let 名 = '?';
+            try { const h = bot.blockAt(p); if (h) 名 = h.name; } catch (e) { /* 无所谓 */ }
+            出.挡前 = { name: 名, p: [p.x, p.y, p.z] };
+          }
+        }
+      }
+      出.视线 = 通;                       // 没 raycast 就是 null = 未知
+    } catch (e) { 出.视线 = null; }
+    return 出;
+  } catch (e) { return 出; }
+}
+
+/* 什么时候才算"读不出来" —— 空气/水/草这些不算挡。挖之前的兜底判定用它。 */
+function 是实心(名) { return typeof 名 === 'string' && !_能穿.has(名); }
+
 /* 所有"自己动腿"的动作开始前，先把控制状态清干净 ——
  * M2.1 的教训：边跑边挥打不中，边跑边挖也挖不准。 */
 function 清控制(bot) {
@@ -237,6 +308,24 @@ async function 挖(bot, a) {
   const 脚 = bot.blockAt(bot.entity.position.offset(0, -1, 0));
   if (脚 && 脚.position.equals(块.position) && !a.允许挖脚下) {
     return { ok: false, why: '那是我正脚下那块，挖了我自己就掉下去了' };
+  }
+
+  /* ★★★ 视线遮挡与前置挖掘（2026-10-08 主人亲眼所见那次的根治）
+   *   实机上它隔着泥土挖石头，挥了半天镐、服务端一路 abort，
+   *   最后要**主人亲手把泥土挖掉**才拿到圆石。
+   *   规矩：**只挖看得见的**。
+   *     · 六个面全被实心包住 → 不许瞄（这是"反矿透"的红线，也不该存在于计划里）；
+   *     · 是裸露的、可我这条视线被挡着 → 拒，并**告诉上面挡着的是哪一块**，
+   *       让常识树把「先把挡着的挖掉」插成前置任务 ✓ */
+  const 遮 = 看遮挡(bot, 块);
+  if (!遮.裸露) {
+    const 谁 = 遮.挡.map((d) => d.name).join('、') || '别的东西';
+    return { ok: false, 未暴露: true, 挡着: 遮.挡,
+             why: `「${块.name}」被整个埋住了（${谁} 围着），我看不见它 —— 不隔着东西挥镐` };
+  }
+  if (遮.视线 === false && 遮.挡前) {
+    return { ok: false, 未暴露: true, 挡着: [遮.挡前], 先挖: 遮.挡前.p,
+             why: `「${块.name}」前面挡着「${遮.挡前.name}」，我得先把那一块挖掉` };
   }
 
   /* ★ M4c 补丁①：工具前置校验（Pre-flight Check，fail-closed）
@@ -579,4 +668,10 @@ module.exports = {
   停(bot) {
     try { 清控制(bot); } catch (e) { /* 无所谓 */ }
   },
+
+  /* ★ 2026-10-08：把「看遮挡」交出去 —— **只实现这一份**。
+   *   雷达（server.js 的扫环境）要给 scan.石头 标"露没露出来"，
+   *   用的就是同一个函数；谁也别再抄一遍（抄了就会两边不一致 ✗）。 */
+  看遮挡,
+  是实心,
 };

@@ -33,16 +33,26 @@ const 身体 = require(插件路径);
  * 方块表用 "x,y,z" 当键；不给就是空气（读不到）。
  * 站位固定 (-168.5, 81, 148.5) —— 跟实机那次同一个位置，feet 在小数点 .5 上，
  * 正好能测出"floor 还是 round"的差别。 */
-function 造假bot({ 站位 = [-168.5, 81, 148.5], 方块 = {}, 背包 = [] } = {}) {
+function 造假bot({ 站位 = [-168.5, 81, 148.5], 方块 = {}, 背包 = [],
+                   射线打到 = null, 有射线 = true } = {}) {
   const 位置 = new Vec3(站位[0], 站位[1], 站位[2]);          // ★ 真 Vec3
+  const 挖块 = (p) => {
+    const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+    const 名 = 方块[[x, y, z].join(',')];
+    if (!名) return null;
+    return { name: 名, position: new Vec3(x, y, z), boundingBox: 'block' };
+  };
   const bot = {
     entity: { position: 位置, isInWater: false, isInLava: false },
-    blockAt(p) {
-      const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
-      const 名 = 方块[[x, y, z].join(',')];
-      if (!名) return null;
-      return { name: 名, position: new Vec3(x, y, z), boundingBox: 'block' };
-    },
+    blockAt: 挖块,
+    /* ★ 真的 world.raycast 是"打中谁就返回谁的位置"。这里按脚本给结果 ——
+     *   给 null 就是"一路通"。**不给 world 就模拟"这一版没有 raycast"**，
+     *   那种情况下看遮挡() 必须答"未知"而不是"通"或"不通"。 */
+    world: 有射线 ? {
+      raycast: () => (射线打到
+        ? { position: 挖块({ x: 射线打到[0], y: 射线打到[1], z: 射线打到[2] }).position }
+        : null),
+    } : undefined,
     inventory: { items: () => 背包.slice() },
     heldItem: null,
     记录: { 按键: [], 挖了: [], 换手: [] },
@@ -151,5 +161,94 @@ test('D 插件自检：跳跃/放置/挖掘三个能力都报出来', () => {
   const 能力 = 身体.能力();
   for (const c of ['jump', 'place', 'dig']) {
     assert.ok(能力.indexOf(c) >= 0, `身体插件少了能力「${c}」`);
+  }
+});
+
+/* ══════════ 场景 E：视线遮挡与前置挖掘（主人 2026-10-08 亲眼所见）══════════
+ *
+ * 实机那一幕：小家伙隔着泥土挖里面的石头 —— 挥了半天镐、服务端一路中止，
+ * 它在原地打转好几分钟，最后是**主人亲手把泥土挖掉**它才拿到圆石。
+ * 下面这几条就是把那一幕钉死在测试里：
+ *   E  视线被挡 → 拒，而且**要指出挡着的是哪一块**（上面才好插前置任务）
+ *   F  整块被埋（藏在地下的矿石）→ 拒 —— 这是**反矿透**的红线
+ *   G  裸露 + 视线通 → 照常挖（不许误伤）
+ *   H  这把尺子本身：三种情形分别答"露/不露/未知"
+ */
+
+test('E 视线被挡：石头前面挡着泥土 → 拒，并指出要先挖哪一块（实机那一幕）', async () => {
+  const bot = 造假bot({
+    方块: {
+      '-169,81,150': 'stone',
+      '-169,81,149': 'dirt',      // ★ 视线先撞在它身上
+    },
+    背包: 背包里有('wooden_pickaxe'),
+    射线打到: [-169, 81, 149],
+  });
+  const r = await 身体.执行(bot, 'dig', { p: [-169, 81, 150] });
+  assert.strictEqual(r.ok, false, '隔着泥土还挖了 ✗ —— 实机就是这么挥了几分钟的');
+  assert.strictEqual(r.未暴露, true, '拒了但没标「未暴露」，上面没法据此重规划 ✗');
+  assert.deepStrictEqual(r.先挖, [-169, 81, 149], '没告诉上面"先把哪一块挖掉" ✗');
+  assert.match(String(r.why), /先把那一块挖掉/, '理由没点明要前置挖：' + r.why);
+  assert.match(String(r.why), /dirt/, '理由里没说是泥土挡着：' + r.why);
+  assert.strictEqual(bot.记录.挖了.length, 0, '拒了却还是挥了 ✗');
+});
+
+test('F 藏在地下的矿石（六面全埋）→ 拒 —— 反矿透红线，不许有透视眼', async () => {
+  const bot = 造假bot({
+    方块: {
+      '-169,81,150': 'iron_ore',          // ★ 矿石本体
+      '-169,80,150': 'stone', '-169,82,150': 'stone',
+      '-168,81,150': 'stone', '-170,81,150': 'stone',
+      '-169,81,149': 'stone', '-169,81,151': 'stone',
+    },
+    背包: 背包里有('stone_pickaxe'),
+    射线打到: null,
+  });
+  const r = await 身体.执行(bot, 'dig', { p: [-169, 81, 150] });
+  assert.strictEqual(r.ok, false, '整块埋着的矿石也敢瞄 ✗ —— 这就是矿透');
+  assert.match(String(r.why), /被整个埋住/, '理由不对：' + r.why);
+  assert.ok(Array.isArray(r.挡着) && r.挡着.length >= 4, '没报出围着它的是什么：' + JSON.stringify(r.挡着));
+  assert.strictEqual(bot.记录.挖了.length, 0, '拒了却还是挥了 ✗');
+});
+
+test('G 裸露 + 视线通 → 照常挖（反矿透不许误伤正常挖掘）', async () => {
+  const bot = 造假bot({
+    方块: { '-169,81,150': 'stone' },     // 四周全是空气
+    背包: 背包里有('wooden_pickaxe'),
+    射线打到: null,                       // 一路通
+  });
+  const r = await 身体.执行(bot, 'dig', { p: [-169, 81, 150] });
+  assert.notStrictEqual(r.ok, false, '露在外面的石头不让挖 ✗ 误伤了：' + (r && r.why));
+  assert.deepStrictEqual(bot.记录.挖了, ['stone'], '挖的不是那块石头');
+});
+
+test('H 看遮挡这把尺子：露的答露、埋的答埋、没有射线时答「未知」而不是「通」', () => {
+  const 露的 = 造假bot({ 方块: { '-169,81,150': 'stone' } });
+  const a = 身体.看遮挡(露的, 露的.blockAt(new Vec3(-169, 81, 150)));
+  assert.strictEqual(a.裸露, true, '四面空着却说没露 ✗');
+  assert.strictEqual(a.挡.length, 0, '四面空着却报出挡着的东西 ✗');
+
+  const 埋的 = 造假bot({
+    方块: { '-169,81,150': 'diamond_ore', '-169,80,150': 'stone', '-169,82,150': 'stone',
+            '-168,81,150': 'stone', '-170,81,150': 'stone',
+            '-169,81,149': 'stone', '-169,81,151': 'dirt' },
+  });
+  const b2 = 身体.看遮挡(埋的, 埋的.blockAt(new Vec3(-169, 81, 150)));
+  assert.strictEqual(b2.裸露, false, '六面全实心却说露了 ✗');
+  assert.ok(b2.挡.length >= 4, '没把它被什么围着报出来');
+
+  // ★ 这一条最要紧：**查不出来 ≠ 通**。答错成 true，就等于给它开了透视眼。
+  const 没射线 = 造假bot({ 方块: { '-169,81,150': 'stone' }, 有射线: false });
+  const c = 身体.看遮挡(没射线, 没射线.blockAt(new Vec3(-169, 81, 150)));
+  assert.strictEqual(c.视线, null, '这一版没有 raycast，视线必须答「未知(null)」而不是「通」✗');
+  assert.strictEqual(c.裸露, true, '裸露是靠六邻判的，不该受射线影响');
+});
+
+test('H2 是实心：空气/水/草不算挡，泥土/石头算挡', () => {
+  for (const 通 of ['air', 'cave_air', 'water', 'grass', 'torch']) {
+    assert.strictEqual(身体.是实心(通), false, `「${通}」不该算挡视线的`);
+  }
+  for (const 实 of ['dirt', 'stone', 'sand', 'gravel', 'oak_planks']) {
+    assert.strictEqual(身体.是实心(实), true, `「${实}」应该算挡视线的`);
   }
 });
