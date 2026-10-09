@@ -172,10 +172,15 @@ def 铺路向下(我y, 目标, 状态=None):
         return None, ("✗ 摸不到「生存常识」车厢 ⇒ 这趟路我**不敢自己乱挖** ✓"
                       "（主人点过我：别抄第二遍 ✗）—— 交给物理体检拦 ✓")
     目 = list(目标)[:3]
+    # ⚠ 册子给的是**函数本身** ✓（不是模块 ✗）—— 这里我第一版还按模块用 ✗
+    #   于是 AttributeError 被我自己的兜底吞掉 ⇒ 返回 None ⇒ **又是一次静默** ✓
+    #   现在两种都认 ✓ 而且兜底**必须带上原文** ✗（不许只报"出岔子"）
+    需要 = getattr(常, "安排一趟挖到", 常) if not callable(常) else 常
     try:
-        步, 因 = 常.安排一趟挖到(状态 or {}, 目, 背包=None, 最远=24)
+        步, 因 = 需要(状态 or {}, 目, 背包=None, 最远=24)
     except Exception as e:
-        return None, f"✗ 安排一趟挖到 出岔子（{type(e).__name__}: {e}）⇒ 不动计划 ✓"
+        return None, (f"✗ 那一份实现（安排一趟挖到）出岔子："
+                      f"{type(e).__name__}: {e} ⇒ 不动计划 ✓")
     if not 步:
         return None, f"下不去 {目}，而「生存常识」也排不出路（{因 or '没说来由'}）⇒ 不动计划 ✓"
     挖了 = sum(1 for x in 步 if isinstance(x, dict) and x.get("动作") == "挖")
