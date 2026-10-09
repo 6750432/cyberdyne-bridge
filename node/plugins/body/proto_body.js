@@ -582,10 +582,41 @@ async function 合成(bot, a) {
   let 配方表 = bot.recipesFor(物品定义.id, null, 1, null);
   let 工作台 = null;
   if (!配方表.length) {
+    // ★★★ 2026-10-09 主人：「**怎么聪明怎么来，但是不能动宪法**」✓
+    //   原来这里是死写 `maxDistance: 4` ✗ —— 4 格之外的工作台**当它不存在** ✗
+    //   主人的判断（一针见血）：「**自己放的东西肯定要记得自己放哪儿的啊**，
+    //     不管在哪儿，总不能又退回说重做工作台吧」✓
+    //
+    //   规矩（三段式，跟"够得着/走不过去"那套一个路子 ✓）：
+    //     ① **先就近找**（4.5 格 = 手那把尺子 ✓ 能直接够到 → 照旧干 ✓）
+    //     ② 就近没有 → **放宽到 32 格再找一遍** ✓ 找到就**报回坐标** ✗
+    //        ！手**不自己走过去** ✗ —— 走位是脑的活（会打断正在走的任务 ✗）
+    //        → 结构化回执 `{ok:false, 工作台:[x,y,z], 距:N, 要走过去:true}` ✓
+    //        脑收到这条就插一步「走到那儿」，下一拍再合成 ✓（见外挂/记性）
+    //     ③ 32 格内也没有 → 才如实说"找不到" ✓（那才是真的该重做一个 ✓）
+    //
+    //   ⚠ 为什么不在手这边自己走过去 ✗：手是"身体"不是"司机" ✓
+    //     手一走位，脑那边正在走的任务当场被打断 ✓（今天就栽在这条上 ✓）
     try {
       工作台 = bot.findBlock({ matching: 数据.blocksByName.crafting_table.id, maxDistance: 4 });
     } catch (e) { 工作台 = null; }
-    if (!工作台) return { ok: false, why: `合成「${名}」要工作台，可我附近 4 格内没找到` };
+    if (!工作台) {
+      let 远的 = null;
+      try {
+        远的 = bot.findBlock({ matching: 数据.blocksByName.crafting_table.id, maxDistance: 32 });
+      } catch (e) { 远的 = null; }
+      if (远的) {
+        const 我 = bot.entity && bot.entity.position;
+        const 距 = 我 ? Number(我.distanceTo(远的.position).toFixed(2)) : null;
+        return { ok: false,
+                 why: `合成「${名}」要工作台 —— 手边 4.5 格内没有，`
+                    + `可 ${距} 格外有一个，得先走过去 ✓`,
+                 工作台: [Math.floor(远的.position.x), Math.floor(远的.position.y),
+                          Math.floor(远的.position.z)],
+                 距, 要走过去: true };
+      }
+      return { ok: false, why: `合成「${名}」要工作台，可我 32 格内都没找到（那就得做一个了）` };
+    }
     配方表 = bot.recipesFor(物品定义.id, null, 1, 工作台);
   }
   if (!配方表.length) return { ok: false, why: `材料不够，合不出「${名}」` };

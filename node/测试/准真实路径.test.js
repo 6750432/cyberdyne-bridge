@@ -334,3 +334,39 @@ test('H2 是实心：空气/水/草不算挡，泥土/石头算挡', () => {
     assert.strictEqual(身体.是实心(实), true, `「${实}」应该算挡视线的`);
   }
 });
+
+/* ══════════ 场景 G ★★★ 工作台在 4 格之外：报坐标，让它自己走过去 ══════════ */
+//   ★ 主人 2026-10-09：「怎么聪明怎么来，但是不能动宪法」
+//     原来死写 `maxDistance: 4` ✗ 4 格之外的工作台**当它不存在** ✗
+//     → 脑每次都"重做一个" ✗
+//   现在：手边 4 格没有 → 放宽到 32 格找 ✓ 找到就**把坐标报回来** ✓
+//         但**手自己不走过去** ✗（走位是脑的活 —— 手一走位就把脑的任务打断 ✗）
+test('G1 工作台在 18 格外 → 报「要走过去 ✓」+ 坐标（手不自己走 ✗）', async () => {
+  const 台 = { name: 'crafting_table',
+               position: new Vec3(-131, 75, 164), boundingBox: 'block' };
+  const bot = {
+    version: '1.21.1',
+    entity: { position: new Vec3(-142.5, 75, 155.5) },
+    inventory: { items: () => [] },
+    findBlock({ maxDistance }) { return maxDistance >= 18 ? 台 : null; },
+    recipesFor() { return []; },          // 空手合成不了 → 必须找工作台
+  };
+  const r = await 身体.执行(bot, 'craft', { item: 'stone_pickaxe', 数量: 1 });
+  assert.strictEqual(r.ok, false, '应该报"得先走过去"而不是硬合成：' + JSON.stringify(r));
+  assert.strictEqual(r.要走过去, true, '少了「要走过去」这个字段：' + JSON.stringify(r));
+  assert.deepStrictEqual(r.工作台, [-131, 75, 164], '报的工作台坐标不对：' + JSON.stringify(r.工作台));
+});
+
+test('G2 32 格内都没有 → 才如实说"得做一个了" ✓（不是永远报坐标 ✗）', async () => {
+  const bot = {
+    version: '1.21.1',
+    entity: { position: new Vec3(0, 64, 0) },
+    inventory: { items: () => [] },
+    findBlock() { return null; },
+    recipesFor() { return []; },
+  };
+  const r = await 身体.执行(bot, 'craft', { item: 'stone_pickaxe', 数量: 1 });
+  assert.strictEqual(r.ok, false, 'JSON: ' + JSON.stringify(r));
+  assert.ok(!r.要走过去, '找不到就不该说"要走过去"：' + JSON.stringify(r));
+  assert.ok(/32/.test(String(r.why)), '话里该说清找过 32 格：' + r.why);
+});
