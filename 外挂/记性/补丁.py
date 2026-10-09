@@ -37,7 +37,9 @@ import json
 import os
 import time
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# ⚠ 三层 dirname ✗ —— 我第一版只写了两层，账本落到 `外挂/logs/记性.json` 去了 ✗
+#   （实机 15:12 记下了，可 `logs/记性.json` 是空的 ✓ 一查就露馅 ✓）
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 账本路径 = os.path.join(ROOT, "logs", "记性.json")
 上限 = 64
 

@@ -57,9 +57,19 @@ def 主():
     sys.path.insert(0, 外挂根)
     sys.path.insert(0, ROOT)
     记 = 载("记性")
-    # ★ 别动真账本 ✗ —— 指到临时文件上 ✓（不然测试会污染实机的记性 ✓）
+    # ★★★ 先钉住"账本到底落在哪儿" ✗ —— 我第一版 ROOT 少写了一层 dirname，
+    #   账本落到 `外挂/logs/记性.json` 去了 ✗ 而用例当时把路径**整个换掉了** ✓
+    #   → 用例全绿、实机全丢 ✓ 这就是「测试没覆盖真实路径」✓
+    #   规矩：**先断言真实路径**长什么样 ✓ 再换成临时路径跑其余用例 ✓
+    真路径 = os.path.normpath(记.账本路径)
+    # 换到临时文件上（别污染实机的记性 ✓）
     记.账本路径 = os.path.join(tempfile.mkdtemp(), "记性.json")
     记._账.clear()
+    试("A0 ★★★ 账本落在仓库的 logs/ 下（不是 外挂/logs/ ✗ —— 这里少写过一层 dirname）",
+       os.path.basename(真路径) == "记性.json"
+       and os.path.basename(os.path.dirname(真路径)) == "logs"
+       and os.path.basename(os.path.dirname(os.path.dirname(真路径))) == "cyberdyne-bridge",
+       str(真路径))
     b, 类 = 造环境()
 
     print("── A 组：装上 / 卸下 ──")
