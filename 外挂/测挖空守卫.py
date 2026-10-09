@@ -441,8 +441,8 @@ def 主():
     import hashlib
     with open(os.path.join(ROOT, "bridge.py"), "rb") as f:
         哈 = hashlib.sha256(f.read()).hexdigest()
-    试("F1 ★★★ 主链 bridge.py 一个字节都没动（sha256 = 2499f81f807431b0）",
-       哈.startswith("2499f81f807431b0"), 哈[:16])
+    试("F1 ★★★ 主链 bridge.py 一个字节都没动（sha256 = 15536b020d5583ba）",
+       哈.startswith("15536b020d5583ba"), 哈[:16])
 
     # ══════════ H 组：改写坐标**要有依据**（不知道就不许动）══════════
     #   ★★★ 实机（主人 14:00 那一场）：

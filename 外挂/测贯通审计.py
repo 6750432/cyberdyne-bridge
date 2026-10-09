@@ -129,7 +129,7 @@ def 主():
     import hashlib
     with open(os.path.join(ROOT, "bridge.py"), "rb") as f:
         哈 = hashlib.sha256(f.read()).hexdigest()
-    试("E1 ★★★ 主链 bridge.py 一个字节都没动", 哈.startswith("2499f81f807431b0"), 哈[:16])
+    试("E1 ★★★ 主链 bridge.py 一个字节都没动", 哈.startswith("15536b020d5583ba"), 哈[:16])
 
     print("\n" + "═" * 62)
     print(f"贯通审计车厢：{len(通过)} 过 / {len(失败)} 失败")

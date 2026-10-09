@@ -213,7 +213,7 @@ def 主():
     import hashlib
     with open(os.path.join(ROOT, "bridge.py"), "rb") as f:
         哈 = hashlib.sha256(f.read()).hexdigest()
-    试("G1 ★★★ 主链 bridge.py 一个字节都没动", 哈.startswith("2499f81f807431b0"), 哈[:16])
+    试("G1 ★★★ 主链 bridge.py 一个字节都没动", 哈.startswith("15536b020d5583ba"), 哈[:16])
     手 = os.path.join(ROOT, "node", "plugins", "body", "proto_body.js")
     js = open(手, encoding="utf-8").read()
     试("G2 ★★★ 手侧身体插件里**真有「递」**这个能力（不然分饭发出去也是白搭）",

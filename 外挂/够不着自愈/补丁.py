@@ -335,7 +335,7 @@ def _管够不着(bridge, 状态, e):
     任["重试"] = 0
     任["重试到"] = 0.0
     任["下发过"] = False
-    任["步骤开始"] = time.time()
+    任["步骤开始"] = time.monotonic()
     try:
         栈.上次下发 = 0.0
     except Exception:
@@ -384,7 +384,7 @@ def _换隧道(栈, 步, 状态, 位, 距=None):
         任["重试"] = 0
         任["重试到"] = 0.0
         任["下发过"] = False
-        任["步骤开始"] = time.time()
+        任["步骤开始"] = time.monotonic()
         try:
             栈.上次下发 = 0.0
         except Exception:
@@ -443,7 +443,7 @@ def _管走不通(bridge, 状态, e):
     任["重试"] = 0
     任["重试到"] = 0.0
     任["下发过"] = False
-    任["步骤开始"] = time.time()
+    任["步骤开始"] = time.monotonic()
     try:
         栈.上次下发 = 0.0
     except Exception:

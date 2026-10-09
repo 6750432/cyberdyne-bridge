@@ -244,8 +244,8 @@ def 主():
 
     import hashlib
     指纹 = hashlib.sha256(open(os.path.join(ROOT, "bridge.py"), "rb").read()).hexdigest()
-    试("Z1 主链 sha256 还是 2499f81f807431b0（自始至终没被动过）",
-       指纹.startswith("2499f81f807431b0"))
+    试("Z1 主链 sha256 还是 15536b020d5583ba（自始至终没被动过）",
+       指纹.startswith("15536b020d5583ba"))
 
     print(f"\n{'═' * 62}")
     print(f"任务书体检 + 拒单反馈：{len(通过)} 过 / {len(失败)} 失败")

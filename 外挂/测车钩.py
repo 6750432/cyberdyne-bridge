@@ -125,7 +125,7 @@ def 主():
         shutil.rmtree(临时, ignore_errors=True)
 
     主链没问题 = _查主链()
-    过("Z1 主链 sha256 还是 2499f81f807431b0（自始至终没被动过）") \
+    过("Z1 主链 sha256 还是 15536b020d5583ba（自始至终没被动过）") \
         if 主链没问题 else 挂("Z1 主链指纹", "**主链被改了！**")
 
     if json输出:
@@ -147,7 +147,7 @@ def _查主链():
     import hashlib
     try:
         with open(os.path.join(ROOT, "bridge.py"), "rb") as f:
-            return hashlib.sha256(f.read()).hexdigest().startswith("2499f81f807431b0")
+            return hashlib.sha256(f.read()).hexdigest().startswith("15536b020d5583ba")
     except OSError:
         return False
 

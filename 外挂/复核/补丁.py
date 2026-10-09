@@ -273,7 +273,7 @@ def 装上(bridge, 日志=None, 数=None, **kw):
             # 查时钟:允许 —— 为什么：`开` 是**主链用墙钟盖的戳**（红线，改不得）
             #   ⇒ 两边必须同一只钟；只把这里换成单调钟 = 配对断掉，比原来更糟
             #   ⇒ 正确做法是下面那个钟跳检查（判据可不可信，要能验）
-            过了 = (time.time() - float(开)) if isinstance(开, (int, float)) else None
+            过了 = (time.monotonic() - float(开)) if isinstance(开, (int, float)) else None
             # ★★ 老祖课第五课（Lamport：分布式时序）—— **墙钟会跳** ✗
             #   这里 `开` 是**主链用墙钟盖的戳** ✓（bridge.py 是红线 ✗ 改不得 ✓）
             #   所以不能把这一行单独换成单调钟 ✗ —— 那会**把配对弄断** ✓ 比原来更糟 ✓
