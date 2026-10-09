@@ -118,20 +118,31 @@ def 想起(方块名):
 
 
 def _找生存常识():
-    """把「生存常识」车厢的模块摸出来（它有 `安排一趟挖到` ✓）—— 摸不到返回 None ✓
+    """★ 改成**查「车厢能力」册子** ✓ —— 不再手写"哪个车厢有哪个函数" ✗
 
-    ★ 抄的是 障碍自愈 里那一份 ✓（它摸的是 `挖还是绕` ✓）—— 同一件事同一个写法 ✓
+    主人 2026-10-09 晚上的原话：
+      「我什么东西都写得大差不差了，是不是你在给我重复造轮子啊？
+        **他脑子都不思考一下每个车厢能干啥然后自己去调用吗？自动化啊**」
+
+    我原来这一小块是**手写的** ✗：
+      `sys.modules.get("车厢_生存常识_入口")` —— 名字写死 ✓ 换一节车厢就不认了 ✓
+      更糟的是：**手接一次没事 ✓ 手接两次开始抄 ✓ 手接三次必抄第二遍** ✗
+      （今晚我就抄了三遍 ✓ 而每一样**主人都早就写好了** ✓）
+
+    ⇒ 现在只做一件事：**问册子**「谁会 `安排一趟挖到`」✓
+      册子自己扫已经挂上车的车厢 ✓ 谁有就谁用 ✓ 要不到就**出声** ✗ 绝不自己造 ✓
     """
     try:
-        m = sys.modules.get("车厢_生存常识_入口")
-        if m is not None and callable(getattr(m, "安排一趟挖到", None)):
-            return m
-        for k, m in list(sys.modules.items()):
-            if "生存常识" in str(k) and callable(getattr(m, "安排一趟挖到", None)):
-                return m
-    except Exception:
-        pass
-    return None
+        import os as _o, sys as _s
+        厢 = _o.path.dirname(_o.path.dirname(_o.path.abspath(__file__)))
+        if 厢 not in _s.path:
+            _s.path.insert(0, 厢)
+        import 车厢能力
+        return 车厢能力.要("安排一趟挖到", 出声=lambda 文: _说(文))
+    except Exception as e:
+        _说(f"[记性] ✗ 车厢能力册子打不开（{type(e).__name__}: {e}）"
+            f" ⇒ 这趟路**不敢自己乱挖** ✓（主人点过：别抄第二遍 ✗）")
+        return None
 
 
 def 铺路向下(我y, 目标, 状态=None):
