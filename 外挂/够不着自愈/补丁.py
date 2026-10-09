@@ -56,6 +56,7 @@ _原件 = {}          # id(叙事者类) -> 原来的 看回执
 _上次 = {}          # (cmd, 坐标) -> 上次插步的时刻（去重用）
 _插了几次 = {}      # 任务 id -> 插了几次
 _共插过 = 0
+_绕了几次 = 0        # "挖还是绕"判成绕的次数（只为了报数好看 ✓）
 
 空气名 = ("air", "cave_air", "void_air")
 
@@ -197,66 +198,160 @@ def _落脚点(状态, 落点):
 
 
 def 处理回执(bridge, 状态=None, e=None):
-    """回执带 `够不着: true` → 在当前那一步前面插一步「走到落点旁边」。返回说明或 None。"""
-    global _共插过
+    """回执里的**理由** → 变成**下一步** ✓
+
+    两类（2026-10-09 一起收进来 —— 同一个病根"手把答案说了、脑没人读" ✓）：
+      · `够不着: true`      → 插一步「走到落点旁边」（手把距离算好了 ✓）
+      · `cmd == goto` 失败  → **挖过去还是绕过去**（主人点名的那条判断 ✓）
+    """
+    e = e or {}
     try:
-        e = e or {}
-        if not e.get("够不着"):
-            return None                      # 规矩 1：只认「够不着」✓
-        命令 = str(e.get("cmd") or "")
-        该动作 = 动作对得上.get(命令)
-        if not 该动作:
-            return None                      # 不认识的 cmd，一个字都不碰 ✓
-        栈 = _活实例(bridge, "任务栈")
-        if 栈 is None:
-            return None                      # 没有活的任务栈 = 没有"当前那一步"，交回主链 ✓
-        任, 第几, 步 = _当前步(栈)
-        if 任 is None:
-            return None
-        if 步.get("动作") not in 该动作:
-            return None                      # 规矩 2：回执跟当前那一步对不上 → 不碰 ✓
-        位 = 步.get("p")
-        if not (isinstance(位, (list, tuple)) and len(位) >= 3):
-            return None
-        键 = _键(位)
-        if 键 is None:
-            return None
-        # ── 规矩 4：一条任务最多插 3 次（绝不自己造死循环 ✓）──
-        任id = str(任.get("id") or "")
-        次 = int(_插了几次.get(任id, 0))
-        if 次 >= 3:
-            return (f"「{命令}」够不着 @{list(键)} —— 这条任务我已经插过 {次} 次步了，"
-                    f"不再插 ✗ 交回主链判失败 ✓")
-        # ── 规矩 3：同一格 2 秒内只插一次 ──
-        现在 = time.time()
-        if 现在 - _上次.get((命令, 键), -999.0) < 2.0:
-            return None
-        走到哪, 为什么 = _落脚点(状态, 位)
-        if 走到哪 is None:
-            _上次[(命令, 键)] = 现在        # 记一笔，别每 200ms 重复说同一句
-            return f"「{命令}」够不着 @{list(键)}（{e.get('距')} 格）—— {为什么}"
-        # ── 插一步：**放在当前那一步之前** ✓ ──
-        新步 = {"动作": "走到", "p": list(走到哪), "到点": 1.5}
-        任["步骤"].insert(第几, 新步)
-        # ★ 把当前步的**重试账、超时表**全部清零 ✓
-        #   不清的话：`重试` 还攒着刚才那几次失败 → 走完再放一次就被判整任务失败 ✗
-        #   （这几项就是主链 `_下一步()` 干的事，我照抄一份放在这儿 ✓）
-        任["重试"] = 0
-        任["重试到"] = 0.0
-        任["下发过"] = False
-        任["步骤开始"] = time.time()
-        try:
-            栈.上次下发 = 0.0
-        except Exception:
-            pass
-        _上次[(命令, 键)] = 现在
-        _插了几次[任id] = 次 + 1
-        _共插过 += 1
-        return (f"★ 够不着自愈：「{命令}」在 {e.get('距')} 格外够不着 @{list(键)} —— "
-                f"我先走到 {list(走到哪)} 再试（本条任务第 {次 + 1} 次插步，共 {_共插过} 次）")
+        if e.get("够不着"):
+            return _管够不着(bridge, 状态, e)
+        if str(e.get("cmd") or "") == "goto" and e.get("ok") is False:
+            return _管走不通(bridge, 状态, e)
     except Exception as ex:
         print(f"[够不着自愈] 处理回执出岔子（不影响主链）：{ex}", flush=True)
+    return None
+
+
+def _管够不着(bridge, 状态, e):
+    """手说「够不着」→ 在当前那一步前面插一步「走到落点旁边」✓"""
+    global _共插过
+    命令 = str(e.get("cmd") or "")
+    该动作 = 动作对得上.get(命令)
+    if not 该动作:
+        return None                      # 不认识的 cmd，一个字都不碰 ✓
+    栈 = _活实例(bridge, "任务栈")
+    if 栈 is None:
+        return None                      # 没有活的任务栈 = 没有"当前那一步"，交回主链 ✓
+    任, 第几, 步 = _当前步(栈)
+    if 任 is None:
         return None
+    if 步.get("动作") not in 该动作:
+        return None                      # 规矩 2：回执跟当前那一步对不上 → 不碰 ✓
+    位 = 步.get("p")
+    if not (isinstance(位, (list, tuple)) and len(位) >= 3):
+        return None
+    键 = _键(位)
+    if 键 is None:
+        return None
+    # ── 规矩 4：一条任务最多插 3 次（绝不自己造死循环 ✓）──
+    任id = str(任.get("id") or "")
+    次 = int(_插了几次.get(任id, 0))
+    if 次 >= 3:
+        return (f"「{命令}」够不着 @{list(键)} —— 这条任务我已经插过 {次} 次步了，"
+                f"不再插 ✗ 交回主链判失败 ✓")
+    # ── 规矩 3：同一格 2 秒内只插一次 ──
+    现在 = time.time()
+    if 现在 - _上次.get((命令, 键), -999.0) < 2.0:
+        return None
+    走到哪, 为什么 = _落脚点(状态, 位)
+    if 走到哪 is None:
+        _上次[(命令, 键)] = 现在        # 记一笔，别每 200ms 重复说同一句
+        return f"「{命令}」够不着 @{list(键)}（{e.get('距')} 格）—— {为什么}"
+    # ── 插一步：**放在当前那一步之前** ✓ ──
+    新步 = {"动作": "走到", "p": list(走到哪), "到点": 1.5}
+    任["步骤"].insert(第几, 新步)
+    # ★ 把当前步的**重试账、超时表**全部清零 ✓
+    #   不清的话：`重试` 还攒着刚才那几次失败 → 走完再放一次就被判整任务失败 ✗
+    #   （这几项就是主链 `_下一步()` 干的事，我照抄一份放在这儿 ✓）
+    任["重试"] = 0
+    任["重试到"] = 0.0
+    任["下发过"] = False
+    任["步骤开始"] = time.time()
+    try:
+        栈.上次下发 = 0.0
+    except Exception:
+        pass
+    _上次[(命令, 键)] = 现在
+    _插了几次[任id] = 次 + 1
+    _共插过 += 1
+    return (f"★ 够不着自愈：「{命令}」在 {e.get('距')} 格外够不着 @{list(键)} —— "
+            f"我先走到 {list(走到哪)} 再试（本条任务第 {次 + 1} 次插步，共 {_共插过} 次）")
+
+
+def _管走不通(bridge, 状态, e):
+    """路走不通（`goto` 失败）→ 问一句「挖过去还是绕过去」，把决策做出来 ✓
+
+    主人 2026-10-09 点名：「寻路『挖过去还是绕过去』」
+    ★ 决策那件事**只做一份实现** ✓（`生存常识.挖还是绕()` ✓ 谁要谁调 ✓ 不抄第二遍 ✓）
+      这里只管接线：拿到决定 → 挖过去就**换掉**当前那一步 ✓ 绕过去就什么都不做 ✓
+    """
+    global _共插过, _绕了几次
+    e = e or {}
+    if str(e.get("why") or "") == "no-way-out":
+        return None          # 手侧那句是"悬崖/岩浆，绕不开"—— 它自己会重新找路 ✓
+    栈 = _活实例(bridge, "任务栈")
+    if 栈 is None:
+        return None
+    任, 第几, 步 = _当前步(栈)
+    if 任 is None or 步.get("动作") != "走到":
+        return None          # 回执跟当前那一步对不上 → 一个字都不碰 ✓
+    if 步.get("到点") is not None:
+        return None          # ⚠ 带 `到点` 的走位是"挪到旁边去放东西"之类 ✓
+        #                       那种不该被换成挖隧道 ✗（它只要挪一两格）
+    位 = 步.get("p")
+    if not (isinstance(位, (list, tuple)) and len(位) >= 3):
+        return None
+    键 = _键(位)
+    if 键 is None:
+        return None
+    现在 = time.time()
+    if 现在 - _上次.get(("goto", 键), -999.0) < 5.0:
+        return None          # 同一个目标 5 秒内只算一次（手侧会连着重回失败 ✓）
+    生 = _找生存常识()
+    if 生 is None:
+        return None          # 找不到那份实现 → 什么都不做（绝不自己抄一份 ✗）
+    决定, 因, 步表 = 生.挖还是绕(状态, list(位), 背包=_背包(状态))
+    if 决定 != "挖过去" or not 步表:
+        _上次[("goto", 键)] = 现在
+        _绕了几次 += 1
+        return f"路走不通 @{list(键)} —— {因}（第 {_绕了几次} 次判成绕）"
+    # ── 挖过去：**换掉**当前那一步（连它自带的「走到目标」一起）✓ ──
+    #   ⚠ 是"换"不是"插" ✗ —— 插的话：挖完隧道又回头走那条走不通的老路 ✓ 白忙 ✓
+    新 = [dict(x) for x in 步表]
+    新.append(dict(步))
+    任["步骤"][第几:第几 + 1] = 新
+    # ── 重试账 / 超时表清零（跟「够不着」那条同一个道理 ✓）──
+    任["重试"] = 0
+    任["重试到"] = 0.0
+    任["下发过"] = False
+    任["步骤开始"] = time.time()
+    try:
+        栈.上次下发 = 0.0
+    except Exception:
+        pass
+    _上次[("goto", 键)] = 现在
+    _共插过 += 1
+    return (f"★ 挖还是绕：路走不通 @{list(键)} —— **挖过去** ✓ "
+            f"{因}（换成 {len(新)} 步的隧道）")
+
+
+def _找生存常识():
+    """鸭子类型地找「生存常识」那节车厢的 `挖还是绕` ✓（不抄第二遍 ✓）"""
+    import sys as _sys
+    for m in list(_sys.modules.values()):
+        try:
+            if callable(getattr(m, "挖还是绕", None)):
+                return m
+        except Exception:
+            continue
+    return None
+
+
+def _背包(状态):
+    """从状态帧里凑出"背包里有什么"（生存常识那套形状：{名字: 数量}）✓"""
+    出 = {}
+    try:
+        for k, v in ((状态 or {}).get("items") or {}).items():
+            try:
+                出[str(k)] = float(v)
+            except Exception:
+                出[str(k)] = 1.0
+    except Exception:
+        pass
+    return 出
 
 
 def 清任务(bridge, 任id=None):
