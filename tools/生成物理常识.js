@@ -175,10 +175,24 @@ function 主() {
   // ── ④ 挖掘：三件事（挖得动吗 / 要工具吗 / 掉什么）──
   const 挖不动 = [];
   const 要工具 = [];
+  /* ★★★ 2026-10-09 主人那天定的三阶段计划（P0 标定 / **P1 代价函数** / P2 接进挖还是绕）——
+   *   代价函数要算「挖这一格要多久」✗ 光知道"要不要工具"不够 ✓
+   *   得知道**硬度** ✓ minecraft-data 里本来就带着 `hardness` ✓ 一并抓出来 ✓
+   *   （硬度的物理含义：徒手破坏一格所需秒数 = hardness × 1.5 ✗ 有对工具就 ×1/速度系数 ✓
+   *     我们**先只抓事实** ✓ 怎么折算交给 `外挂/生存常识/代价.py` ✓ —— 生成器不掺算法 ✗）
+   */
+  const 硬度 = {};
+  const 工具档 = {};
   let 直接能挖 = 0;
   for (const b of 方块) {
     if (b.diggable === false) { 挖不动.push(b.name); continue; }
-    if (b.harvestTools && Object.keys(b.harvestTools).length) 要工具.push(b.name);
+    if (typeof b.hardness === 'number' && b.hardness > 0) 硬度[b.name] = b.hardness;
+    if (b.harvestTools && Object.keys(b.harvestTools).length) {
+      要工具.push(b.name);
+      // ★ 「要哪一档工具」也抓下来 ✓ —— 木镐能挖的石头、钻石镐才能挖的黑曜石 ✗
+      //   这是代价函数里"工具系数"的依据 ✓ 不是我猜的 ✗
+      工具档[b.name] = Object.keys(b.harvestTools).map(Number).sort((a, c) => a - c);
+    }
     else 直接能挖++;
   }
 
@@ -350,6 +364,8 @@ function 主() {
       },
     },
     挖不动: 挖不动,
+    硬度: 硬度,
+    要工具档: 工具档,
     要工具才掉东西: 要工具,
     挖了掉什么: 掉落,
     透光的: 透光,
