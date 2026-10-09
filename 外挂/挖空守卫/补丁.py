@@ -239,9 +239,29 @@ def 装上(bridge, 数=None, 日志=None, **kw):
                                 and all(abs(float(q[i]) - float(老[i])) < 0.5 for i in range(3))):
                             老在近处 = True
                             break
-                if not 可有 and not 老在近处:
+                # ★★★ 2026-10-09：**扫描是抽样，不是全图** ✗
+                #   它只装「可交互 6 格 + 石头 1 格 + 紧盯的 4 格」——
+                #   远处的方块**压根不在表里** ✓ 拿「表里没有」当「它没了」，
+                #   会把**好坐标**判死 ✗
+                #   实机（浮窗上 ×14）：障碍自愈 派活去挖 [-150,75,155] 的树叶 →
+                #   守卫说「当帧扫描里压根没有 oak_leaves」→ 谁也不动 ✗
+                #   ⚠ 这个推理我昨天自己在「就地取材」里撤回了一次 ✗
+                #     可它还留在这儿 —— 同一个错犯了两次 ✓ 这次连位置一起记下来 ✓
+                #   规矩：**只有当那个坐标确实落在扫描半径内**时，
+                #   「扫描里没有」才能说明「它没了」✓ 远的地方交给手去试 ✓
+                #   （手有 blockAt，它说的才是真的 ✓）
+                在扫描内 = False
+                try:
+                    我 = (s or {}).get("pos")
+                    if (isinstance(我, (list, tuple)) and len(我) >= 3
+                            and isinstance(老, (list, tuple)) and len(老) >= 3):
+                        _r = 12.0
+                        在扫描内 = all(abs(float(老[i]) - float(我[i])) <= _r for i in range(3))
+                except Exception:
+                    pass
+                if not 可有 and not 老在近处 and 在扫描内:
                     _态(栈类)["找不到_" + 想] = int(_态(栈类).get("找不到_" + 想, 0)) + 1
-                    print(f"[挖空守卫] ★ 当帧扫描里**压根没有「{想}」** —— "
+                    print(f"[挖空守卫] ★ 当帧扫描里**压根没有「{想}」**，而且那地方就在扫描范围内 —— "
                           f"这个坐标是陈的，我不挥。让它失败重规划。", flush=True)
                     return False
         except Exception as e:
