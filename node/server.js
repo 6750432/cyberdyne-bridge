@@ -1259,6 +1259,45 @@ function 计划重连() {
   }, 等);
 }
 
+/* ─────────── ★ 全局兜底：解码异常不许把进程带走 ───────────
+ * ★ 2026-10-09 尸检抓出来的真事：
+ *    手在解**那个 108 KB 的注册表包**时抛 protodef 的 PartialReadError ✗
+ *      PartialReadError: ... found size is 108271 expected size was 114153
+ *    它是**同步抛出来的** ⇒ `bot.on('error')` 和 `bot.on('end')` **都拦不住** ✗
+ *      ⇒ uncaughtException ⇒ 进程当场死 ✓
+ *    表现就是「悄悄消失，然后重连」✓ —— **在这之前谁也不知道为什么** ✓
+ *
+ * ★ 规矩（Erlang 那一课：let it crash ✓ 但得有人拉）：
+ *    兜底 handler 只做两件事：① 把现场写清楚（**出声** ✗）② 让连接重建 ✓
+ *    同一个窗口里连着摔两次 ⇒ **认输、退出**（退出码 1）⇒ 由监工拉起来 ✓
+ *    绝不闷着继续跑 ✓ —— 那才是真静默 ✗
+ */
+let 摔的次数 = 0;
+let 上次摔 = 0;
+
+function 摔了(e) {
+  const 现 = Date.now();
+  if (现 - 上次摔 > 120000) 摔的次数 = 0;          // 两分钟算一个窗口 ✓
+  上次摔 = 现;
+  摔的次数++;
+  const 摘要 = String((e && (e.stack || e.message)) || e).slice(0, 400);
+  log(`✗✗ 摔了（第 ${摔的次数} 次）：${摘要.split('\n')[0]}`);
+  try {
+    fs.appendFileSync(path.join(ROOT, 'logs', '手-崩了.log'),
+      `[${new Date().toISOString()}] 第 ${摔的次数} 次\n${摘要}\n\n`);
+  } catch (e2) { /* 写不下去也不能再摔一次 ✗ */ }
+  try { emit('event', { kind: 'error', detail: `内部异常：${摘要.slice(0, 180)}` }); } catch (e2) {}
+  if (摔的次数 >= 2) {
+    log('✗ 一个窗口里摔了两次 —— 认输，退出（监工 15 秒内会拉我起来 ✓）');
+    process.exit(1);
+  }
+  try { if (bot) { bot.removeAllListeners(); if (bot.end) bot.end(); } } catch (e3) {}
+  计划重连();
+}
+
+process.on('uncaughtException', 摔了);
+process.on('unhandledRejection', 摔了);
+
 /* ─────────── M2·背包、反击、动态采样、寻路挂载点 ───────────
  * 手这边只增加"怎么做"，一条"该不该"的判断都不加。
  * 脑说打谁、脑说多快推、脑说去哪，手照做；做不了就老实说做不了。 */
