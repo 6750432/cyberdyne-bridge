@@ -180,6 +180,29 @@ test('B4 放置：落点本身没问题时**不许乱挪**（别把好好的落�
   assert.deepStrictEqual(r.位置, [-167, 81, 148], '不该乱挪：' + JSON.stringify(r.位置));
 });
 
+test('B5 ★★★ 放：落点在 5 格外 → **拒，并说「够不着」**（手的交互距离都是 4.5 格）', async () => {
+  // 主人 2026-10-09：「其实在手的交互距离都是 4.5 格」——
+  // 实机就是这么卡的：换到 5 格外的空地 → 服务端六个面全拒 ✗，理由被埋住看不见 ✓
+  const bot = 造假bot({
+    方块: { '-160,81,148': 'air', '-160,80,148': 'grass_block' },   // 5 格开外的一块好空地
+    背包: 背包里有('crafting_table'),
+  });
+  const r = await 身体.执行(bot, 'place', { p: [-160, 81, 148], item: 'crafting_table' });
+  assert.strictEqual(r.ok, false, '5 格外的落点不该放得下去 ✗');
+  assert.strictEqual(r.够不着, true, '拒了，但没给机器可读的「够不着」字段 ✗');
+  assert.match(String(r.why), /够不着/, '理由没说清是够不着：' + r.why);
+  assert.ok(typeof r.距 === 'number' && r.距 > 4.5, '也没报出到底多远：' + r.距);
+});
+
+test('B6 放：落点就在手边（≤4.5）→ 照常放，不许误伤', async () => {
+  const bot = 造假bot({
+    方块: { '-167,81,148': 'air', '-167,80,148': 'grass_block' },
+    背包: 背包里有('crafting_table'),
+  });
+  const r = await 身体.执行(bot, 'place', { p: [-167, 81, 148], item: 'crafting_table' });
+  assert.notStrictEqual(r.ok, false, '手边的落点不该被够不着那道闸拦住：' + (r && r.why));
+});
+
 test('D 插件自检：跳跃/放置/挖掘三个能力都报出来', () => {
   const 能力 = 身体.能力();
   for (const c of ['jump', 'place', 'dig']) {
