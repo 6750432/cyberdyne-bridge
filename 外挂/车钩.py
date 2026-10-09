@@ -67,6 +67,7 @@ import argparse
 import importlib.util
 import inspect
 import json
+import time
 import os
 import socket
 import sys
@@ -103,6 +104,111 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # ══════════════════════════ 记账 ══════════════════════════
 
 _日志锁 = threading.Lock()
+
+
+# ══════════════════════════ 自省（Smalltalk 那一课）══════════════════════════
+# ★★ 为什么要有它：
+#   今天想查「谁把 `_下发` 包了、包了几层」，只能一行行翻代码 ✓ 费了好几轮 ✗
+#   Smalltalk 那边这是**默认能力**：对象知道自己被谁包过 ✓
+#
+# ★ 怎么做到的（不动车厢一行 ✓）：
+#   挂之前照一张**闸前快照** ✓ 挂完再照一张 ✓ 一比就知道这节包了谁 ✓
+#   （车钩的哲学是「状态永远能从编组名单推出来」✓ —— 自省就是把这个"推"字
+#     变成一份**看得见的账** ✓）
+自省路径 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "车钩-自省.json")
+_上次照 = [None]          # 用列表装，好在内层函数里改 ✓
+_各车厢 = [{}]            # 车厢名 → {"包了": [...], "新加": [...], "拆了": [...]}
+
+
+def _照(bridge):
+    """照一张快照：类级 + 实例级 的函数/属性，记下它们的**身份**（id）✓"""
+    出 = {}
+    try:
+        项们 = list(vars(bridge).items())
+    except TypeError:
+        return 出
+    for 名, 值 in 项们:
+        try:
+            if isinstance(值, type):
+                for k, v in list(vars(值).items()):
+                    出[("类", 名, k)] = id(v)
+            elif hasattr(值, "__dict__"):
+                for k, v in list(vars(值).items()):
+                    出[("实例", 名, k)] = id(v)
+        except Exception:
+            continue
+    return 出
+
+
+def _比照(前, 后):
+    """两张快照比一比 ⇒ 谁被包了 / 谁是新加的 / 谁被拆了 ✓"""
+    包了 = sorted(k for k in 后 if k in 前 and 前[k] != 后[k])
+    新加 = sorted(k for k in 后 if k not in 前)
+    拆了 = sorted(k for k in 前 if k not in 后)
+    return (["%s.%s.%s" % k for k in 包了],
+            ["%s.%s.%s" % k for k in 新加],
+            ["%s.%s.%s" % k for k in 拆了])
+
+
+def 写自省(编组):
+    """把账写下来 ✓（**写文件** ⇒ 脑在跑的时候外面也问得着 ✓）"""
+    try:
+        现在 = _照(sys.modules["bridge"]) if "bridge" in sys.modules else {}
+    except Exception:
+        现在 = {}
+    叠加 = {}
+    for 名, 账 in _各车厢[0].items():
+        for 目标 in 账.get("包了", []):
+            叠加.setdefault(目标, []).append(名)
+    账 = {
+        "时刻": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "编组": list(编组),
+        "各车厢": _各车厢[0],
+        "★ 被两节以上包过的": {k: v for k, v in 叠加.items() if len(v) > 1},
+        "现在实际生效的改动数": len(现在),
+    }
+    try:
+        with open(自省路径, "w", encoding="utf-8") as f:
+            json.dump(账, f, ensure_ascii=False, indent=1)
+    except OSError as e:
+        记(f"  ★ 自省账写不下去：{e}")
+    return 账
+
+
+def 读自省():
+    """外面（包括脑在跑的时候 ✓）读这份账 ✓"""
+    try:
+        with open(自省路径, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def 印自省():
+    a = 读自省()
+    if not a:
+        print("还没有自省账 ✗（车钩还没挂过车厢 ✓ 先起一趟就有了 ✓）")
+        print("账本位置：%s" % 自省路径)
+        return 1
+    print("═══ 车钩 · 自省（Smalltalk 那一课）═══")
+    编 = a.get("编组") or list((a.get("各车厢") or {}).keys())
+    print("账是 %s 记的 ｜ 车上这几节：%s" % (a.get("时刻"), " → ".join(编) or "（没记到 ✗）"))
+    for 名, 账 in (a.get("各车厢") or {}).items():
+        包了, 新加, 拆了 = 账.get("包了") or [], 账.get("新加") or [], 账.get("拆了") or []
+        print("  ▸ %s：包了 %d 处 ｜ 新加 %d ｜ 拆了 %d" % (名, len(包了), len(新加), len(拆了)))
+        for x in 包了[:12]:
+            print("      ↳ 包了 %s" % x)
+        for x in 新加[:4]:
+            print("      ↳ 新加 %s" % x)
+    多 = a.get("★ 被两节以上包过的") or {}
+    if 多:
+        print("  ⚠ **同一处被两节以上包过**（换轨顺序敏感的根源 ✗）：")
+        for k, v in 多.items():
+            print("      ↳ %s ← %s" % (k, "、".join(v)))
+    else:
+        print("  ✓ 没有「同一处被两节以上包过」的情况 ✓（换轨顺序不敏感 ✓）")
+    print("账本：%s" % 自省路径)
+    return 0
 
 
 def 记(文本, 屏幕=True):
@@ -522,6 +628,17 @@ class 列车:
             raise 换轨失败(f"「{节.名}」装上() 抛异常：{type(e).__name__}: {e}"
                          f"\n{traceback.format_exc(limit=3)}")
         节.装载情况 = r
+        # ★ Smalltalk 那一课：挂完一节 ⇒ 立刻比一次快照 ✓（几毫秒 ✓ 不动车厢一行 ✓）
+        try:
+            _后 = _照(self.bridge)
+            if _上次照[0] is not None:
+                包了, 新加, 拆了 = _比照(_上次照[0], _后)
+                _各车厢[0][节.名] = {"包了": 包了, "新加": 新加, "拆了": 拆了}
+            _上次照[0] = _后
+        except Exception as e:
+            记(f"  ★ 自省快照出错（不影响挂载 ✓）：{type(e).__name__}: {e}")
+        # ★ 每挂一节就写一次账 ✓ —— 万一后面那节挂不上，**前面的账也留得住** ✓
+        写自省(getattr(self, "编组", None) or [])
         if not isinstance(r, dict) or not r.get("好"):
             为啥 = (r or {}).get("为什么") if isinstance(r, dict) else "返回的不是字典"
             raise 换轨失败(f"「{节.名}」拒绝上车：{为啥}")
@@ -546,6 +663,8 @@ class 列车:
 
     def _全卸(self):
         """逆序卸干净 —— 后挂的先摘（栈的规矩）。"""
+        _上次照[0] = None      # ★ 换轨 ⇒ 快照归零 ✓ 不然上一趟的账会混进来 ✗
+        _各车厢[0] = {}
         for 名 in reversed(self.编组):
             self._卸一节(名)
 
@@ -919,11 +1038,15 @@ def 主():
     ap.add_argument("--验", action="store_true", help="只跑宪法体检，不起车")
     ap.add_argument("--演练", action="store_true",
                     help="走完全流程但不连 socket、不起主循环（验收用）")
+    ap.add_argument("--自省", action="store_true",
+                    help="只印一份账：每节车厢包了哪些方法、有没有被两节以上包过")
     ap.add_argument("--安静", action="store_true")
     ap.add_argument("--json", action="store_true")
     # ★ 用 parse_known_args：**车钩自己不认识的参数原样留给主链**。
     #   （第一版这里我忘了调用它，`参` 还是个 ArgumentParser，当场 AttributeError。）
     参, 剩下 = ap.parse_known_args()
+    if 参.自省:
+        return 印自省()          # ★ 只读文件 ✓ 绝不碰脑 ✓（脑在跑的时候照样能问 ✓）
 
     # ── ① 主链在不在（fail-closed 第一道）──
     if not os.path.isfile(主链路):
