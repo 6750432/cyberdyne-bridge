@@ -429,6 +429,45 @@ async function 放(bot, a) {
   if (!手上) return { ok: false, why: '没能把方块拿到手上' };
   if (!是方块(手上)) return { ok: false, why: `手上拿的 ${手上.name} 不是方块` };
 
+  // ★★★ 2026-10-09 主人：「放在哪里其实都无所谓，就像我平时玩的时候一样
+  //   随便找一个空地就放下了，走几步也可以。」
+  //   —— 实机症状：「place 没做成：六面全是空的，没有可以靠着放的地方」×14
+  //   我给的那个落点**悬空** ✗，于是它每 0.2 秒失败一次。
+  //   真实玩家的做法就是：**脚下有地、这一格是空 = 空地** ✓ 挑一个近的放下 ✓
+  //   规矩：指定格放不下去时，自己在 ±2 格里找一块"能放的空地" ✓
+  //        找得到就换过去放 ✓ 找不到才报失败（并说清找过哪几处）✓
+  try {
+    const 有实心邻 = (pp) => {
+      for (const [dx, dy, dz] of [[0, -1, 0], [0, 1, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]]) {
+        const h = bot.blockAt(取坐标(bot, [pp[0] + dx, pp[1] + dy, pp[2] + dz]));
+        if (h && h.name !== 'air' && h.name !== 'cave_air' && h.name !== 'water') return true;
+      }
+      return false;
+    };
+    if (!有实心邻(a.p)) {
+      let 最好的 = null, 最好距 = Infinity;
+      for (let dx = -2; dx <= 2; dx++) {
+        for (let dz = -2; dz <= 2; dz++) {
+          if (!dx && !dz) continue;
+          const 试位 = [a.p[0] + dx, a.p[1], a.p[2] + dz];
+          const 本 = bot.blockAt(取坐标(bot, 试位));
+          if (!本 || (本.name !== 'air' && 本.name !== 'cave_air')) continue;   // 本格得是空的
+          const 下 = bot.blockAt(取坐标(bot, [试位[0], 试位[1] - 1, 试位[2]]));
+          if (!下 || 下.name === 'air' || 下.name === 'cave_air') continue;    // 底下得有地
+          const 距 = Math.abs(dx) + Math.abs(dz);
+          if (距 < 最好距) { 最好距 = 距; 最好的 = 试位; }
+        }
+      }
+      if (最好的) {
+        // 换到那块空地去放（主人说的：走几步也可以 ✓）
+        const 原 = a.p;
+        a.p = 最好的;
+        console.log(`[放] 原来的落点 ${JSON.stringify(原)} 靠不住（六面全空）`
+          + ` → 就近换到空地 ${JSON.stringify(最好的)}（距离 ${最好距} 格）`);
+      }
+    }
+  } catch (e) { /* 找空地出错就按原路走，别把功能弄挂 */ }
+
   // 找一个贴着目标位置的实心面当参考。
   // ★ 六个面挨个试：放不下去的原因很多（面朝向、能不能看见、服务端那一侧的判定），
   //   与其猜，不如都试一遍，并且把每一次的拒绝理由攒起来 —— 失败了要能看出为什么。

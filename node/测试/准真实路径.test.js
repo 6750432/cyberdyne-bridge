@@ -157,6 +157,29 @@ test('C4 挖掘：正脚下那块 → 拒（挖了自己掉下去）', async () 
 
 /* ══════════ 场景 D：接口本身 ══════════ */
 
+test('B3 放置：落点悬空 → **自己就近换一块空地**（主人：随便找个空地放下就行）', async () => {
+  // 落点 (-167,81,148) 六面全空 ✗；它右边 (-166,81,148) 下面有地 ✓
+  const bot = 造假bot({
+    方块: { '-167,81,148': 'air',                       // 指定落点（悬空 ✗）
+            '-166,81,148': 'air', '-166,80,148': 'grass_block',   // 就近的空地 ✓
+            '-166,80,148 ': 'grass_block' },
+    背包: 背包里有('crafting_table'),
+  });
+  const r = await 身体.执行(bot, 'place', { p: [-167, 81, 148], item: 'crafting_table' });
+  assert.notStrictEqual(r.ok, false, '悬空落点应该自己换一块空地，结果还是失败了：' + (r && r.why));
+  assert.deepStrictEqual(r.位置, [-166, 81, 148], '没换到那块有地的空地：' + JSON.stringify(r.位置));
+});
+
+test('B4 放置：落点本身没问题时**不许乱挪**（别把好好的落点搬走）', async () => {
+  const bot = 造假bot({
+    方块: { '-167,81,148': 'air', '-167,80,148': 'grass_block' },   // 底下就有地 ✓
+    背包: 背包里有('crafting_table'),
+  });
+  const r = await 身体.执行(bot, 'place', { p: [-167, 81, 148], item: 'crafting_table' });
+  assert.notStrictEqual(r.ok, false, '本来能放的地方不该失败：' + (r && r.why));
+  assert.deepStrictEqual(r.位置, [-167, 81, 148], '不该乱挪：' + JSON.stringify(r.位置));
+});
+
 test('D 插件自检：跳跃/放置/挖掘三个能力都报出来', () => {
   const 能力 = 身体.能力();
   for (const c of ['jump', 'place', 'dig']) {
