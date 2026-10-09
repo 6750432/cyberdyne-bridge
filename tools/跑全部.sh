@@ -102,24 +102,35 @@ for t in "${AUDITS[@]}"; do
 done
 
 # ── JS 那条：主链的"手"是 JS 写的，光测 Python 盖不住它 ──
+#   ★ 2026-10-09：从一个文件改成**一份清单** ✓
+#     起因：我加了 `声呐紧急通道.test.js`（「叮」要走紧急通道那条链），
+#     可这里写死了 `准真实路径.test.js` 一个名字 ✗ → 新那一条**压根不会跑** ✓
+#     "没跑的测试，等于没有" —— 这就是本脚本开头那条硬规矩的同族病 ✓
+JS_TESTS=(
+  node/测试/准真实路径.test.js
+  node/测试/声呐紧急通道.test.js
+)
 if [ "$1" != "--快" ]; then
   if [ -x "$NODE" ]; then
-    out=$(timeout 300 "$NODE" --test node/测试/准真实路径.test.js 2>&1)
-    rc=$?
-    jsn=$(printf '%s\n' "$out" | sed -nE 's/^# pass ([0-9]+)$/\1/p' | tail -1)
-    jsf=$(printf '%s\n' "$out" | sed -nE 's/^# fail ([0-9]+)$/\1/p' | tail -1)
-    jsn=${jsn:-0}; jsf=${jsf:-0}
-    total_pass=$((total_pass + jsn))
-    total_fail=$((total_fail + jsf))
-    if [ "$rc" -eq 0 ]; then
-      echo "  ✔ 准真实路径.test.js　${jsn} 条过（假 bot，不连服务器）"
-    else
-      echo "  ✗ 准真实路径.test.js　${jsn} 过 / ${jsf} 失败"
-      bad_files+=("准真实路径.test.js")
-      printf '%s\n' "$out" | grep '^not ok' | head -6 | sed 's/^/       /'
-    fi
+    for jt in "${JS_TESTS[@]}"; do
+      if [ ! -f "$jt" ]; then echo "  ⚠ 缺文件：$jt"; bad_files+=("$jt 缺文件"); continue; fi
+      out=$(timeout 300 "$NODE" --test "$jt" 2>&1)
+      rc=$?
+      jsn=$(printf '%s\n' "$out" | sed -nE 's/^# pass ([0-9]+)$/\1/p' | tail -1)
+      jsf=$(printf '%s\n' "$out" | sed -nE 's/^# fail ([0-9]+)$/\1/p' | tail -1)
+      jsn=${jsn:-0}; jsf=${jsf:-0}
+      total_pass=$((total_pass + jsn))
+      total_fail=$((total_fail + jsf))
+      if [ "$rc" -eq 0 ]; then
+        echo "  ✔ $(basename "$jt")　${jsn} 条过（假 bot，不连服务器）"
+      else
+        echo "  ✗ $(basename "$jt")　${jsn} 过 / ${jsf} 失败"
+        bad_files+=("$(basename "$jt")")
+        printf '%s\n' "$out" | grep '^not ok' | head -6 | sed 's/^/       /'
+      fi
+    done
   else
-    echo "  ⚠ 找不到 node：$NODE　（JS 那条跳过了）"
+    echo "  ⚠ 找不到 node：$NODE　（JS 那两条跳过了）"
     bad_files+=("JS 没跑")
   fi
 fi
