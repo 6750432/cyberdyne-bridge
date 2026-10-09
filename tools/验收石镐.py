@@ -101,6 +101,7 @@ def main():
 
     自 = 参.自
     if not 自:
+        # 查时钟:允许 —— 这一处是给人看的时间标签（算 HH:MM），不是判据
         自 = time.strftime("%H:%M", time.localtime(time.time() - 参.分钟 * 60))
 
     行表 = 读全部(自)

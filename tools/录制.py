@@ -41,11 +41,11 @@ def 主():
     os.makedirs(os.path.dirname(路), exist_ok=True)
 
     条 = 0
-    开始 = time.time()
+    开始 = time.monotonic()
     print(f"开始录 {a.秒:.0f} 秒 → {路}")
     with open(路, "w", encoding="utf-8") as f:
         缓冲 = b""
-        while time.time() - 开始 < a.秒:
+        while time.monotonic() - 开始 < a.秒:
             try:
                 块 = s.recv(65536)
             except socket.timeout:

@@ -176,6 +176,10 @@ else
 fi
 
 echo "═══════════════════════════════════════════"
+echo
+echo "▤ 查时钟（老祖课第五课）—— 墙钟只当时间戳，判据必须走单调钟"
+python3 tools/查时钟.py || exit 1
+echo
 echo "合计：${total_pass} 条过 / ${total_fail} 条失败"
 if [ ${#bad_files[@]} -eq 0 ]; then
   echo "✔ 全套过关。"

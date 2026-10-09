@@ -736,7 +736,7 @@ class 列车:
             if 新名单 == 旧名单:
                 return {"好": True, "编组": 旧名单, "备注": "编组没变，什么都没做"}
 
-            t0 = time.time()
+            t0 = time.monotonic()
             self._全卸()
             # ★ **已挂** 和 **编组** 必须分开记。
             #   （2026-10-07 第一版栽过：挂到一半失败时，我在退回里调 `_全卸()`，
@@ -776,7 +776,7 @@ class 列车:
 
             self.编组 = 新名单
             备注 = (f"{理由}：{旧名单 or '空车'} → {新名单 or '空车'}"
-                  f"（{round((time.time() - t0) * 1000)} ms）")
+                  f"（{round((time.monotonic() - t0) * 1000)} ms）")
             self.记事.append({"t": round(time.time(), 3), "备注": 备注})
             self._存编组()
             记("换轨完成 — " + 备注)
