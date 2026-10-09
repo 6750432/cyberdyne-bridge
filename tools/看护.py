@@ -96,19 +96,40 @@ def 总CPU百分比():
     return 100.0 * (1.0 - 闲差 / 总差)
 
 
+# ★★★ 2026-10-09 修正：**脑不是独立进程** ✗
+#   它跑在 `外挂/车钩.py` 里（车钩把车厢装好后**直接跑脑** ✓）
+#   旧写法只认 `python3 bridge.py` ✗ ⇒
+#     ① 报表里"脑RSS"永远是 0 ✓（看着像脚本坏了 ✓ 其实是**真话** ✓）
+#     ② **真要紧急停机时，它根本停不掉脑** ✗✗ —— 安全网上漏了个大洞 ✓
+#   教训：**判据要跟着现实走** ✗ 现实变了、判据没变 = 假绿 ✓
+手的样子 = (("node", "server.js"),)
+脑的样子 = (("python3", "bridge.py"), ("python3", "车钩.py"))
+
+
 def 找进程(名字, 模式):
+    """按 comm + cmdline 找进程 ✓
+
+    ★★★ 2026-10-09 改：**不信 `ps` 了** ✗
+       `ps -eo args` 在 locale=C / 某些环境下会把**中文参数糊成 `??????`** ✗
+       ⇒ 拿 `车钩.py` 去匹配永远匹配不上 ✓ ⇒ 脑RSS 永远是 0 ✓
+         （更要命：**紧急停机也停不掉脑** ✗ 安全网漏洞 ✓）
+       ⇒ 改成**直接读 `/proc/<pid>/cmdline`** ✓ 拿字节比 ✓ 跟 locale 彻底无关 ✓
+         （这就是 FACT 里那条老经验：看中文 cmdline 要读 /proc ✓）
+    """
     出 = []
-    try:
-        o = subprocess.run(["ps", "-eo", "pid,comm,args", "--no-headers"],
-                           capture_output=True, text=True, timeout=5).stdout
-    except Exception:
-        return 出
-    for 行 in o.splitlines():
-        段 = 行.split(None, 2)
-        if len(段) < 3:
+    模 = 模式.encode("utf-8")            # ★ 用字节比 ✓ 不经过 ps ✗
+    for 目录 in glob.glob("/proc/[0-9]*"):
+        try:
+            with open(目录 + "/comm", "rb") as f:
+                comm = f.read().strip().decode("utf-8", "replace")
+            if comm != 名字:
+                continue
+            with open(目录 + "/cmdline", "rb") as f:
+                参数 = f.read()
+        except Exception:
             continue
-        if 段[1] == 名字 and 模式 in 段[2]:
-            出.append(int(段[0]))
+        if 模 in 参数:
+            出.append(int(目录.rsplit("/", 1)[-1]))
     return 出
 
 
@@ -126,7 +147,7 @@ def 占用RSSMB(pid):
 def 全部停掉():
     """紧急情况：手和脑一起停。用 comm + 模式精确匹配，不用 pkill -f（那会杀掉自己）。"""
     停了 = []
-    for 名, 模式 in (("node", "server.js"), ("python3", "bridge.py")):
+    for 名, 模式 in (手的样子 + 脑的样子):
         for pid in 找进程(名, 模式):
             try:
                 os.kill(pid, 15)
@@ -165,8 +186,8 @@ def 主():
         gt = 显卡温()
         cp = 总CPU百分比()
         mem = 可用内存MB()
-        手 = 找进程("node", "server.js")
-        脑 = 找进程("python3", "bridge.py")
+        手 = [q for 名, 模 in 手的样子 for q in 找进程(名, 模)]
+        脑 = [q for 名, 模 in 脑的样子 for q in 找进程(名, 模)]
         手rss = sum(占用RSSMB(p) for p in 手)
         脑rss = sum(占用RSSMB(p) for p in 脑)
 
