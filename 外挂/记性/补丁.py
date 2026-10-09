@@ -46,6 +46,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 
 _原 = {}
 _原下发 = {}
+_原发 = {}
 _原看完了 = {}
 _日志 = None
 _账 = {}          # 方块名 -> {"p": [x,y,z], "t": 时刻}
@@ -419,6 +420,56 @@ def 装上(bridge, 日志=None, **kw):
                 f" ⇒ 「调」可能被当野的拦下 ✓ 出声 ✗")
     except Exception as e:
         _说(f"[记性] ✗ 白名单加不上「调」（{e}）⇒ 调步骤会被拦 ✓ 出声 ✗")
+
+    # ══════ ★★★ 最后一道闸：**光杆 craft 不许直接发给手** ══════
+    #   主人 2026-10-09 的两张截图都是这一条：
+    #     「认出口令「stone_pickaxe」，可这一拍推不出步骤」
+    #     「「craft」没做成：合成「stone_pickaxe」要工作台，可我 32 格内都没找到」
+    #   真因（我一开始还以为是 LLM ✗）：**主链指令层** bridge.py:3302 直接
+    #     `self.发({"cmd": "craft", "item": …})` ✗ —— **绕过了 `任务栈.接`** ✓
+    #     ⇒ 我上一轮那条"孤零零一个合成 ⇒ 交给求解器"的规矩**碰不到它** ✗✓
+    #   ⇒ 闸开在**最后一跳 `发`** 上 ✓：光杆 craft（手里又没料）⇒
+    #     **不发** ✗ 改成**接手一个任务**（把求解器拆好的链子交给任务栈 ✓）
+    #   ⚠ 舱位说明：`发` 是**实例属性**（bridge.py:1378 `self.发 = 发命令`）
+    #     ⇒ 得按实例包 ✓（跟 `手上一件事` 同一个写法 ✓ 包类方法等于白包 ✗）
+    原init2 = getattr(栈类, "__init__", None)
+    if callable(原init2) and not getattr(原init2, "_记性发闸包过", False):
+        def 新init(自身, *a, **k):
+            原init2(自身, *a, **k)
+            try:
+                本 = getattr(自身, "发", None)
+                if callable(本):
+                    _原发[id(自身)] = 本
+
+                    def 带闸(命令, _本=本, _自身=自身):
+                        try:
+                            if isinstance(命令, dict) and 命令.get("cmd") == "craft" \
+                                    and 命令.get("item"):
+                                品 = str(命令["item"])
+                                求 = _求解器()
+                                计 = 求.求解(品, 1, 背包={}) if 求 else None
+                                计 = 计 or {}
+                                if 计.get("好") and len(计.get("计划") or []) > 1:
+                                    _说(f"[记性·发闸] 「直接合成 {品}」其实是一句**目标** ✗"
+                                        f" ⇒ **不发给手** ✓ 改成接手一个任务："
+                                        f"求解器拆了 {len(计['计划'])} 步 ✓")
+                                    自身.接(f"常识：{品}", list(计["计划"]), {})
+                                    return False
+                                if not 求:
+                                    _说(f"[记性·发闸] ⚠ 求解器打不开 ⇒ 这条 craft 照发 ✓"
+                                        f"（会出声 ✗ 不装作没事 ✓）")
+                        except Exception as e:
+                            _说(f"[记性·发闸] 出岔子（照发 ✓）：{type(e).__name__}: {e}")
+                        return _本(命令)
+
+                    自身.发 = 带闸
+            except Exception as e:
+                _说(f"[记性·发闸] 装不上（这个栈没有闸 ✓）：{type(e).__name__}: {e}")
+
+        新init._记性发闸包过 = True
+        新init._记性发闸原init = 原init2
+        栈类.__init__ = 新init
+        _说("[记性] 发闸装上了 ✓（光杆 craft 会被改成任务 ✓ 不再一头撞死 ✗）")
 
     # ══════ 降层闭环（主人 2026-10-09 亲自定的形状 ✓）══════
     #   挂在**下发**和**完成判据**上 ⇒ 一拍一判 ✓ 不是固定序列 ✓
