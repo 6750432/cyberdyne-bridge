@@ -193,6 +193,53 @@ def 铺路向下(我y, 目标, 状态=None):
             f" 我**不自己挖** ✗ —— 主人问过：「没给他调用车厢工具的能力吗」✓）")
 
 
+def _光杆craft要拆料(命令):
+    """命令是 `craft X` 且**拆得出 >1 步** ⇒ 返回 (X, 求解器的计划) ✓ 否则 None ✓"""
+    if not (isinstance(命令, dict) and 命令.get("cmd") == "craft" and 命令.get("item")):
+        return None
+    品 = str(命令["item"])
+    求 = _求解器()
+    if 求 is None:
+        return None
+    计 = 求.求解(品, 1, 背包={}) or {}
+    if 计.get("好") and len(计.get("计划") or []) > 1:
+        return 品, 计
+    return None
+
+
+def _活着任务栈():
+    """摸一个活着的任务栈实例 ✓（摸不到就 None ✓ 出声交给上游 ✗）"""
+    try:
+        for _, 值 in list(globals().items()):
+            pass
+    except Exception:
+        pass
+    try:
+        br = _主链模块()
+        for 名 in ("任务栈", "任务"):
+            v = getattr(br, 名, None)
+            if isinstance(v, type):          # 是**类** ⇒ 去它的实例表里找 ✓
+                for 实 in list(getattr(v, "车钩活着的实例", []) or []):
+                    return 实
+            elif v is not None:
+                return v
+    except Exception:
+        pass
+    return None
+
+
+def _主链模块():
+    import sys as _s
+    for 名 in ("bridge",):
+        m = _s.modules.get(名)
+        if m is not None:
+            return m
+    for k, m in list(_s.modules.items()):
+        if str(k).endswith("bridge") and hasattr(m, "任务栈"):
+            return m
+    raise RuntimeError("摸不到主链模块 bridge")
+
+
 def _求解器():
     """把依赖求解器摸出来 ✓（`外挂/常识/求解器.py` ✓ 纯标准库 ✓）摸不到**出声** ✗"""
     try:
@@ -420,6 +467,40 @@ def 装上(bridge, 日志=None, **kw):
                 f" ⇒ 「调」可能被当野的拦下 ✓ 出声 ✗")
     except Exception as e:
         _说(f"[记性] ✗ 白名单加不上「调」（{e}）⇒ 调步骤会被拦 ✓ 出声 ✗")
+
+    # ══════ ★★★★ **真正的最后一跳**：`接线口.发` ══════
+    #   主人 20:25 的第三张截图（我闸门上线之后还是一样 ✗）逼我查出了这个：
+    #     bridge.py:3749  `任务.发 = iface.发`
+    #     bridge.py:3751  `指令 = 指令层(cfg…, iface.发, …)`  ★ 指令层拿的是 **iface.发** ✗
+    #   ⇒ **指令层根本不走我包的那个 `任务栈.发`** ✗✓ —— 闸门形同虚设 ✓
+    #   ⇒ 而且 `接线口` 是**每次重连都新建**的（主循环里 `iface = 接线口(cfg, 说)` ✓）
+    #     ⇒ 只能拦**类** ✓（拦实例会被下一次重连绕过去 ✗）
+    #   ★ `接线口.发` 才是**真正的最后一跳** ✓ —— 任务栈 / 指令层 / 三觉层 全从这儿出去 ✓
+    口类 = getattr(bridge, "接线口", None)
+    if isinstance(口类, type) and callable(getattr(口类, "发", None)) \
+            and not getattr(口类, "_记性口闸包过", False):
+        原口发 = 口类.发
+
+        def 口发(self, obj, _原=原口发):
+            try:
+                拦 = _光杆craft要拆料(obj)
+                if 拦 is not None:
+                    品, 计 = 拦
+                    _说(f"[记性·接线闸] ★「直接合成 {品}」是一句**目标** ✗ ⇒ **不发** ✓"
+                        f" 改成接手任务：求解器拆了 {len(计['计划'])} 步 ✓"
+                        f"（拦在最后一跳 接线口.发 ✓ 指令层也走这儿 ✓）")
+                    栈 = _活着任务栈()
+                    if 栈 is not None:
+                        栈.接(f"常识：{品}", list(计["计划"]), {})
+                        return False
+                    _说("[记性·接线闸] ✗ 摸不到活的任务栈 ⇒ **照发** ✓（出声 ✗ 不装作没事 ✓）")
+            except Exception as e:
+                _说(f"[记性·接线闸] 出岔子（照发 ✓）：{type(e).__name__}: {e}")
+            return _原(self, obj)
+
+        口类.发 = 口发
+        口类._记性口闸包过 = True
+        _说("[记性] **接线口闸装上了** ✓（真正的最后一跳 ✓ 光杆 craft 到不了手 ✗）")
 
     # ══════ ★★★ 最后一道闸：**光杆 craft 不许直接发给手** ══════
     #   主人 2026-10-09 的两张截图都是这一条：
