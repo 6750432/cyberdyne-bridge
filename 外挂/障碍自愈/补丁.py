@@ -305,17 +305,21 @@ def 处理回执(bridge, 状态=None, e=None):
         return None
 
 
-def 装上(bridge, 日志=None, **kw):
+def 装上(bridge, 日志=None, 数=None, **kw):
     global _日志, 上限
     _日志 = 日志
     # ★ config 里的 `上限` 得**真的有人读** ✓（不然又是一个"写出来没人看"✗）
-    try:
-        设 = (kw or {}).get("配置") or {}
-        s = 设.get("障碍自愈") or {}
-        if isinstance(s, dict) and s.get("上限") is not None:
-            上限 = max(1, int(s["上限"]))
-    except Exception:
-        pass
+    #   ⚠⚠ 我第一版写的是 `kw.get("配置")` ✗ —— **车钩根本不传这个名字** ✗
+    #     它传的是这五个：`数` / `开关` / `车钩` / `日志` / `临时目录`
+    #     （`外挂/车钩.py` 那行 `_挑参数(..., {...})` ✓）
+    #     → 我那几行是**死代码** ✓ 配置改了等于没改 ✗
+    #   规矩：**要用配置就用车钩给的那个 `数`** ✓ 别自己发明一个参数名 ✗
+    #     （"写出来没人读"今天第 N 次 ✓ 这次是**读了但没人给我**✓ —— 同族病 ✓）
+    if callable(数):
+        try:
+            上限 = max(1, int(数("上限", 上限)))
+        except Exception:
+            pass
     叙类 = getattr(bridge, "叙事者", None)
     if 叙类 is None:
         return {"好": False, "为什么": "找不到 叙事者 类", "打了": []}
