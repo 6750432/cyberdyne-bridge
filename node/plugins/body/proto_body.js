@@ -577,11 +577,23 @@ async function 放(bot, a) {
     try {
       清控制(bot);
       // 先看过去再放 —— 有些服务端会按视线方向判定
-      try { await bot.lookAt(位.position.offset(0.5, 0.5, 0.5), true); } catch (e) {}
+      // ★ 换过落点之后**要重新取那一格** ✗ —— 我原来还看着旧位置（`位` 是换之前算的 ✓）
+      const 看位 = bot.blockAt(取坐标(bot, a.p)) || 位;
+      try { await bot.lookAt(看位.position.offset(0.5, 0.5, 0.5), true); } catch (e) {}
       await 等(90);
       // ⚠ 法向量是「从参考方块**指向**目标位置」，不是我算的那个「从目标指向参考」。
       //   传反了它会跑到对称的位置去放（实测日志里出现过 at (7,...) 这种鬼坐标）。
-      await bot.placeBlock(邻, 取坐标(bot, [-dx, -dy, -dz]));
+      // ★★★ 2026-10-09 实机抓到的真凶（石镐计划就死在这一句上）：
+      //   `placeBlock` 在某些被拒的情况下**promise 永远不 settle** ✗
+      //   ⇒ 本函数永远不 return ⇒ 手一声不吭 ⇒ 脑**干等到 60 秒超时** ✓
+      //   （实机：第 2 步「放」连超时 3 次；回执探针当场喊「发出去 8 秒没回音」✓）
+      //   规矩：**凡是"等外部答复"的地方都要有上限** ✗ 不许无声地等 ✓
+      //   ⇒ 加 2.5 秒上限：到点就当这一面被拒 ✓ 六面接着试 ✓ 函数**一定会返回** ✓
+      await Promise.race([
+        bot.placeBlock(邻, 取坐标(bot, [-dx, -dy, -dz])),
+        new Promise((_, 拒) => setTimeout(
+          () => 拒(new Error('placeBlock 2.5 秒没回音（不许无声地等 ✗）')), 2500)),
+      ]);
       return { ok: true, 放的是: 手上.name, 位置: a.p, 用的面: [dx, dy, dz] };
     } catch (e) {
       拒过.push(`面(${dx},${dy},${dz}) ${String(e.message).slice(0, 42)}`);
