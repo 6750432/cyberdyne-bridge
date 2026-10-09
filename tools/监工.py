@@ -74,7 +74,9 @@ import time
         "进程名": "python3",
         "特征": "车钩.py".encode("utf-8"),   # ★ 脑**不是** bridge.py ✗ 它跑在车钩里 ✓
         "起法": ["bash", "外挂/启动列车.sh"],
-        "日志": os.path.join(根, "logs", "脑.log"),
+        # ★ 脑自己的 stdout 本来就通向 logs/大脑.log ✓（查 /proc/27062/fd/1 得到的 ✓）
+        #   我原先写成 logs/脑.log ✗ ⇒ 两处对不上 ✓ 对齐它 ✓
+        "日志": os.path.join(根, "logs", "大脑.log"),
         "等秒": 10,
         "为什么": "它是「想事」的那个 ✓ 换它不影响手 ✓",
     },
