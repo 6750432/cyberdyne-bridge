@@ -83,6 +83,21 @@ import time
 ]
 
 计数 = collections.defaultdict(lambda: collections.deque())   # 名 → 重启时刻
+# ★★ Erlang 那一课的另一半：**崩溃要留「为什么」** ✗
+#   监工记着自己起过的进程 ⇒ 它死的时候**拿得到退出码/信号** ✓
+#   （不是监工起的就拿不到 ✗ —— 那就老老实实说"拿不到" ✗ 不许编一个原因 ✗）
+句柄 = {}                       # 名 → Popen ✓
+上次死的因 = {}                 # 名 → 一句话 ✓（写进心跳，也写进日志 ✓）
+尸检本 = os.path.join(根, "logs")
+上次心跳 = {}
+# ★ 监工**自己重启过**的时候，上一批进程的句柄就丢了 ✗
+#   ⇒ 从心跳文件里把"上一轮记的 pid"读回来 ✓ 至少知道"它上一轮还在不在"✓
+try:
+    with open(心跳, "r", encoding="utf-8") as _f:
+        _旧 = json.load(_f)
+    上次心跳 = _旧.get("各组件") or {}
+except (OSError, ValueError):
+    pass
 检查次数 = 0
 重启次数 = collections.defaultdict(int)
 
@@ -141,12 +156,123 @@ def 在不在(组):
     return True, "pid %s" % pid[0]
 
 
+def 尾巴(路径, 行数=25):
+    """文件最后几行 ✓ 读不到就明说 ✗ 不许装看不见 ✓"""
+    try:
+        with open(路径, "r", encoding="utf-8", errors="replace") as f:
+            所有 = f.readlines()
+        return "".join(所有[-行数:]) or "（空的 ✓）"
+    except OSError as e:
+        return "（读不到：%s）" % e
+
+
+def 尸检(组, 说明):
+    """★★★ 进程死了 ⇒ **留一份现场** ✗ 不许只留一句「进程不在」✓
+
+    为什么这条非得有：今天整机 OOM 那一下，
+    我们**只知道"瘫了"，不知道"谁先死的、为什么"** ✗（journald 都没来得及落盘 ✓）
+    这就是 Erlang 那套里的 crash dump ✓ —— 跟求解器的**追因链**是同一个思想：
+    一个管"活着的失败" ✓ 一个管"死了的失败" ✓
+    """
+    时刻 = time.strftime("%Y%m%d-%H%M%S")
+    路径 = os.path.join(尸检本, "尸检-%s-%s.txt" % (组["名"], 时刻))
+    句 = 句柄.get(组["名"])
+    上次记的 = (上次心跳.get(组["名"]) or {}).get("pid")
+    码 = None
+    try:
+        if 句 is not None:
+            码 = 句.poll()
+    except Exception:
+        pass
+    if 码 is None:
+        if 上次记的:
+            因 = ("上一条命是监工起的（pid %s）✓ 但监工**自己重启过** ✗"
+                 " ⇒ 这段**空窗期**里的退出码/信号**拿不到** ✗（只能靠下面这些线索 ✓）"
+                 " —— 不许猜、也不许不认账 ✗" % 上次记的)
+        else:
+            因 = ("不是监工起的（或还在退出中）⇒ **拿不到退出码** ✗ 只能靠下面这些线索 ✓")
+    elif 码 < 0:
+        因 = "被信号 %d 杀了（%s）%s" % (-码, {9: "SIGKILL —— OOM 或被 kill -9 ✓",
+                                            15: "SIGTERM —— 被叫停 ✓",
+                                            6: "SIGABRT —— 自己崩的 ✓"}.get(-码, "查 man 7 signal ✓"),
+                                        " ✓")
+    else:
+        因 = "正常退出码 %d ✓（自己走掉的 ✓ 不是被杀的 ✓）" % 码
+    内存 = ""
+    try:
+        with open("/proc/meminfo") as f:
+            for 行 in f:
+                if 行.startswith("MemAvailable"):
+                    内存 = 行.strip()
+                    break
+    except OSError:
+        pass
+    行 = []
+    行.append("═══ 尸检 · %s ═══" % 组["名"])
+    行.append("时刻：%s" % time.strftime("%Y-%m-%d %H:%M:%S"))
+    行.append("发现方式：%s" % 说明)
+    行.append("退出/信号：%s" % 因)
+    行.append("当时内存：%s" % (内存 or "（读不到 ✗）"))
+    if 上次记的:
+        行.append("上一轮记的 pid：%s（现在这个位置的进程不在 ⇒ pid 变了或真没了 ✓）" % 上次记的)
+    行.append("")
+    行.append("── 内核有没有 OOM 记录（试三个地方 ✓ 哪个读得到用哪个 ✓）──")
+    找到 = False
+    for 源 in ("/var/log/kern.log", "/var/log/syslog"):
+        try:
+            with open(源, "r", encoding="utf-8", errors="replace") as f:
+                尾 = f.readlines()[-400:]
+            命 = [x for x in 尾 if "Out of memory" in x or "oom-kill" in x or "Killed process" in x]
+            if 命:
+                行.append("  %s：找到 %d 行 ✓" % (源, len(命)))
+                行 += ["    " + x.rstrip()[:180] for x in 命[-6:]]
+                找到 = True
+            else:
+                行.append("  %s：读得到 ✓ 但**最近没有 OOM 记录** ✓" % 源)
+        except OSError as e:
+            行.append("  %s：读不到（%s）✗" % (源, e))
+    if not 找到:
+        行.append("  （都读不到 ⇒ **这次说不清是不是 OOM** ✗ —— 别猜 ✓）")
+    行.append("")
+    行.append("── 看护的账（温度/内存/两个 RSS ✓ 每 30 秒一条）──")
+    行.append(尾巴(os.path.join(根, "logs", "看护.csv"), 6))
+    行.append("── ★ 最像死因的行（从日志里挑 ✓ 光看尾巴全是栈帧、找不着病根 ✗）──")
+    关键词 = ("Error", "error", "Exception", "exception", "panic", "Cannot", "cannot",
+            "undefined", "TypeError", "RangeError", "Killed", "Segmentation")
+    try:
+        with open(组["日志"], "r", encoding="utf-8", errors="replace") as f:
+            所有 = f.readlines()[-1500:]
+        命 = [x.rstrip()[:200] for x in 所有 if any(k in x for k in 关键词)]
+        if 命:
+            行.append("  （最近 %d 行里挑出 %d 条 ✓）" % (len(所有), len(命)))
+            行 += ["    " + x for x in 命[-8:]]
+        else:
+            行.append("  （最近 %d 行里**一条都不像** ✗ —— 那它多半是被外面杀的 ✓ 别栽赃给它 ✓）"
+                      % len(所有))
+    except OSError as e:
+        行.append("  （读不到：%s）✗" % e)
+    行.append("")
+    行.append("── 这个组件自己的日志尾巴 ──")
+    行.append(尾巴(组["日志"], 25))
+    行.append("── 监工自己的日志尾巴 ──")
+    行.append(尾巴(日志, 12))
+    文 = "\n".join(行) + "\n"
+    try:
+        with open(路径, "w", encoding="utf-8") as f:
+            f.write(文)
+        print("  ↳ 现场留在 %s ✓" % os.path.basename(路径), flush=True)
+    except OSError as e:
+        print("  ↳ ✗ 现场写不下去：%s" % e, flush=True)
+    return 因, 路径
+
+
 def 拉起(组):
     """★ 隔离：start_new_session ⇒ 连监工自己死了都带不走它 ✓"""
     os.makedirs(os.path.dirname(组["日志"]), exist_ok=True)
     f = open(组["日志"], "ab")
     p = subprocess.Popen(组["起法"], cwd=根, stdout=f, stderr=f,
                          stdin=subprocess.DEVNULL, start_new_session=True)
+    句柄[组["名"]] = p        # ★ 记着它 ✓ 死的时候才拿得到退出码/信号 ✓
     窗口 = 计数[组["名"]]
     现在 = time.time()
     窗口.append(现在)
@@ -182,6 +308,10 @@ def 一轮(干不干=True):
         if not 干不干:
             好没有.append("%s ✗ %s" % (组["名"], 说明))
             continue
+        # ★★★ 先**留现场**，再动手拉 ✗（顺序反了就什么都留不下了 ✓）
+        因, _ = 尸检(组, 说明)
+        上次死的因[组["名"]] = 因
+        报("⚠ 「%s」倒下 ⇒ %s" % (组["名"], 因), 急=True)
         # 依赖没满足就**先别动它** ✗
         if 组["名"] != "服务端" and not 服务端健康():
             好没有.append("%s（不动：服务端没好 ✓ 起了也白起）" % 组["名"])
@@ -213,9 +343,17 @@ def 一轮(干不干=True):
         if 组["名"] == "服务端" and not ok:
             break        # ★ 地没弄好 ⇒ 手和脑一个都别动 ✓
     try:
+        global 上次心跳
+        新心跳 = {}
+        for 组 in 组件:
+            ok, 说明 = 在不在(组)
+            m = __import__("re").search(r"pid (\d+)", 说明)
+            新心跳[组["名"]] = {"在": ok, "说明": 说明, "pid": (m.group(1) if m else None)}
+        上次心跳 = 新心跳
         with open(心跳, "w", encoding="utf-8") as f:
             json.dump({"时刻": time.strftime("%Y-%m-%d %H:%M:%S"), "检查次数": 检查次数,
-                       "重启次数": dict(重启次数), "现状": 好没有},
+                       "重启次数": dict(重启次数), "现状": 好没有,
+                       "上次为什么死": dict(上次死的因), "各组件": 新心跳},
                       f, ensure_ascii=False, indent=1)
     except OSError:
         pass
