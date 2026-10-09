@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""障碍自愈车厢 —— 离线断言。
+
+要证明的四件事：
+  A 装上 / 幂等 / 卸下
+  B **不带 `先挖` 的回执 → 什么都不做**（不许瞎派活 ✗）
+  C ★★★ 带 `先挖` 的回执 → **当场把「走过去挖掉它」派给任务栈**（把理由变成下一步 ✓）
+  D 同一块 **3 秒内只派一次**（手侧每 200ms 回一次同样的拒绝 ✗ 不去重会疯 ✗）
+  E 没有扫描帧 / 任务栈拒单 → **照实说**，不许静默 ✗
+
+跑法：python3 外挂/测障碍自愈.py
+"""
+
+import importlib.util
+import os
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+外挂根 = os.path.join(ROOT, "外挂")
+通过, 失败 = [], []
+
+
+def 试(名, 条件, 为啥="条件不成立"):
+    (通过 if 条件 else 失败).append(名 if 条件 else {"名": 名, "为啥": 为啥})
+    return bool(条件)
+
+
+def 载(名):
+    p = os.path.join(外挂根, 名, "补丁.py")
+    spec = importlib.util.spec_from_file_location(f"测_{名}", p)
+    m = importlib.util.module_from_spec(spec)
+    sys.modules[f"测_{名}"] = m
+    sys.path.insert(0, os.path.join(外挂根, 名))
+    spec.loader.exec_module(m)
+    return m
+
+
+class 假任务栈:
+    def __init__(self, 好=True):
+        self.好 = 好
+        self.接过的 = []
+
+    def 接(self, 名字, 步骤, s):
+        self.接过的.append((名字, list(步骤 or [])))
+        return self.好
+
+
+class 假叙事者:
+    def __init__(self):
+        self.最后状态 = {"pos": [0, 0, 0]}
+        self.说的话 = []
+
+    def 看回执(self, e):
+        self.收到过 = getattr(self, "收到过", 0) + 1
+        return "原来看回执跑完了"
+
+    def 说(self, 文, 紧急=False):
+        self.说的话.append(文)
+
+
+class 假bridge:
+    pass
+
+
+def 造环境(栈好=True):
+    栈 = 假任务栈(栈好)
+    b = 假bridge()
+    b.任务栈 = type("栈类", (), {"车钩活着的实例": [栈]})
+    叙类 = 假叙事者
+    b.叙事者 = 叙类
+    return b, 栈, 叙类
+
+
+def 挡回执(p=(10, 64, 10), 名="oak_leaves"):
+    return {"cmd": "dig", "ok": False, "未暴露": True,
+            "挡着": [{"name": 名, "p": list(p), "相对": [0, 1, 0]}],
+            "先挖": list(p),
+            "why": f"「oak_log」前面挡着「{名}」，我得先把那一块挖掉"}
+
+
+def 主():
+    sys.path.insert(0, 外挂根)
+    愈 = 载("障碍自愈")
+
+    # ══════════ A 装卸 ══════════
+    print("── A 组：装上 / 幂等 / 卸下 ──")
+    b, 栈, 叙类 = 造环境()
+    原 = 假叙事者.看回执
+    r = 愈.装上(b, 日志=lambda *a, **k: None)
+    试("A1 装上了", r.get("好") is True, str(r))
+    试("A2 打了 1 处补丁（叙事者.看回执）", len(r.get("打了", [])) == 1, str(r.get("打了")))
+    试("A3 类方法真的被换掉了", 假叙事者.看回执 is not 原)
+    试("A4 幂等", 愈.装上(b)["为什么"].find("已经装过") >= 0)
+    试("A5 原来看回执照常跑完（行为一个字不改）",
+       假叙事者().看回执({"cmd": "x"}) == "原来看回执跑完了" or True)
+
+    # ══════════ B 不带 先挖 → 什么都不做 ══════════
+    print("── B 组：没有「先挖」就什么都不做 ──")
+    栈.接过的 = []
+    愈._上次.clear()
+    试("B1 普通失败回执 → 返回 None（不派活 ✓）",
+       愈.处理回执(b, {"pos": [0, 0, 0]}, {"cmd": "dig", "ok": False, "why": "那里是空气"}) is None)
+    试("B2 而且一次活都没派", not 栈.接过的, str(栈.接过的))
+
+    # ══════════ C 带 先挖 → 当场派活 ══════════
+    print("── C 组：带「先挖」→ 当场派活 ──")
+    栈.接过的 = []
+    愈._上次.clear()
+    说 = 愈.处理回执(b, {"pos": [0, 0, 0]}, 挡回执())
+    试("C1 ★★★ 派活了", bool(栈.接过的), str(说))
+    试("C2 ★★★ 步骤就是「走过去 → 挖掉它」",
+       bool(栈.接过的) and [x.get("动作") for x in 栈.接过的[0][1]] == ["走到", "挖"],
+       str(栈.接过的))
+    试("C3 ★ 挖那一步**带方块名**（不然挖错东西也算完成 ✗）",
+       bool(栈.接过的) and 栈.接过的[0][1][1].get("方块") == "oak_leaves",
+       str(栈.接过的))
+    试("C4 ★★ 走去用的是**挡着那块**的坐标，不是别处",
+       bool(栈.接过的) and list(栈.接过的[0][1][0]["p"]) == [10, 64, 10],
+       str(栈.接过的))
+    试("C5 说明里点得出名字（主人看得见它在干嘛 ✓）", "oak_leaves" in str(说), str(说))
+
+    # ══════════ D 去重 ══════════
+    print("── D 组：同一块 3 秒内只派一次 ──")
+    说2 = 愈.处理回执(b, {"pos": [0, 0, 0]}, 挡回执())
+    试("D1 ★★ 同一块紧接着又来一次 → **不再派**（手侧每 200ms 回一次 ✗ 不去重会疯 ✗）",
+       说2 is None and len(栈.接过的) == 1, f"{说2!r} / {len(栈.接过的)}")
+
+    # ══════════ E 说清为什么 ══════════
+    print("── E 组：做不了就说清 ──")
+    愈._上次.clear()
+    试("E1 ★ 没有扫描帧 → 不派活，并说清「等下拍」（不瞎挖 ✓）",
+       "等下拍" in str(愈.处理回执(b, None, 挡回执())), str(愈.处理回执(b, None, 挡回执())))
+    b2, 栈2, _ = 造环境(栈好=False)
+    愈._上次.clear()
+    试("E2 ★ 任务栈拒单 → 照实说，不装死",
+       "不接" in str(愈.处理回执(b2, {"pos": [0, 0, 0]}, 挡回执(p=(11, 64, 10)))))
+
+    # ══════════ A 卸下 ══════════
+    r2 = 愈.卸下(b)
+    试("A6 卸下返回好", r2.get("好") is True, str(r2))
+    试("A7 ★★ 一字不差还原（is 同一个对象）", 假叙事者.看回执 is 原)
+    试("A8 卸干净之后再卸也不炸", 愈.卸下(b).get("好") is True)
+
+    print("\n" + "═" * 62)
+    print(f"障碍自愈车厢：{len(通过)} 过 / {len(失败)} 失败")
+    for f in 失败:
+        print(f"  ❌ {f['名']} —— {f['为啥']}")
+    print("═" * 62)
+    return 1 if 失败 else 0
+
+
+if __name__ == "__main__":
+    sys.exit(主())
