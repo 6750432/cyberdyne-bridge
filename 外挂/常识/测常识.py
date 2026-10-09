@@ -394,6 +394,34 @@ def 主():
     D组()
     E组()
     Z组()
+    # ═══════════ N 组：★ 主人当场抓包那次（「那是石头，挖了就是圆石！」）═══════════
+    #   实机原话：日志里它说「周围没有 blackstone —— 我朝**东**走 18 格去找找」
+    #   主人：「嗯？怎么日志说要黑石？**傻逼吗？那是石头，挖了就是圆石！**」
+    #
+    #   真因：`#stone_tool_materials` 是个**标签**（好几种料能互换 ✓）
+    #     拆标签的时候三个排序键（够不够得着 / 难度 / ——）**全打平** ✗
+    #     → 最后按**字母序** ✗ → `blackstone` 排第一 ✓
+    #   而**黑石只在下界** ✗ —— 主世界地表挖一块石头掉的就是**圆石** ✓
+    print("── N 组：镐子料必须挑「圆石」这一家 ──")
+    import 求解器 as Q
+    骨头 = Q.求解("stone_pickaxe", 1, {}, 方块在哪={})
+    步N = (骨头 or {}).get("计划") or []
+    挖N = [x.get("目标方块") for x in 步N if x.get("动作") == "挖"]
+    试("N1 ★★★ 做石镐要挖的是 **stone**（挖了掉圆石 ✓）—— 不许是 blackstone ✗",
+       "stone" in 挖N and "blackstone" not in 挖N, str(挖N))
+    试("N2 ★★★ 也不许是 deepslate ✗（深板岩在 y<0 才成片 ✓ 地表挖不出几块 ✓）",
+       "deepslate" not in 挖N, str(挖N))
+    试("N3 ★★★ 计划尾巴上还是合成 stone_pickaxe ✓（别为了改料把目标改了 ✗）",
+       any(x.get("动作") == "合成" and x.get("物品") == "stone_pickaxe" for x in 步N),
+       str([x.get("物品") for x in 步N if x.get("动作") == "合成"]))
+    试("N4 ★★ 手上已经有木镐时也照样挑石头 ✓（不是靠「没工具」侥幸躲过去的 ✓）",
+       "stone" in [x.get("目标方块") for x in
+                  ((Q.求解("stone_pickaxe", 1, {"wooden_pickaxe": 1}, 方块在哪={})
+                    or {}).get("计划") or []) if x.get("动作") == "挖"],
+       str([x.get("目标方块") for x in ((Q.求解("stone_pickaxe", 1, {"wooden_pickaxe": 1},
+                                              方块在哪={}) or {}).get("计划") or [])
+            if x.get("动作") == "挖"]))
+
     print(f"\n{'═' * 62}")
     print(f"常识库测试：{len(通过)} 过 / {len(失败)} 失败")
     for x in 通过:

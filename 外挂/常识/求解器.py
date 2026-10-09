@@ -296,7 +296,27 @@ def 求解(目标, 数量=1, 背包=None, 方块在哪=None, 最多深度=None):
         for c in 候:
             if 工作.get(c, 0) > 0:
                 return c
-        return sorted(候, key=lambda c: (够不着(c), 难度.get(c, 无穷), c))[0]
+        # ★★★★ 2026-10-09 主人当场抓包（原话）：
+        #   「嗯？怎么日志说要黑石？**傻逼吗？那是石头，挖了就是圆石！**」
+        #   **元凶就是这一行** ✗：
+        #     `#stone_tool_materials` 这个标签的成员是
+        #       cobblestone / blackstone / cobbled_deepslate …
+        #     三个键走完（够不够得着 / 难度 / ——）**全打平** ✗
+        #     → 最后按**字母序** ✗ → `blackstone` 排第一 ✓
+        #     → 于是它一本正经要「朝东走 18 格去找 blackstone」✗
+        #   而 **黑石是下界的东西** ✗ —— 主世界地表挖石头掉的就是**圆石** ✓
+        #   规矩：**下界货排最后** ✓（名单见文件头的 `下界货` ✓
+        #     是 minecraft-data 的维度事实 ✓ 不是我拍脑袋 ✗）
+        #   ⚠ 是"排最后"不是"删掉" ✗ —— 真在下界、附近又有黑石，它照样该用 ✓
+        # ★ 顺位（主人 2026-10-09：「那是石头，挖了就是圆石！」）：
+        #   ① **圆石** —— 主世界地表挖一块石头就有 ✓ 最自然 ✓ 排第一 ✓
+        #      （原来它被字母序挤到后面 ✗ 先是去下界找黑石 ✗ 改完又去找深板岩 ✗
+        #        深板岩在 y<0 才成片 ✗ 地表挖不出几块 ✓ 也不对 ✓）
+        #   ② 深板岩家（圆石深板岩）—— 也行 ✓ 但那是地底下的东西 ✓
+        #   ③ 下界货（黑石）—— 最后 ✓
+        return sorted(候, key=lambda c: (c not in 首选石头料,   # ★ 先挑圆的 ✓
+                                        c in 下界货,            # ★ 下界货排最后 ✓
+                                        够不着(c), 难度.get(c, 无穷), c))[0]
 
     def 够不着(m):
         return 0 if 可及(m) else 1
@@ -497,7 +517,18 @@ def 求解(目标, 数量=1, 背包=None, 方块在哪=None, 最多深度=None):
             #   哪怕主人身边只有 `iron_ore`。2026-10-07 实测撞到。
             #   其次：要的工具越少越好（徒手优先）；再其次：掉自己的排后面
             #   （树掉自己，但别的来源更"自然"时优先别的）。
-            方块们.sort(key=lambda b: (b not in 近处,
+            # ★★★★ 2026-10-09 主人当场抓包（原话）：
+            #   「嗯？怎么日志说要黑石？**傻逼吗？那是石头，挖了就是圆石！**」
+            #   查下来是**我这条排序的锅** ✗：
+            #     石头类的 11 种「镐子料」附近一个都没有 → 前面三个键**全部打平**
+            #     → 最后按**字母序**排 ✗ → `blackstone` < `cobblestone` < `stone`
+            #     → 于是它一本正经地要「朝东走 18 格去找 blackstone」✗
+            #   而**黑石是下界的东西** ✗ —— 主世界地表挖石头，掉的就是**圆石** ✓
+            #   规矩：**下界专属方块排最后** ✓（不是删掉 ✗ ——
+            #     哪天真在下界，附近有黑石它照样该用 ✓）
+            #   ⚠ 这一条**有依据**：名单来自 minecraft-data 的维度事实 ✓ 不是我拍脑袋 ✗
+            方块们.sort(key=lambda b: (b in 下界货,          # ★ 下界货排最后 ✓
+                                     b not in 近处,
                                      len(数["方块"][b]["需要工具"]), b == 名, b))
             选中 = None
             for b in 方块们:
@@ -562,6 +593,30 @@ def 求解(目标, 数量=1, 背包=None, 方块在哪=None, 最多深度=None):
         return {"好": False, "为什么": str(e), "计划": [], "统计": 统计}
     统计["剩料"] = {k: v for k, v in 工作.items() if v}
     return {"好": True, "为什么": "", "计划": 计划, "统计": 统计}
+
+
+# ★ 下界专属方块（2026-10-09 主人当场抓包那次立的规矩 ✓）
+#   「那是石头，挖了就是圆石！」—— 主世界地表挖石头掉圆石 ✓
+#   黑石/玄武岩/下界岩这些**只在下界** ✓ 主世界排到最后 ✓
+#   ⚠ 是"排最后"不是"删掉" ✗：真在下界、附近又有黑石，它照样该用 ✓
+下界货 = frozenset({
+    "blackstone", "basalt", "smooth_basalt", "netherrack", "soul_sand",
+    "soul_soil", "nether_quartz_ore", "nether_gold_ore", "ancient_debris",
+    "crimson_stem", "warped_stem", "crimson_nylium", "warped_nylium",
+    "shroomlight", "glowstone", "magma_block", "nether_bricks",
+    "crying_obsidian", "gilded_blackstone", "polished_blackstone",
+    "chiseled_polished_blackstone", "nether_wart_block", "warped_wart_block",
+    "twisting_vines", "weeping_vines", "nylium",
+})
+
+
+# ★ 「镐子料」的首选：**圆石** ✓
+#   主人 2026-10-09 原话：「那是石头，挖了就是圆石！」
+#   `#stone_tool_materials` 这个标签里有好几种能互换的料 ✓
+#   可**主世界地表挖一块石头掉的就是圆石** ✓ 那是最自然的那一种 ✓
+#   （不写这个的话，排序会按字母把 blackstone / cobbled_deepslate 排前面 ✗
+#    实机就出现过「朝东走 18 格去找 blackstone」✗ 和改完后的"去找深板岩"✗）
+首选石头料 = frozenset({"cobblestone", "stone"})
 
 
 def 最好的那把(候选工具):
