@@ -422,6 +422,34 @@ def 主():
                                               方块在哪={}) or {}).get("计划") or [])
             if x.get("动作") == "挖"]))
 
+    # ═══════════ O 组：★ 老祖课第二课的三条建议 ═══════════
+    #   （拿逻辑编程当镜子照出来的 ✓ 只当参考 ✓ 主链一行没动 ✓）
+    print("── O 组：老祖课第二课的三条建议（追因链 / 层数 / 反查）──")
+    坏 = Q.求解("diamond_pickaxe", 1, 背包={})
+    试("O1 做不出来的东西，答得出来「不成」", not 坏.get("好"),
+       "好=%r" % 坏.get("好"))
+    试("O1b 为什么里带**追因链**（试过哪几条路都列出来）",
+       "我试过的路" in (坏.get("为什么") or ""),
+       "为什么 = %s" % (坏.get("为什么") or "（空 ✗）")[:160])
+    浅 = Q.求解("stone_pickaxe", 1, 背包={}, 最多深度=2)
+    试("O2 深度不够时报得出**层数与目标**（建议②）",
+       (not 浅.get("好")) and ("层" in (浅.get("为什么") or "")),
+       "为什么 = %s" % (浅.get("为什么") or "")[:160])
+    条 = Q.谁能产出("iron_ingot")
+    试("O3 谁能产出(iron_ingot) ≥3 条（拆包 / 熔炉 / 高炉）", len(条) >= 3,
+       "拿到 %d 条" % len(条))
+    台 = Q.谁需要设备("crafting_table")
+    试("O3b 谁需要设备(crafting_table) 一次问得出名字 ✓", len(台) > 50,
+       "%d 个：%s" % (len(台), "、".join(台[:4])))
+    试("O3c 挖什么掉(cobblestone) 里有 stone ✓",
+       "stone" in Q.挖什么掉("cobblestone"), str(Q.挖什么掉("cobblestone")[:4]))
+    # ★ 这条我第一版**断言写错了** ✗：我以为 oak_log 直接被 oak_planks 用 ✓
+    #   真数据里是走 **`#oak_logs` 标签** ✓ ⇒ 认标签才对 ✓（先看数据再写断言 ✗）
+    试("O3d 用了什么(oak_log) 里有 oak_planks（认 #标签 ✓）",
+       "oak_planks" in Q.用了什么("oak_log"), str(Q.用了什么("oak_log")[:6]))
+    试("O3e 卡在谁身上(diamond_pickaxe) 说得出一句人话 ✓",
+       len(Q.卡在谁身上("diamond_pickaxe")) > 6, Q.卡在谁身上("diamond_pickaxe")[:90])
+
     print(f"\n{'═' * 62}")
     print(f"常识库测试：{len(通过)} 过 / {len(失败)} 失败")
     for x in 通过:
