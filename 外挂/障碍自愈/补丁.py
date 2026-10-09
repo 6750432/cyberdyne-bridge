@@ -71,8 +71,22 @@ def 处理回执(bridge, 状态=None, e=None):
         挡名 = ""
         try:
             挡着 = (e or {}).get("挡着") or []
-            if 挡着 and isinstance(挡着[0], dict):
-                挡名 = str(挡着[0].get("name") or "")
+            # ★★★ 2026-10-09：名字要**对着「先挖」那一格**找 ✗
+            #   原来直接拿 `挡着[0]` ✓ —— 可"被整个埋住"那一支给的是一整张挡路表 ✓
+            #   而 `先挖` 是从里面**挑出来的那一块** ✗
+            #   俩不一致的后果很隐蔽：派活时写「挖 oak_log」、
+            #   可坐标指的是**那片叶子** → 挖空守卫的"陈坐标"判据当场把它拦下 ✗
+            #   （判据是"我要的方块 ≠ 那一格初见的方块" ✓ 它拦得对，是我名字给错了 ✓）
+            for 条 in 挡着:
+                if not isinstance(条, dict):
+                    continue
+                q = 条.get("p")
+                if (isinstance(q, (list, tuple)) and len(q) >= 3
+                        and all(abs(float(q[i]) - 键[i]) < 0.5 for i in range(3))):
+                    挡名 = str(条.get("name") or "")
+                    break
+            if not 挡名 and 挡着 and isinstance(挡着[0], dict):
+                挡名 = str(挡着[0].get("name") or "")     # 兜底：老样子 ✓
         except Exception:
             pass
         栈 = _活实例(bridge, "任务栈")
