@@ -102,6 +102,16 @@ def _记(状态):
             位 = 条.get("p")
             if not (名 and isinstance(位, (list, tuple)) and len(位) >= 3):
                 continue
+            # ★★★ 2026-10-09：**空气不是材料** ✗
+            #   实机（主人 13:50 那一场）：「生存常识：本区块：**air**@[-136, 77, 159]，0.7 格」✓
+            #   → 它把"空气"当材料挑出来 → 派了「挖 air」+「拾 air」✗
+            #     → 挖"成功"了（那里本来就是空气）可什么都不掉 → 「拾」干等 60 秒 ✓
+            #   空气是从哪儿进来的：雷达会把**盯着的格子**（含身边那 4 格）报上来 ✓
+            #     那里面天然就有空气 ✓ 而我（2026-10-09）刚把身边 4 格改成**永远要报** ✓
+            #     → 空气进了内存 → 被当成候选材料 ✗
+            #   规矩：**内存只收"能当材料的东西"** ✓ 空气/水一律不收 ✓
+            if str(名) in 空气名:
+                continue
             键 = (int(位[0]), int(位[1]), int(位[2]))
             区 = 块区(键)
             堆 = _记忆.setdefault(区, {}).setdefault(str(名), {})
@@ -115,6 +125,8 @@ def _记(状态):
             名, 位 = 条.get("name"), 条.get("p")
             if not (名 and isinstance(位, (list, tuple)) and len(位) >= 3):
                 continue
+            if str(名) in 空气名:
+                continue          # ★ 同上：雷达盯的格子里天然有空气 ✓ 空气不是材料 ✗
             键 = (int(位[0]), int(位[1]), int(位[2]))
             _记忆.setdefault(块区(键), {}).setdefault(str(名), {})[键] = {
                 "t": 现在, "裸露": None, "视线": None, "挡前": None}
@@ -206,6 +218,8 @@ def 挑块(状态, 想要=None, 我=None):
             if 区 not in _已知区块:
                 continue                        # ★ 红线：没扫过的不许用
             for 名, 位表 in 堆.items():
+                if str(名) in 空气名:
+                    continue          # ★ 兜底：空气永远不是候选材料 ✗
                 if 想要 and str(名) != str(想要):
                     continue
                 for 位, 情报 in 位表.items():
