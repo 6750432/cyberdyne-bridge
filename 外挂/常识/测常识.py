@@ -450,6 +450,33 @@ def 主():
     试("O3e 卡在谁身上(diamond_pickaxe) 说得出一句人话 ✓",
        len(Q.卡在谁身上("diamond_pickaxe")) > 6, Q.卡在谁身上("diamond_pickaxe")[:90])
 
+    # ═══════════ P 组：★ 老祖课第三、四课 ═══════════
+    #   ③（Lisp）把规则从代码搬进数据 ✓ ④（Prolog 另一半）备选路只当提示 ✓
+    print("── P 组：老祖课第三、四课（规则进数据 / 备选路）──")
+    旋钮路 = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__)))), "常识库", "求解器旋钮.json")
+    试("P1 旋钮文件在（知识真的搬进数据了 ✓）", os.path.isfile(旋钮路), 旋钮路)
+    if os.path.isfile(旋钮路):
+        with open(旋钮路, encoding="utf-8") as f:
+            旋 = json.load(f)
+        试("P1b 旋钮里的深度跟求解器用的一致 ✓",
+           旋.get("最多深度") == Q.默认最多深度,
+           "文件 %r ｜ 代码 %r" % (旋.get("最多深度"), Q.默认最多深度))
+        试("P1c 下界货 26 个、搬过来一个没少 ✓",
+           len(Q.下界货) == len(旋.get("下界货") or []),
+           "%d vs %d" % (len(Q.下界货), len(旋.get("下界货") or [])))
+        试("P1d 首选石头料就是圆石那一家 ✓",
+           set(Q.首选石头料) == set(旋.get("首选石头料") or []),
+           str(sorted(Q.首选石头料)))
+    路 = Q.备选路("iron_ingot")
+    试("P2 铁锭**一共有几条路**，说得出条数 ✓", 路["几条"] >= 3, "%d 条" % 路["几条"])
+    试("P2b 三条路里**至少有一条能走通**（熔炉那条 ✓）",
+       any(x["能走通"] for x in 路["路"]),
+       str([(x["方式"], x["能走通"], x["缺"][:2]) for x in 路["路"]]))
+    试("P2c **拆包那条走不通**（铁块要铁锭 ⇒ 自指 ✓ 镜子照出来的那个环 ✓）",
+       any((not x["能走通"]) for x in 路["路"]),
+       str([(x["方式"], x["缺"]) for x in 路["路"]])[:120])
+
     print(f"\n{'═' * 62}")
     print(f"常识库测试：{len(通过)} 过 / {len(失败)} 失败")
     for x in 通过:

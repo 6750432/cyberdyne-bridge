@@ -48,7 +48,61 @@ import 挖掘矩阵                    # noqa: E402
 #   报出来的是「嵌套太深」而不是真正缺什么，等于把主人要的
 #   「说清楚做不到」给盖住了。所以给到 12（留余量），
 #   真正无限递归由更靠里的**环检测**兜着，不靠这个数。
-默认最多深度 = 12
+# ★★ 老祖课第三课（Lisp）：**把规则从代码里搬进数据** ✓
+#   为什么：判断用的知识（哪些方块只在下界 ✓ 哪几种料算镐子料 ✓ 深度给多少 ✓）
+#   **写在代码里就改不动** ✗ —— 改一次要动代码 + 跑全套闸门 ✓
+#   搬进 常识库/求解器旋钮.json 之后：改数据就行 ✓ 主链照样一行不动 ✓
+#   ⚠ 三条规矩：① 搬 ≠ 改（值必须一模一样 ✓）② 读不到就用内置默认 + **出声** ✗
+#              ③ 不许装搬完了 ✗ —— 没搬的在文件里老实列着 ✓
+旋钮路径 = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "..", "..", "常识库", "求解器旋钮.json")
+_旋钮缓存 = None
+
+
+def 旋钮():
+    """读旋钮 ✓ 读不到/读坏了 ⇒ 内置默认 + **出声** ✗（静默是罪 ✓）"""
+    global _旋钮缓存
+    if _旋钮缓存 is not None:
+        return _旋钮缓存
+    内置 = {
+        "最多深度": 12,
+        "下界货": frozenset({
+            "blackstone", "basalt", "smooth_basalt", "netherrack", "soul_sand",
+            "soul_soil", "nether_quartz_ore", "nether_gold_ore", "ancient_debris",
+            "crimson_stem", "warped_stem", "crimson_nylium", "warped_nylium",
+            "shroomlight", "glowstone", "magma_block", "nether_bricks",
+            "crying_obsidian", "gilded_blackstone", "polished_blackstone",
+            "chiseled_polished_blackstone", "nether_wart_block", "warped_wart_block",
+            "twisting_vines", "weeping_vines", "nylium",
+        }),
+        "首选石头料": frozenset({"cobblestone", "stone"}),
+    }
+    try:
+        import json as _json
+        with open(旋钮路径, encoding="utf-8") as f:
+            原 = _json.load(f)
+        if not isinstance(原, dict):
+            raise ValueError("旋钮文件的根不是字典")
+        最大 = 原.get("最多深度", 内置["最多深度"])
+        if not isinstance(最大, int) or isinstance(最大, bool) or 最大 < 1:
+            raise ValueError("最多深度 得是正整数（拿到 %r）" % (最大,))
+        内置["最多深度"] = 最大
+        for 键 in ("下界货", "首选石头料"):
+            if 键 in 原:
+                if not isinstance(原[键], list):
+                    raise ValueError("%s 得是列表" % 键)
+                内置[键] = frozenset(原[键])
+    except FileNotFoundError:
+        print("[求解器] 旋钮文件不在（%s）⇒ 用内置默认 ✓ —— 不是错，但说明数据没搬全 ✓"
+              % 旋钮路径)
+    except Exception as e:
+        print("[求解器] ✗ 旋钮文件读不了（%s：%s）⇒ **用内置默认** ✓ 必须出声 ✗"
+              % (type(e).__name__, e))
+    _旋钮缓存 = 内置
+    return 内置
+
+
+默认最多深度 = 旋钮()["最多深度"]
 _追踪 = bool(os.environ.get("COMMON_TRACE"))
 
 # 手工合成最多 2×2，所以「有形状且任一边 > 2」的配方必须用工作台
@@ -622,7 +676,9 @@ def 求解(目标, 数量=1, 背包=None, 方块在哪=None, 最多深度=None):
 #   「那是石头，挖了就是圆石！」—— 主世界地表挖石头掉圆石 ✓
 #   黑石/玄武岩/下界岩这些**只在下界** ✓ 主世界排到最后 ✓
 #   ⚠ 是"排最后"不是"删掉" ✗：真在下界、附近又有黑石，它照样该用 ✓
-下界货 = frozenset({
+下界货 = 旋钮()["下界货"]      # ★ 老祖课第三课：这份知识搬到 常识库/求解器旋钮.json 了 ✓
+_下界货兜底 = frozenset({        # （兜底那份在 旋钮() 里 ✓ 这里留着只是给读代码的人看 ✓）
+
     "blackstone", "basalt", "smooth_basalt", "netherrack", "soul_sand",
     "soul_soil", "nether_quartz_ore", "nether_gold_ore", "ancient_debris",
     "crimson_stem", "warped_stem", "crimson_nylium", "warped_nylium",
@@ -639,7 +695,7 @@ def 求解(目标, 数量=1, 背包=None, 方块在哪=None, 最多深度=None):
 #   可**主世界地表挖一块石头掉的就是圆石** ✓ 那是最自然的那一种 ✓
 #   （不写这个的话，排序会按字母把 blackstone / cobbled_deepslate 排前面 ✗
 #    实机就出现过「朝东走 18 格去找 blackstone」✗ 和改完后的"去找深板岩"✗）
-首选石头料 = frozenset({"cobblestone", "stone"})
+首选石头料 = 旋钮()["首选石头料"]   # ★ 同上：搬到数据里了 ✓
 
 
 def 最好的那把(候选工具):
@@ -735,6 +791,39 @@ def 挖什么掉(物品):
     """哪些方块挖了会掉这个东西 ✓ → 排好序的方块名 ✓"""
     数 = _补配方尺寸(数据模块.载入())
     return sorted(数["掉落索引"].get(物品) or [])
+
+
+def 备选路(物品, 最多条=8):
+    """★ 老祖课第四课（Prolog 的另一半）：**把「还有别的路」当提示** ✓
+
+    为什么只当提示、不进主链 ✗：
+      主链只返回**第一条能走通的**，那是**刻意**的 ✓（剪枝换速度 ✓
+      现实里「划算」比「完备」值钱 ✓ 镜子那一课已经照明白了 ✓）
+      但「还有别的路」这个信息本身有用 ✓ ——
+      今天就靠人肉把 `iron_ingot` 那三条路一条条试过去 ✓ 有它就不用试了 ✓
+
+    ⚠ **不参与决策** ✗ —— 只回答「一共有几条、哪条能走通、缺什么」✓
+    """
+    数 = _补配方尺寸(数据模块.载入())
+    难 = 物品难度()
+    能拿到 = lambda m: (难.get(m, 无穷) < 无穷
+                       or any(难.get(x, 无穷) < 无穷 for x in _标签成员(数, m)))
+    出 = []
+    for i, r in enumerate(谁能产出(物品)):
+        材料 = _材料名们(数, r)
+        缺 = [m for m in 材料 if not 能拿到(m)]
+        if r.get("要台子") and not 能拿到(_工作台方块):
+            缺.append(_工作台方块)
+        设 = r.get("设备")
+        if 设 and not 能拿到(设):
+            缺.append(设)
+        出.append({"序": i + 1, "方式": r.get("方式") or "（没说方式）",
+                   "材料": 材料, "要台子": bool(r.get("要台子")),
+                   "缺": 缺, "能走通": not 缺})
+        if len(出) >= 最多条:
+            break
+    挖 = 挖什么掉(物品)
+    return {"物品": 物品, "几条": len(出), "路": 出, "挖得到": 挖}
 
 
 def 卡在谁身上(物品, 最多条=3):
