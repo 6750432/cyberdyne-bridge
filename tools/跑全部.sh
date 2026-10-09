@@ -48,6 +48,10 @@ TESTS=(
 # 审计型：只报「已接/缺口」，不参与通过数
 AUDITS=(外挂/测空间决策.py)
 
+# ★ 结构体门诊：manifest/常识库/手侧插件的 JSON **必须合法** ✓
+#   （2026-10-09 同一天因为这个栽了两次：一个坏 manifest 带崩 4 个测试文件 ✗）
+CHECKS=(tools/查JSON.py)
+
 total_pass=0
 total_fail=0
 bad_files=()
@@ -104,6 +108,26 @@ for t in "${AUDITS[@]}"; do
   n_que=$(printf '%s\n' "$out" | grep -oE '缺口[：:][^0-9]*[0-9]+' | grep -oE '[0-9]+$' | tail -1)
   # ⚠ 变量名必须 ASCII —— 这里我连踩两次：先写 `接=`，改成 `接上的=` 还是中文 ✗
   echo "  ▤ $(basename "$t")　审计表：已接 ${n_jie:-?} 条 ｜ 缺口 ${n_que:-?} 处（不参与通过数）"
+done
+
+# ── 结构体门诊：manifest / 常识库 / 手侧插件的 JSON **必须合法** ✓ ──
+#   ★ 2026-10-09：同一天里，坏掉的 manifest **两次带崩一整列车** ✗
+#     （复核那次一崩就是 4 个测试文件、667 条过 ✗）
+#     ⇒ 结构坏掉必须**在门口**红 ✓ 而不是让它在后面炸 ✗
+#   规矩跟 AUDITS 一样：**参与通过数** ✓（它是硬闸门 ✓ 不是参考表 ✗）
+for t in "${CHECKS[@]}"; do
+  if [ ! -f "$t" ]; then echo "  ⚠ 缺文件：$t"; continue; fi
+  out=$(timeout 300 python3 "$t" 2>&1)
+  rc=$?
+  if [ "$rc" = "0" ]; then
+    n_ok=$(printf '%s\n' "$out" | head -1)
+    echo "  ✔ $(basename "$t")　$n_ok"
+    pass=$((pass + 1))
+  else
+    echo "  ✗ $(basename "$t")　退出码 $rc"
+    printf '%s\n' "$out" | tail -20 | sed 's/^/        /'
+    bad_files+=("$t")
+  fi
 done
 
 # ── JS 那条：主链的"手"是 JS 写的，光测 Python 盖不住它 ──

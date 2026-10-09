@@ -5,6 +5,7 @@
   "type": "commonjs",
   "description": "Cyberdyne-Bridge M0 - hand inside",
   "dependencies": {
-    "mineflayer": "^4.39.0"
+    "mineflayer": "^4.39.0",
+    "mineflayer-collectblock": "^1.6.0"
   }
 }
