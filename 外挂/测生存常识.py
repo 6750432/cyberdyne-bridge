@@ -1003,6 +1003,50 @@ def 主():
     试("M8 ★★★ 【模型】往上挖的级数也是**从目标层算的** ✓（y=74 → y=77 = 3 级 ✓）",
        "3 级台阶" in str(_说U), str(_说U))
 
+    # ═══════════ M9 ★★★★ 变异测试：模型文件真的在驱动行为吗？═══════════
+    #   ★ 主人 2026-10-09 原话：
+    #     「**诶？不是，我模型都给了他怎么还在刨地表的泥土，直接把模型扔给他啊**」
+    #   我上一版是"**我照着模型写代码**"✗（把 2 抄进函数、把 45° 抄进注释 ✓）
+    #   那是**我对模型的理解** ✗ 不是模型本身 ✓
+    #   现在模型是**一份数据**（`常识库/通道骨架.json` ✓）函数去读它 ✓
+    #   ⇒ 怎么**证明**它真在读 ✗ 光看代码不算 ✓ —— **把文件改了，看行为跟不跟着变** ✓
+    #     （这就是"Mutation Testing"：改输入，行为必须跟着动 ✓
+    #       如果改完行为不动 ✓ 那说明**根本没读** ✗ —— 静默失败的最狠一种 ✓）
+    print("── M9 变异测试：改模型文件，行为必须跟着变 ──")
+    import json as _json
+    骨路 = os.path.join(ROOT, "常识库", "通道骨架.json")
+    try:
+        with open(骨路, encoding="utf-8") as f:
+            全骨 = _json.load(f)
+    except Exception as e:
+        全骨 = None
+        试("M9 ★★★★ 模型文件读得到", False, str(e))
+    if 全骨 is not None:
+        原高 = 全骨["骨架"]["高"]
+        try:
+            # ① 改成 3 → 每列必须挖 3 格（证明它**真的在读** ✓）
+            全骨["骨架"]["高"] = 3
+            with open(骨路, "w", encoding="utf-8") as f:
+                _json.dump(全骨, f, ensure_ascii=False, indent=1)
+            常._骨架缓存 = None                     # 把车厢的缓存踢掉（不然读的是旧值 ✓）
+            步X, _ = 常.安排一趟向下盲挖(帧直, 背包={"wooden_pickaxe": 1}, 目标层=71)
+            列X = 通道形状(步X)
+            试("M9 ★★★★ 把模型的「高」改成 3 → **它当场每列挖 3 格** ✓"
+               "（行为跟着文件变 = 它真的在读模型 ✓ 不是我抄的数字 ✗）",
+               bool(列X) and all(len(v) == 3 for v in 列X.values()),
+               str({k: sorted(v) for k, v in 列X.items()}))
+        finally:
+            # ② 无论成败都**还原**（别把主人的模型改坏了 ✗ —— 这比用例更重要 ✓）
+            全骨["骨架"]["高"] = 原高
+            with open(骨路, "w", encoding="utf-8") as f:
+                _json.dump(全骨, f, ensure_ascii=False, indent=1)
+            常._骨架缓存 = None
+        步Y, _ = 常.安排一趟向下盲挖(帧直, 背包={"wooden_pickaxe": 1}, 目标层=71)
+        列Y = 通道形状(步Y)
+        试("M10 ★★★★ 还原之后又变回 2 格 ✓（用例自己收尾干净 ✓ 不留脏状态 ✗）",
+           bool(列Y) and all(len(v) == 2 for v in 列Y.values()),
+           str({k: sorted(v) for k, v in 列Y.items()}))
+
     print(f"\n{'═' * 62}")
     print(f"生存常识车厢：{len(通过)} 过 / {len(失败)} 失败")
     for x in 通过:
