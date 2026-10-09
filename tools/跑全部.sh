@@ -110,6 +110,7 @@ done
 JS_TESTS=(
   node/测试/准真实路径.test.js
   node/测试/声呐紧急通道.test.js
+  node/测试/身边四格.test.js
 )
 if [ "$1" != "--快" ]; then
   if [ -x "$NODE" ]; then

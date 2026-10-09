@@ -23,6 +23,8 @@ const mineflayer = require('mineflayer');
 /* ─────────────────────────── 配置 ─────────────────────────── */
 
 const ROOT = path.resolve(__dirname, '..');
+// ★ 2026-10-09：「我身边那 4 格」的工具（抽出来才好单独验 ✓）
+const { 补齐身边四格 } = require(path.join(__dirname, 'plugins', '身边四格.js'));
 const CONFIG_PATH = path.join(ROOT, 'config.json');
 
 if (process.argv.includes('--help')) {
@@ -425,9 +427,23 @@ function 取坐标(p) {
 }
 
 function 方块快照() {
-  if (!bot || !bot.entity || !看的方块.length) return null;
+  if (!bot || !bot.entity) return null;
+  /* ★★★ 2026-10-09：**身边那 4 格永远要报** ✗
+   *   为什么（主人的 P0-1 那一场，实机原话）：
+   *     [探针-落坐标后] 步骤=0 ｜ 因=雷达还没盯我身边那 4 格
+   *       （放crafting_table要先知道旁边哪格是空的）
+   *     它说「（已把雷达指过去）」→ 下一轮**又是同一句** ✓ 五分钟一步没动 ✗
+   *   根子：脑侧"放东西"要靠雷达知道旁边哪格是空的 ✓
+   *     可**任务一结束，主链会 `_撤探针` 把雷达整个清空**（空列表 = 显式清空 ✓）
+   *     → 「生存常识」刚指过去的 4 格，下一秒就被抹掉 ✓
+   *   规矩：**身边那几格是"我本来就该知道的"** ✓ 不该等谁来指 ✓
+   *     （雷达是"额外盯着远处的东西"✓ 两者不是一回事 ✗
+   *      也不违反反矿透 —— 挨着我的那 4 格，肉眼本来就看得到 ✓）
+   */
+  const 要报 = 补齐身边四格(看的方块, bot.entity.position);
+  if (!要报.length) return null;
   const 出 = [];
-  for (const p of 看的方块) {
+  for (const p of 要报) {
     let 名 = null;
     try { const 块 = bot.blockAt(取坐标(p)); 名 = 块 ? 块.name : null; } catch (e) { 名 = null; }
     出.push({ p, name: 名 });
