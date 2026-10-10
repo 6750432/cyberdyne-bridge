@@ -1,0 +1,6046 @@
+{
+ "_来源": "minecraft-data@本机 node_modules（mineflayer 依赖）",
+ "_版本": "1.21.1",
+ "_生成": "tools/生成方块交互表.js",
+ "_怎么读": "某方块：{ 硬: 硬度, 要: [需要什么工具才掉东西]（空=徒手就掉）, 类: 最快用什么 }",
+ "_样本": {
+  "grass_block": {
+   "硬": 0.6,
+   "要": [],
+   "类": "shovel"
+  },
+  "stone": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "oak_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "dirt": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "sand": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "gravel": {
+   "硬": 0.6,
+   "要": [],
+   "类": "shovel"
+  },
+  "cobblestone": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  }
+ },
+ "方块": {
+  "stone": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "granite": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_granite": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "diorite": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_diorite": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "andesite": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_andesite": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "grass_block": {
+   "硬": 0.6,
+   "要": [],
+   "类": "shovel"
+  },
+  "dirt": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "coarse_dirt": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "podzol": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "cobblestone": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "oak_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_mosaic": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "oak_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "spruce_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "birch_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "jungle_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "acacia_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "cherry_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "dark_oak_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "mangrove_propagule": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "water": {
+   "硬": 100,
+   "要": [],
+   "类": "default"
+  },
+  "lava": {
+   "硬": 100,
+   "要": [],
+   "类": "default"
+  },
+  "sand": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "suspicious_sand": {
+   "硬": 0.25,
+   "要": [],
+   "类": "shovel"
+  },
+  "red_sand": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "gravel": {
+   "硬": 0.6,
+   "要": [],
+   "类": "shovel"
+  },
+  "suspicious_gravel": {
+   "硬": 0.25,
+   "要": [],
+   "类": "shovel"
+  },
+  "gold_ore": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "deepslate_gold_ore": {
+   "硬": 4.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "iron_ore": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "deepslate_iron_ore": {
+   "硬": 4.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "coal_ore": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "deepslate_coal_ore": {
+   "硬": 4.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "nether_gold_ore": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "oak_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_roots": {
+   "硬": 0.7,
+   "要": [],
+   "类": "axe"
+  },
+  "muddy_mangrove_roots": {
+   "硬": 0.7,
+   "要": [],
+   "类": "shovel"
+  },
+  "bamboo_block": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_spruce_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_birch_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_jungle_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_acacia_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_cherry_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_dark_oak_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_oak_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_mangrove_log": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_bamboo_block": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "oak_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_oak_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_spruce_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_birch_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_jungle_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_acacia_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_cherry_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_dark_oak_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_mangrove_wood": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "oak_leaves": {
+   "硬": 0.2,
+   "要": [],
+   "类": "leaves;mineable/hoe"
+  },
+  "spruce_leaves": {
+   "硬": 0.2,
+   "要": [],
+   "类": "leaves;mineable/hoe"
+  },
+  "birch_leaves": {
+   "硬": 0.2,
+   "要": [],
+   "类": "leaves;mineable/hoe"
+  },
+  "jungle_leaves": {
+   "硬": 0.2,
+   "要": [],
+   "类": "leaves;mineable/hoe"
+  },
+  "acacia_leaves": {
+   "硬": 0.2,
+   "要": [],
+   "类": "leaves;mineable/hoe"
+  },
+  "cherry_leaves": {
+   "硬": 0.2,
+   "要": [],
+   "类": "leaves;mineable/hoe"
+  },
+  "dark_oak_leaves": {
+   "硬": 0.2,
+   "要": [],
+   "类": "leaves;mineable/hoe"
+  },
+  "mangrove_leaves": {
+   "硬": 0.2,
+   "要": [],
+   "类": "leaves;mineable/hoe"
+  },
+  "azalea_leaves": {
+   "硬": 0.2,
+   "要": [],
+   "类": "leaves;mineable/hoe"
+  },
+  "flowering_azalea_leaves": {
+   "硬": 0.2,
+   "要": [],
+   "类": "leaves;mineable/hoe"
+  },
+  "sponge": {
+   "硬": 0.6,
+   "要": [],
+   "类": "hoe"
+  },
+  "wet_sponge": {
+   "硬": 0.6,
+   "要": [],
+   "类": "hoe"
+  },
+  "glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "lapis_ore": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "deepslate_lapis_ore": {
+   "硬": 4.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "lapis_block": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "dispenser": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "sandstone": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chiseled_sandstone": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cut_sandstone": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "note_block": {
+   "硬": 0.8,
+   "要": [],
+   "类": "axe"
+  },
+  "white_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "orange_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "magenta_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "light_blue_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "yellow_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "lime_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "pink_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "gray_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "light_gray_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "cyan_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "purple_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "blue_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "brown_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "green_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "red_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "black_bed": {
+   "硬": 0.2,
+   "要": [],
+   "类": "default"
+  },
+  "powered_rail": {
+   "硬": 0.7,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "detector_rail": {
+   "硬": 0.7,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "sticky_piston": {
+   "硬": 1.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "cobweb": {
+   "硬": 4,
+   "要": [
+    "shears",
+    "剑"
+   ],
+   "类": "coweb"
+  },
+  "short_grass": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "fern": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "dead_bush": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "seagrass": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "tall_seagrass": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "piston": {
+   "硬": 1.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "piston_head": {
+   "硬": 1.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "white_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "orange_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "magenta_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "light_blue_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "yellow_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "lime_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "pink_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "gray_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "light_gray_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "cyan_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "purple_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "blue_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "brown_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "green_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "red_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "black_wool": {
+   "硬": 0.8,
+   "要": [],
+   "类": "wool"
+  },
+  "dandelion": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "torchflower": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "poppy": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "blue_orchid": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "allium": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "azure_bluet": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "red_tulip": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "orange_tulip": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "white_tulip": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "pink_tulip": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "oxeye_daisy": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "cornflower": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "wither_rose": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "lily_of_the_valley": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "brown_mushroom": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "red_mushroom": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "gold_block": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "iron_block": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "bricks": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tnt": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "bookshelf": {
+   "硬": 1.5,
+   "要": [],
+   "类": "axe"
+  },
+  "chiseled_bookshelf": {
+   "硬": 1.5,
+   "要": [],
+   "类": "axe"
+  },
+  "mossy_cobblestone": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "obsidian": {
+   "硬": 50,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "torch": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "wall_torch": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "fire": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "soul_fire": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "spawner": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "oak_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "chest": {
+   "硬": 2.5,
+   "要": [],
+   "类": "axe"
+  },
+  "redstone_wire": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "diamond_ore": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "deepslate_diamond_ore": {
+   "硬": 4.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "diamond_block": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "crafting_table": {
+   "硬": 2.5,
+   "要": [],
+   "类": "axe"
+  },
+  "wheat": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "farmland": {
+   "硬": 0.6,
+   "要": [],
+   "类": "shovel"
+  },
+  "furnace": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "oak_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "oak_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "ladder": {
+   "硬": 0.4,
+   "要": [],
+   "类": "axe"
+  },
+  "rail": {
+   "硬": 0.7,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "cobblestone_stairs": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "oak_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "oak_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "oak_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_wall_hanging_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "lever": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "stone_pressure_plate": {
+   "硬": 0.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "iron_door": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "oak_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "redstone_ore": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "deepslate_redstone_ore": {
+   "硬": 4.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "redstone_torch": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "redstone_wall_torch": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "stone_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "snow": {
+   "硬": 0.1,
+   "要": [
+    "铲子"
+   ],
+   "类": "shovel"
+  },
+  "ice": {
+   "硬": 0.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "snow_block": {
+   "硬": 0.2,
+   "要": [
+    "铲子"
+   ],
+   "类": "shovel"
+  },
+  "cactus": {
+   "硬": 0.4,
+   "要": [],
+   "类": "default"
+  },
+  "clay": {
+   "硬": 0.6,
+   "要": [],
+   "类": "shovel"
+  },
+  "sugar_cane": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "jukebox": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "oak_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "netherrack": {
+   "硬": 0.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "soul_sand": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "soul_soil": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "basalt": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_basalt": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "soul_torch": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "soul_wall_torch": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "glowstone": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "carved_pumpkin": {
+   "硬": 1,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "jack_o_lantern": {
+   "硬": 1,
+   "要": [],
+   "类": "gourd;mineable/axe"
+  },
+  "cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "repeater": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "white_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "orange_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "magenta_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "light_blue_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "yellow_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "lime_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "pink_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "gray_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "light_gray_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "cyan_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "purple_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "blue_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "brown_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "green_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "red_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "black_stained_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "oak_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "stone_bricks": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mossy_stone_bricks": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cracked_stone_bricks": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chiseled_stone_bricks": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "packed_mud": {
+   "硬": 1,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "mud_bricks": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "infested_stone": {
+   "硬": 0.75,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "infested_cobblestone": {
+   "硬": 1,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "infested_stone_bricks": {
+   "硬": 0.75,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "infested_mossy_stone_bricks": {
+   "硬": 0.75,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "infested_cracked_stone_bricks": {
+   "硬": 0.75,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "infested_chiseled_stone_bricks": {
+   "硬": 0.75,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "brown_mushroom_block": {
+   "硬": 0.2,
+   "要": [],
+   "类": "axe"
+  },
+  "red_mushroom_block": {
+   "硬": 0.2,
+   "要": [],
+   "类": "axe"
+  },
+  "mushroom_stem": {
+   "硬": 0.2,
+   "要": [],
+   "类": "axe"
+  },
+  "iron_bars": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chain": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "pumpkin": {
+   "硬": 1,
+   "要": [],
+   "类": "gourd;mineable/axe"
+  },
+  "melon": {
+   "硬": 1,
+   "要": [],
+   "类": "gourd;mineable/axe"
+  },
+  "attached_pumpkin_stem": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "attached_melon_stem": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "pumpkin_stem": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "melon_stem": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "vine": {
+   "硬": 0.2,
+   "要": [],
+   "类": "vine_or_glow_lichen;plant;mineable/axe"
+  },
+  "glow_lichen": {
+   "硬": 0.2,
+   "要": [],
+   "类": "vine_or_glow_lichen;plant;mineable/axe"
+  },
+  "oak_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "brick_stairs": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "stone_brick_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mud_brick_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mycelium": {
+   "硬": 0.6,
+   "要": [],
+   "类": "shovel"
+  },
+  "lily_pad": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "nether_bricks": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "nether_brick_fence": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "nether_brick_stairs": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "nether_wart": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "enchanting_table": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "brewing_stand": {
+   "硬": 0.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cauldron": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "water_cauldron": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "lava_cauldron": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "powder_snow_cauldron": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "end_stone": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dragon_egg": {
+   "硬": 3,
+   "要": [],
+   "类": "default"
+  },
+  "redstone_lamp": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "cocoa": {
+   "硬": 0.2,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "sandstone_stairs": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "emerald_ore": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "deepslate_emerald_ore": {
+   "硬": 4.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "ender_chest": {
+   "硬": 22.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tripwire_hook": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "tripwire": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "emerald_block": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "spruce_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "beacon": {
+   "硬": 3,
+   "要": [],
+   "类": "default"
+  },
+  "cobblestone_wall": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mossy_cobblestone_wall": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "flower_pot": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_torchflower": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_oak_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_spruce_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_birch_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_jungle_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_acacia_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_cherry_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_dark_oak_sapling": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_mangrove_propagule": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_fern": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_dandelion": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_poppy": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_blue_orchid": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_allium": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_azure_bluet": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_red_tulip": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_orange_tulip": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_white_tulip": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_pink_tulip": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_oxeye_daisy": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_cornflower": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_lily_of_the_valley": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_wither_rose": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_red_mushroom": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_brown_mushroom": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_dead_bush": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_cactus": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "carrots": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "potatoes": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "oak_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "skeleton_skull": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "skeleton_wall_skull": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "wither_skeleton_skull": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "wither_skeleton_wall_skull": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "zombie_head": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "zombie_wall_head": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "player_head": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "player_wall_head": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "creeper_head": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "creeper_wall_head": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "dragon_head": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "dragon_wall_head": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "piglin_head": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "piglin_wall_head": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "anvil": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chipped_anvil": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "damaged_anvil": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "trapped_chest": {
+   "硬": 2.5,
+   "要": [],
+   "类": "axe"
+  },
+  "light_weighted_pressure_plate": {
+   "硬": 0.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "heavy_weighted_pressure_plate": {
+   "硬": 0.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "comparator": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "daylight_detector": {
+   "硬": 0.2,
+   "要": [],
+   "类": "axe"
+  },
+  "redstone_block": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "nether_quartz_ore": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "hopper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "quartz_block": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chiseled_quartz_block": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "quartz_pillar": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "quartz_stairs": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "activator_rail": {
+   "硬": 0.7,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "dropper": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "white_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "orange_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "magenta_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "light_blue_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "yellow_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "lime_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "pink_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "gray_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "light_gray_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cyan_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "purple_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "blue_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "brown_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "green_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "red_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "black_terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "white_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "orange_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "magenta_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "light_blue_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "yellow_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "lime_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "pink_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "gray_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "light_gray_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "cyan_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "purple_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "blue_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "brown_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "green_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "red_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "black_stained_glass_pane": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "acacia_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_mosaic_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "slime_block": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "iron_trapdoor": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "prismarine": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "prismarine_bricks": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dark_prismarine": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "prismarine_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "prismarine_brick_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dark_prismarine_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "prismarine_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "prismarine_brick_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dark_prismarine_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "sea_lantern": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "hay_block": {
+   "硬": 0.5,
+   "要": [],
+   "类": "hoe"
+  },
+  "white_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "orange_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "magenta_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "light_blue_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "yellow_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "lime_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "pink_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "gray_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "light_gray_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "cyan_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "purple_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "blue_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "brown_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "green_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "red_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "black_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "terracotta": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "coal_block": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "packed_ice": {
+   "硬": 0.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "sunflower": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "lilac": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "rose_bush": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "peony": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "tall_grass": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "large_fern": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "white_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "orange_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "magenta_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "light_blue_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "yellow_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "lime_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "pink_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "gray_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "light_gray_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "cyan_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "purple_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "blue_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "brown_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "green_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "red_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "black_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "white_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "orange_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "magenta_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "light_blue_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "yellow_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "lime_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "pink_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "gray_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "light_gray_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "cyan_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "purple_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "blue_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "brown_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "green_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "red_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "black_wall_banner": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "red_sandstone": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chiseled_red_sandstone": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cut_red_sandstone": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "red_sandstone_stairs": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "oak_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_mosaic_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_stone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "sandstone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cut_sandstone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "petrified_oak_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cobblestone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "brick_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "stone_brick_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mud_brick_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "nether_brick_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "quartz_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "red_sandstone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cut_red_sandstone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "purpur_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_stone": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_sandstone": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_quartz": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_red_sandstone": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "spruce_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "spruce_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "birch_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "jungle_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "acacia_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "cherry_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "dark_oak_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "mangrove_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "bamboo_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "end_rod": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "chorus_plant": {
+   "硬": 0.4,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "chorus_flower": {
+   "硬": 0.4,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "purpur_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "purpur_pillar": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "purpur_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "end_stone_bricks": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "torchflower_crop": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "pitcher_crop": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "pitcher_plant": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "beetroots": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "dirt_path": {
+   "硬": 0.65,
+   "要": [],
+   "类": "shovel"
+  },
+  "frosted_ice": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "magma_block": {
+   "硬": 0.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "nether_wart_block": {
+   "硬": 1,
+   "要": [],
+   "类": "hoe"
+  },
+  "red_nether_bricks": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "bone_block": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "structure_void": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "observer": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "white_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "orange_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "magenta_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "light_blue_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "yellow_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "lime_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "pink_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "gray_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "light_gray_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "cyan_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "purple_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "blue_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "brown_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "green_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "red_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "black_shulker_box": {
+   "硬": 2,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "white_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "orange_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "magenta_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "light_blue_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "yellow_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "lime_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "pink_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "gray_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "light_gray_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cyan_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "purple_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "blue_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "brown_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "green_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "red_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "black_glazed_terracotta": {
+   "硬": 1.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "white_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "orange_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "magenta_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "light_blue_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "yellow_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "lime_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "pink_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "gray_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "light_gray_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cyan_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "purple_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "blue_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "brown_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "green_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "red_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "black_concrete": {
+   "硬": 1.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "white_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "orange_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "magenta_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "light_blue_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "yellow_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "lime_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "pink_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "gray_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "light_gray_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "cyan_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "purple_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "blue_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "brown_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "green_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "red_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "black_concrete_powder": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "kelp": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "kelp_plant": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "dried_kelp_block": {
+   "硬": 0.5,
+   "要": [],
+   "类": "hoe"
+  },
+  "turtle_egg": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "sniffer_egg": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "dead_tube_coral_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_brain_coral_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_bubble_coral_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_fire_coral_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_horn_coral_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tube_coral_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "brain_coral_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "bubble_coral_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "fire_coral_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "horn_coral_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_tube_coral": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_brain_coral": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_bubble_coral": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_fire_coral": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_horn_coral": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tube_coral": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "brain_coral": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "bubble_coral": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "fire_coral": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "horn_coral": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "dead_tube_coral_fan": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_brain_coral_fan": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_bubble_coral_fan": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_fire_coral_fan": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_horn_coral_fan": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tube_coral_fan": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "brain_coral_fan": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "bubble_coral_fan": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "fire_coral_fan": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "horn_coral_fan": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "dead_tube_coral_wall_fan": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_brain_coral_wall_fan": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_bubble_coral_wall_fan": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_fire_coral_wall_fan": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "dead_horn_coral_wall_fan": {
+   "硬": 0,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tube_coral_wall_fan": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "brain_coral_wall_fan": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "bubble_coral_wall_fan": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "fire_coral_wall_fan": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "horn_coral_wall_fan": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "sea_pickle": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "blue_ice": {
+   "硬": 2.8,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "conduit": {
+   "硬": 3,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "bamboo_sapling": {
+   "硬": 1,
+   "要": [],
+   "类": "default"
+  },
+  "bamboo": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "potted_bamboo": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "bubble_column": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "polished_granite_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_red_sandstone_stairs": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mossy_stone_brick_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_diorite_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mossy_cobblestone_stairs": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "end_stone_brick_stairs": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "stone_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_sandstone_stairs": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_quartz_stairs": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "granite_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "andesite_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "red_nether_brick_stairs": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_andesite_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "diorite_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_granite_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_red_sandstone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mossy_stone_brick_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_diorite_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mossy_cobblestone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "end_stone_brick_slab": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_sandstone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "smooth_quartz_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "granite_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "andesite_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "red_nether_brick_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_andesite_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "diorite_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "brick_wall": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "prismarine_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "red_sandstone_wall": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mossy_stone_brick_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "granite_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "stone_brick_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "mud_brick_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "nether_brick_wall": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "andesite_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "red_nether_brick_wall": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "sandstone_wall": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "end_stone_brick_wall": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "diorite_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "scaffolding": {
+   "硬": 0,
+   "要": [],
+   "类": "axe"
+  },
+  "loom": {
+   "硬": 2.5,
+   "要": [],
+   "类": "axe"
+  },
+  "barrel": {
+   "硬": 2.5,
+   "要": [],
+   "类": "axe"
+  },
+  "smoker": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "blast_furnace": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cartography_table": {
+   "硬": 2.5,
+   "要": [],
+   "类": "axe"
+  },
+  "fletching_table": {
+   "硬": 2.5,
+   "要": [],
+   "类": "axe"
+  },
+  "grindstone": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "lectern": {
+   "硬": 2.5,
+   "要": [],
+   "类": "axe"
+  },
+  "smithing_table": {
+   "硬": 2.5,
+   "要": [],
+   "类": "axe"
+  },
+  "stonecutter": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "bell": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "lantern": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "soul_lantern": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "campfire": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "soul_campfire": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "sweet_berry_bush": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "warped_stem": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_warped_stem": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_hyphae": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_warped_hyphae": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_nylium": {
+   "硬": 0.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "warped_fungus": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "warped_wart_block": {
+   "硬": 1,
+   "要": [],
+   "类": "hoe"
+  },
+  "warped_roots": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "nether_sprouts": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "crimson_stem": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_crimson_stem": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_hyphae": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "stripped_crimson_hyphae": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_nylium": {
+   "硬": 0.4,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "crimson_fungus": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "shroomlight": {
+   "硬": 1,
+   "要": [],
+   "类": "hoe"
+  },
+  "weeping_vines": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "weeping_vines_plant": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "twisting_vines": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "twisting_vines_plant": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "crimson_roots": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "crimson_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_planks": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_slab": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_pressure_plate": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_fence": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_trapdoor": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_fence_gate": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_stairs": {
+   "硬": 2,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_door": {
+   "硬": 3,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "crimson_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "warped_wall_sign": {
+   "硬": 1,
+   "要": [],
+   "类": "axe"
+  },
+  "composter": {
+   "硬": 0.6,
+   "要": [],
+   "类": "axe"
+  },
+  "target": {
+   "硬": 0.5,
+   "要": [],
+   "类": "hoe"
+  },
+  "bee_nest": {
+   "硬": 0.3,
+   "要": [],
+   "类": "axe"
+  },
+  "beehive": {
+   "硬": 0.6,
+   "要": [],
+   "类": "axe"
+  },
+  "honey_block": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "honeycomb_block": {
+   "硬": 0.6,
+   "要": [],
+   "类": "default"
+  },
+  "netherite_block": {
+   "硬": 50,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "ancient_debris": {
+   "硬": 30,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "crying_obsidian": {
+   "硬": 50,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "respawn_anchor": {
+   "硬": 50,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "potted_crimson_fungus": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_warped_fungus": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_crimson_roots": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_warped_roots": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "lodestone": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "blackstone": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "blackstone_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "blackstone_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "blackstone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_blackstone": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_blackstone_bricks": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cracked_polished_blackstone_bricks": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chiseled_polished_blackstone": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_blackstone_brick_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_blackstone_brick_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_blackstone_brick_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "gilded_blackstone": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_blackstone_stairs": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_blackstone_slab": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_blackstone_pressure_plate": {
+   "硬": 0.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_blackstone_button": {
+   "硬": 0.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "polished_blackstone_wall": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chiseled_nether_bricks": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cracked_nether_bricks": {
+   "硬": 2,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "quartz_bricks": {
+   "硬": 0.8,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "white_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "orange_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "magenta_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "light_blue_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "yellow_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "lime_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "pink_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "gray_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "light_gray_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "cyan_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "purple_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "blue_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "brown_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "green_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "red_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "black_candle": {
+   "硬": 0.1,
+   "要": [],
+   "类": "default"
+  },
+  "candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "white_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "orange_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "magenta_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "light_blue_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "yellow_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "lime_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "pink_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "gray_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "light_gray_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "cyan_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "purple_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "blue_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "brown_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "green_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "red_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "black_candle_cake": {
+   "硬": 0.5,
+   "要": [],
+   "类": "default"
+  },
+  "amethyst_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "budding_amethyst": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "amethyst_cluster": {
+   "硬": 1.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "large_amethyst_bud": {
+   "硬": 1.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "medium_amethyst_bud": {
+   "硬": 1.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "small_amethyst_bud": {
+   "硬": 1.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "tuff": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tuff_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tuff_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tuff_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_tuff": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_tuff_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_tuff_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_tuff_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chiseled_tuff": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tuff_bricks": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tuff_brick_slab": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tuff_brick_stairs": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tuff_brick_wall": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chiseled_tuff_bricks": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "calcite": {
+   "硬": 0.75,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "tinted_glass": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "powder_snow": {
+   "硬": 0.25,
+   "要": [],
+   "类": "default"
+  },
+  "sculk_sensor": {
+   "硬": 1.5,
+   "要": [],
+   "类": "hoe"
+  },
+  "calibrated_sculk_sensor": {
+   "硬": 1.5,
+   "要": [],
+   "类": "hoe"
+  },
+  "sculk": {
+   "硬": 0.2,
+   "要": [],
+   "类": "hoe"
+  },
+  "sculk_vein": {
+   "硬": 0.2,
+   "要": [],
+   "类": "hoe"
+  },
+  "sculk_catalyst": {
+   "硬": 3,
+   "要": [],
+   "类": "hoe"
+  },
+  "sculk_shrieker": {
+   "硬": 3,
+   "要": [],
+   "类": "hoe"
+  },
+  "copper_block": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "exposed_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "weathered_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "oxidized_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "copper_ore": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "deepslate_copper_ore": {
+   "硬": 4.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "oxidized_cut_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "weathered_cut_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "exposed_cut_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "cut_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "oxidized_chiseled_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "weathered_chiseled_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "exposed_chiseled_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "chiseled_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_oxidized_chiseled_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_weathered_chiseled_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_exposed_chiseled_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_chiseled_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "oxidized_cut_copper_stairs": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "weathered_cut_copper_stairs": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "exposed_cut_copper_stairs": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "cut_copper_stairs": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "oxidized_cut_copper_slab": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "weathered_cut_copper_slab": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "exposed_cut_copper_slab": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "cut_copper_slab": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_copper_block": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_weathered_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_exposed_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_oxidized_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_oxidized_cut_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_weathered_cut_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_exposed_cut_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_cut_copper": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_oxidized_cut_copper_stairs": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_weathered_cut_copper_stairs": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_exposed_cut_copper_stairs": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_cut_copper_stairs": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_oxidized_cut_copper_slab": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_weathered_cut_copper_slab": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_exposed_cut_copper_slab": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_cut_copper_slab": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "copper_door": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "exposed_copper_door": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "oxidized_copper_door": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "weathered_copper_door": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_copper_door": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_exposed_copper_door": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_oxidized_copper_door": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_weathered_copper_door": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "copper_trapdoor": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "exposed_copper_trapdoor": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "oxidized_copper_trapdoor": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "weathered_copper_trapdoor": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_copper_trapdoor": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_exposed_copper_trapdoor": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_oxidized_copper_trapdoor": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_weathered_copper_trapdoor": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "copper_grate": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "exposed_copper_grate": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "weathered_copper_grate": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "oxidized_copper_grate": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_copper_grate": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_exposed_copper_grate": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_weathered_copper_grate": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_oxidized_copper_grate": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "copper_bulb": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "exposed_copper_bulb": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "weathered_copper_bulb": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "oxidized_copper_bulb": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_copper_bulb": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_exposed_copper_bulb": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_weathered_copper_bulb": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "waxed_oxidized_copper_bulb": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "lightning_rod": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "pointed_dripstone": {
+   "硬": 1.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "dripstone_block": {
+   "硬": 1.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cave_vines": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "cave_vines_plant": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "spore_blossom": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "azalea": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "flowering_azalea": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "moss_carpet": {
+   "硬": 0.1,
+   "要": [],
+   "类": "plant"
+  },
+  "pink_petals": {
+   "硬": 0,
+   "要": [],
+   "类": "plant"
+  },
+  "moss_block": {
+   "硬": 0.1,
+   "要": [],
+   "类": "hoe"
+  },
+  "big_dripleaf": {
+   "硬": 0.1,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "big_dripleaf_stem": {
+   "硬": 0.1,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "small_dripleaf": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "hanging_roots": {
+   "硬": 0,
+   "要": [],
+   "类": "plant;mineable/axe"
+  },
+  "rooted_dirt": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "mud": {
+   "硬": 0.5,
+   "要": [],
+   "类": "shovel"
+  },
+  "deepslate": {
+   "硬": 3,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cobbled_deepslate": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cobbled_deepslate_stairs": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cobbled_deepslate_slab": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cobbled_deepslate_wall": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_deepslate": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_deepslate_stairs": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_deepslate_slab": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "polished_deepslate_wall": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "deepslate_tiles": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "deepslate_tile_stairs": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "deepslate_tile_slab": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "deepslate_tile_wall": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "deepslate_bricks": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "deepslate_brick_stairs": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "deepslate_brick_slab": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "deepslate_brick_wall": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "chiseled_deepslate": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cracked_deepslate_bricks": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "cracked_deepslate_tiles": {
+   "硬": 3.5,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "infested_deepslate": {
+   "硬": 1.5,
+   "要": [],
+   "类": "pickaxe"
+  },
+  "smooth_basalt": {
+   "硬": 1.25,
+   "要": [
+    "镐子"
+   ],
+   "类": "pickaxe"
+  },
+  "raw_iron_block": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "raw_copper_block": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "raw_gold_block": {
+   "硬": 5,
+   "要": [
+    "镐子"
+   ],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "potted_azalea_bush": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "potted_flowering_azalea_bush": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "ochre_froglight": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "verdant_froglight": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "pearlescent_froglight": {
+   "硬": 0.3,
+   "要": [],
+   "类": "default"
+  },
+  "frogspawn": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "reinforced_deepslate": {
+   "硬": 55,
+   "要": [],
+   "类": "default"
+  },
+  "decorated_pot": {
+   "硬": 0,
+   "要": [],
+   "类": "default"
+  },
+  "crafter": {
+   "硬": 1.5,
+   "要": [],
+   "类": "incorrect_for_wooden_tool"
+  },
+  "trial_spawner": {
+   "硬": 50,
+   "要": [],
+   "类": "default"
+  },
+  "vault": {
+   "硬": 50,
+   "要": [],
+   "类": "default"
+  },
+  "heavy_core": {
+   "硬": 10,
+   "要": [],
+   "类": "pickaxe"
+  }
+ }
+}

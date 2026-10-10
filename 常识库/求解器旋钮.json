@@ -1,0 +1,45 @@
+{
+ "_说明": "★ 老祖课第三课（Lisp：把规则从代码里搬进数据 ✓）—— 这里放**判断用的知识**，不是代码 ✓ 改这里不用改代码 ✓ 也不用动主链 ✓",
+ "_规矩": "① 这里的值必须跟求解器里原来的常量**一模一样**（搬 ≠ 改 ✓）② 读不到/读坏了 ⇒ 求解器用内置默认并**出声** ✗ 绝不出假 ✓",
+ "最多深度": 12,
+ "_最多深度说明": "从零做石镐要 ≥12 层（逻辑镜子量出来的硬数 ✓）；真无限递归由环检测兜着，不靠这个数 ✓",
+ "下界货": [
+  "blackstone",
+  "basalt",
+  "smooth_basalt",
+  "netherrack",
+  "soul_sand",
+  "soul_soil",
+  "nether_quartz_ore",
+  "nether_gold_ore",
+  "ancient_debris",
+  "crimson_stem",
+  "warped_stem",
+  "crimson_nylium",
+  "warped_nylium",
+  "shroomlight",
+  "glowstone",
+  "magma_block",
+  "nether_bricks",
+  "crying_obsidian",
+  "gilded_blackstone",
+  "polished_blackstone",
+  "chiseled_polished_blackstone",
+  "nether_wart_block",
+  "warped_wart_block",
+  "twisting_vines",
+  "weeping_vines",
+  "nylium"
+ ],
+ "_下界货说明": "只在下界的方块 ⇒ 主世界排最后 ✓（是「排最后」不是「删掉」✗：真在下界照样该用 ✓）。主人 2026-10-09 当场抓包那次立的规矩：「那是石头，挖了就是圆石！」",
+ "首选石头料": [
+  "cobblestone",
+  "stone"
+ ],
+ "_首选石头料说明": "镐子料里的首选 = 圆石 ✓（主世界地表挖一块石头掉的就是圆石 ✓）",
+ "_还没搬的（下一步 ✓ 老实写着，别装搬完了 ✗）": [
+  "走配方不划算() 的判据 —— 要动它得先想清楚「值不值得」怎么数据化",
+  "排序分() 那几个权重 —— 现在是一串元组，搬出去要有配套的自检",
+  "一次挖几块 的上限 —— 它跟挖掘速率/背包有关，不纯是常识"
+ ]
+}

@@ -1,0 +1,531 @@
+[16:03:10] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+[16:03:10] [手] 证据链开写：/home/<用户>/cyberdyne-bridge/logs/全程-20261007.jsonl（追加）
+[16:03:10] [手] 证据链开写：/home/<用户>/cyberdyne-bridge/logs/账本-20261007.jsonl（追加）
+[16:03:10] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[16:03:11] [手] 寻路插件挂上了：mineflayer-pathfinder
+[16:03:11] [手] 身体插件挂上了：body（会 sneak、jump、jumpattack、swimdown、dig、place、craft、use、furnace_put、furnace_take、chest_take、chest_put）
+[16:03:11] [手] 服务器探针开了：每 500ms 问一次 [mintstar] 的血量。
+[16:03:11] [手] 接线口已就绪：[unix] /home/<用户>/cyberdyne-bridge/cyberdyne.sock
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[16:03:12] [手] 他已经站在世界里了。
+[16:03:51] [手] 被踢出来了：{"type":"compound","value":{"translate":{"type":"string","value":"multiplayer.disconnect.duplicate_login"}}}
+[16:03:51] [手] 连接结束：socketClosed
+[16:03:51] [手] 小家伙掉线了，2 秒后重连（第 1 次）
+[16:03:53] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[16:03:54] [手] 他已经站在世界里了。
+[16:04:01] [手] 被踢出来了：{"type":"compound","value":{"translate":{"type":"string","value":"multiplayer.disconnect.duplicate_login"}}}
+[16:04:01] [手] 连接结束：socketClosed
+[16:04:01] [手] 小家伙掉线了，2 秒后重连（第 1 次）
+[16:04:03] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[16:04:03] [手] 他已经站在世界里了。
+[16:04:15] [手] 被踢出来了：{"type":"compound","value":{"translate":{"type":"string","value":"multiplayer.disconnect.duplicate_login"}}}
+[16:04:15] [手] 连接结束：socketClosed
+[16:04:15] [手] 小家伙掉线了，2 秒后重连（第 1 次）
+[16:04:17] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[16:04:17] [手] 他已经站在世界里了。
+[16:06:38] [手] 大脑接上了：unix（当前 1 个连接）
+[16:19:48] [手] 听见 mintstar 说：你怎么样
+[16:20:11] [手] 应急包补上了：cooked_beef
+[16:39:55] [手] 被踢出来了：{"type":"compound","value":{"translate":{"type":"string","value":"multiplayer.disconnect.server_shutdown"}}}
+[16:39:55] [手] 连接结束：socketClosed
+[16:39:55] [手] 小家伙掉线了，2 秒后重连（第 1 次）
+[16:39:57] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:39:57] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:39:57] [手] 连接结束：socketClosed
+[16:39:57] [手] 小家伙掉线了，4 秒后重连（第 2 次）
+[16:40:01] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:40:01] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:40:01] [手] 连接结束：socketClosed
+[16:40:01] [手] 小家伙掉线了，8 秒后重连（第 3 次）
+[16:40:09] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:40:09] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:40:09] [手] 连接结束：socketClosed
+[16:40:09] [手] 小家伙掉线了，15 秒后重连（第 4 次）
+[16:40:24] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:40:24] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:40:24] [手] 连接结束：socketClosed
+[16:40:24] [手] 小家伙掉线了，30 秒后重连（第 5 次）
+[16:40:54] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:40:54] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:40:54] [手] 连接结束：socketClosed
+[16:40:54] [手] 小家伙掉线了，30 秒后重连（第 6 次）
+[16:41:24] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:41:24] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:41:24] [手] 连接结束：socketClosed
+[16:41:24] [手] 小家伙掉线了，30 秒后重连（第 7 次）
+[16:41:54] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[16:41:54] [手] 他已经站在世界里了。
+[16:45:49] [手] 被踢出来了：{"type":"compound","value":{"translate":{"type":"string","value":"multiplayer.disconnect.server_shutdown"}}}
+[16:45:49] [手] 连接结束：socketClosed
+[16:45:49] [手] 小家伙掉线了，2 秒后重连（第 1 次）
+[16:45:51] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:45:51] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:45:51] [手] 连接结束：socketClosed
+[16:45:51] [手] 小家伙掉线了，4 秒后重连（第 2 次）
+[16:45:55] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:45:55] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:45:55] [手] 连接结束：socketClosed
+[16:45:55] [手] 小家伙掉线了，8 秒后重连（第 3 次）
+[16:46:03] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:46:03] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:46:03] [手] 连接结束：socketClosed
+[16:46:03] [手] 小家伙掉线了，15 秒后重连（第 4 次）
+[16:46:18] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[16:46:20] [手] 他已经站在世界里了。
+[16:49:17] [手] 被踢出来了：{"type":"compound","value":{"translate":{"type":"string","value":"multiplayer.disconnect.server_shutdown"}}}
+[16:49:17] [手] 连接结束：socketClosed
+[16:49:17] [手] 小家伙掉线了，2 秒后重连（第 1 次）
+[16:49:19] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:49:19] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:49:19] [手] 连接结束：socketClosed
+[16:49:19] [手] 小家伙掉线了，4 秒后重连（第 2 次）
+[16:49:23] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:49:23] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:49:23] [手] 连接结束：socketClosed
+[16:49:23] [手] 小家伙掉线了，8 秒后重连（第 3 次）
+[16:49:31] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:49:31] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:49:31] [手] 连接结束：socketClosed
+[16:49:31] [手] 小家伙掉线了，15 秒后重连（第 4 次）
+[16:49:46] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[16:49:46] [手] 他已经站在世界里了。
+[16:51:27] [手] 被踢出来了：{"type":"compound","value":{"translate":{"type":"string","value":"multiplayer.disconnect.server_shutdown"}}}
+[16:51:27] [手] 连接结束：socketClosed
+[16:51:27] [手] 小家伙掉线了，2 秒后重连（第 1 次）
+[16:51:29] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:51:29] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:51:29] [手] 连接结束：socketClosed
+[16:51:29] [手] 小家伙掉线了，4 秒后重连（第 2 次）
+[16:51:33] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:51:33] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:51:33] [手] 连接结束：socketClosed
+[16:51:33] [手] 小家伙掉线了，8 秒后重连（第 3 次）
+[16:51:41] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:51:41] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:51:41] [手] 连接结束：socketClosed
+[16:51:41] [手] 小家伙掉线了，15 秒后重连（第 4 次）
+[16:51:56] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[16:51:57] [手] 他已经站在世界里了。
+[16:56:18] [手] 被踢出来了：{"type":"compound","value":{"translate":{"type":"string","value":"multiplayer.disconnect.server_shutdown"}}}
+[16:56:18] [手] 连接结束：socketClosed
+[16:56:18] [手] 小家伙掉线了，2 秒后重连（第 1 次）
+[16:56:20] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:56:20] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:56:20] [手] 连接结束：socketClosed
+[16:56:20] [手] 小家伙掉线了，4 秒后重连（第 2 次）
+[16:56:24] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:56:24] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:56:24] [手] 连接结束：socketClosed
+[16:56:24] [手] 小家伙掉线了，8 秒后重连（第 3 次）
+[16:56:32] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+Error: connect ECONNREFUSED 127.0.0.1:25565
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1636:16) {
+  errno: -111,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 25565
+}
+[16:56:32] [手] 出错：connect ECONNREFUSED 127.0.0.1:25565
+[16:56:32] [手] 连接结束：socketClosed
+[16:56:32] [手] 小家伙掉线了，15 秒后重连（第 4 次）
+[16:56:47] [手] 把「DeepSeek」送进 127.0.0.1:25565（1.21.1，离线模式）…
+PartialReadError: Read error for undefined : Missing characters in string, found size is 108271 expected size was 114153
+    at new ExtendableError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:63:13)
+    at new PartialReadError (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/utils.js:70:5)
+    at Object.string (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:107:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:891:65)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:893:11)
+    at Object.ArmorTrimMaterial (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:898:9)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:503:55)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:506:15)
+    at eval (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:518:13)
+    at Object.SlotComponent (eval at compile (/home/<用户>/cyberdyne-bridge/node/node_modules/protodef/src/compiler.js:262:12), <anonymous>:720:9)
+[16:56:47] [手] 他已经站在世界里了。
+[17:01:13] [手] 吃了一个 cooked_beef。
+[17:07:45] [手] 采样率切成 5Hz（每 200ms 推一次）
+[17:10:55] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[17:11:46] [手] 采样率切成 5Hz（每 200ms 推一次）
+[17:14:56] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[17:36:34] [手] 大脑断开了（剩 0 个连接）
+[17:36:34] [手] 大脑不在，先把动作全停了，原地待命。
+[17:36:36] [手] 大脑接上了：unix（当前 1 个连接）
+[17:42:37] [手] 采样率切成 5Hz（每 200ms 推一次）
+[17:43:55] [手] 大脑断开了（剩 0 个连接）
+[17:43:55] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[17:43:55] [手] 大脑不在，采样率自动降回平静档。
+[17:43:55] [手] 大脑不在，先把动作全停了，原地待命。
+[17:43:57] [手] 大脑接上了：unix（当前 1 个连接）
+[18:01:15] [手] 听见 mintstar 说：?
+[18:01:33] [手] 听见 mintstar 说：?
+[18:11:31] [手] 听见 mintstar 说：?
+[18:12:04] [手] 听见 mintstar 说：ni zen mo le ?
+[18:12:26] [手] 听见 mintstar 说：na ni dao shi wa ya
+[18:14:24] [手] 听见 mintstar 说：ni qv wa tong kuang
+[18:14:46] [手] 听见 mintstar 说：gen zhe wo
+[18:23:25] [手] 大脑断开了（剩 0 个连接）
+[18:23:25] [手] 大脑不在，先把动作全停了，原地待命。
+[18:23:27] [手] 大脑接上了：unix（当前 1 个连接）
+[18:30:29] [手] 采样率切成 5Hz（每 200ms 推一次）
+[18:30:41] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[18:32:45] [手] 听见 mintstar 说：去 -30 50 -21
+[18:40:31] [手] 采样率切成 5Hz（每 200ms 推一次）
+[18:40:41] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[18:54:32] [手] 采样率切成 5Hz（每 200ms 推一次）
+[18:54:45] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[19:08:34] [手] 采样率切成 5Hz（每 200ms 推一次）
+[19:08:47] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[19:22:35] [手] 采样率切成 5Hz（每 200ms 推一次）
+[19:22:45] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[19:45:32] [手] 采样率切成 5Hz（每 200ms 推一次）
+[19:48:43] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[19:55:35] [手] 采样率切成 5Hz（每 200ms 推一次）
+[19:55:49] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[20:09:34] [手] 采样率切成 5Hz（每 200ms 推一次）
+[20:09:45] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[20:23:36] [手] 采样率切成 5Hz（每 200ms 推一次）
+[20:23:47] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[20:30:10] [手] 大脑断开了（剩 0 个连接）
+[20:30:10] [手] 大脑不在，先把动作全停了，原地待命。
+[20:30:12] [手] 大脑接上了：unix（当前 1 个连接）
+[20:32:56] [手] 大脑断开了（剩 0 个连接）
+[20:32:56] [手] 大脑不在，先把动作全停了，原地待命。
+[20:32:58] [手] 大脑接上了：unix（当前 1 个连接）
+[20:36:06] [手] 大脑断开了（剩 0 个连接）
+[20:36:06] [手] 大脑不在，先把动作全停了，原地待命。
+[20:36:09] [手] 大脑接上了：unix（当前 1 个连接）
+[20:41:10] [手] 大脑断开了（剩 0 个连接）
+[20:41:10] [手] 大脑不在，先把动作全停了，原地待命。
+[20:41:12] [手] 大脑接上了：unix（当前 1 个连接）
+[20:41:13] [手] 采样率切成 5Hz（每 200ms 推一次）
+[20:46:49] [手] 大脑断开了（剩 0 个连接）
+[20:46:49] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[20:46:49] [手] 大脑不在，采样率自动降回平静档。
+[20:46:49] [手] 大脑不在，先把动作全停了，原地待命。
+[20:46:51] [手] 大脑接上了：unix（当前 1 个连接）
+[20:46:52] [手] 采样率切成 5Hz（每 200ms 推一次）
+[20:50:13] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[20:51:32] [手] 大脑断开了（剩 0 个连接）
+[20:51:32] [手] 大脑不在，先把动作全停了，原地待命。
+[20:51:34] [手] 大脑接上了：unix（当前 1 个连接）
+[20:52:35] [手] 采样率切成 5Hz（每 200ms 推一次）
+[20:58:46] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[20:59:37] [手] 采样率切成 5Hz（每 200ms 推一次）
+[20:59:51] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:00:38] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:00:52] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:01:03] [手] 大脑断开了（剩 0 个连接）
+[21:01:03] [手] 大脑不在，先把动作全停了，原地待命。
+[21:01:05] [手] 大脑接上了：unix（当前 1 个连接）
+[21:01:06] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:04:17] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:04:24] [手] 大脑断开了（剩 0 个连接）
+[21:04:24] [手] 大脑不在，先把动作全停了，原地待命。
+[21:04:26] [手] 大脑接上了：unix（当前 1 个连接）
+[21:04:27] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:04:38] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:05:28] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:05:38] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:06:28] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:06:38] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:08:28] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:08:38] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:09:28] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:09:38] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:11:28] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:11:39] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:11:56] [手] 大脑断开了（剩 0 个连接）
+[21:11:56] [手] 大脑不在，先把动作全停了，原地待命。
+[21:11:58] [手] 大脑接上了：unix（当前 1 个连接）
+[21:11:59] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:20:31] [手] 大脑断开了（剩 0 个连接）
+[21:20:31] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:20:31] [手] 大脑不在，采样率自动降回平静档。
+[21:20:31] [手] 大脑不在，先把动作全停了，原地待命。
+[21:20:33] [手] 大脑接上了：unix（当前 1 个连接）
+[21:20:34] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:22:19] [手] 听见 mintstar 说：ni mei you gao zi ma?
+[21:24:50] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:29:30] [手] 大脑断开了（剩 0 个连接）
+[21:29:30] [手] 大脑不在，先把动作全停了，原地待命。
+[21:29:32] [手] 大脑接上了：unix（当前 1 个连接）
+[21:34:26] [手] 听见 mintstar 说：wo men zen me shang qv?
+[21:38:16] [手] 大脑断开了（剩 0 个连接）
+[21:38:16] [手] 大脑不在，先把动作全停了，原地待命。
+[21:38:18] [手] 大脑接上了：unix（当前 1 个连接）
+[21:38:19] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:47:15] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:48:06] [手] 采样率切成 5Hz（每 200ms 推一次）
+[21:51:18] [手] 大脑断开了（剩 0 个连接）
+[21:51:18] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[21:51:18] [手] 大脑不在，采样率自动降回平静档。
+[21:51:18] [手] 大脑不在，先把动作全停了，原地待命。
+[21:51:20] [手] 大脑接上了：unix（当前 1 个连接）
+[21:51:21] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:00:39] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:01:42] [手] 大脑断开了（剩 0 个连接）
+[22:01:42] [手] 大脑不在，先把动作全停了，原地待命。
+[22:01:44] [手] 大脑接上了：unix（当前 1 个连接）
+[22:01:45] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:03:52] [手] 听见 mintstar 说：wo men zen me shang qv?
+[22:08:23] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:10:14] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:16:49] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:19:40] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:28:29] [手] 大脑断开了（剩 0 个连接）
+[22:28:29] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:28:29] [手] 大脑不在，采样率自动降回平静档。
+[22:28:29] [手] 大脑不在，先把动作全停了，原地待命。
+[22:28:31] [手] 大脑接上了：unix（当前 1 个连接）
+[22:28:32] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:28:58] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:29:32] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:30:01] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:31:33] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:35:13] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:35:43] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:36:12] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:36:43] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:37:12] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:37:25] [手] 大脑断开了（剩 0 个连接）
+[22:37:25] [手] 大脑不在，先把动作全停了，原地待命。
+[22:37:27] [手] 大脑接上了：unix（当前 1 个连接）
+[22:38:29] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:38:58] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:41:22] [手] 听见 mintstar 说：guo lai
+[22:41:44] [手] 听见 mintstar 说：fen wo dian chi de
+[22:42:10] [手] 听见 mintstar 说：niu pai gei wo lai dian
+[22:45:29] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:45:32] [手] 听见 mintstar 说：跟着我
+[22:51:02] [手] 吃了一个 cooked_beef。
+[22:51:10] [手] 吃了一个 cooked_beef。
+[22:51:18] [手] 吃了一个 cooked_beef。
+[22:51:48] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:54:40] [手] 采样率切成 5Hz（每 200ms 推一次）
+[22:58:33] [手] 采样率切成 1Hz（每 1000ms 推一次）
+[22:58:51] [手] 听见 mintstar 说：wo yao chi de
+[23:01:46] [手] 收到 SIGTERM，收工。
+[23:01:46] [手] 连接结束：disconnect.quitting

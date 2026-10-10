@@ -1,0 +1,1087 @@
+'use strict';
+/**
+ * Cyberdyne-Bridge · 身体插件（手 + 腿）
+ *
+ * ── 为什么单独一个插件 ──
+ * 主链只干三件事：接 bot、接 socket、守安全护栏。
+ * 所有「Minecraft 动作的细节」都往插件里堆，主链的动词表才不会越长越糊。
+ *
+ * 边界：
+ *   M1–M3 的动词留在主链（它们被基准录像锁住了，动一下就得重录基准）；
+ *   **M4 起的新动作一律进这个插件。**
+ *
+ * 规矩（和 pathfinder 插件一模一样）：
+ *   · 自己一个目录、自己的 package.json
+ *   · 主链 try 一下 require；不在 / 加载炸 → 当没装，命令回退「不认识」
+ *   · 只被主链调用，不开 socket、不碰状态推送、不抢定时器
+ *
+ * ★ 全部本地确定性逻辑，**不经过任何大模型**。
+ *
+ * 能力清单：
+ *   腿：sneak 潜行 / jump 跳跃 / jumpattack 跳劈（MC 暴击 ×1.5）/ swimdown 游泳下降
+ *   手：dig 挖 / place 放 / craft 合成 / use 使用（箱子·按钮·门）
+ */
+
+let Vec3 = null;
+try { Vec3 = require('vec3').Vec3; } catch (e) { Vec3 = null; }
+
+const 能力表 = ['sneak', 'jump', 'jumpattack', 'swimdown',
+                'dig', 'place', 'craft', 'use', 'furnace_put', 'furnace_take',
+                'chest_take', 'chest_put', '递'];
+
+/* 绝对坐标 → Vec3。优先用 vec3，取不到就用一个相对偏移凑一个出来
+ * （bot.entity.position 本身就是 Vec3，offset 出来的也是） */
+function 取坐标(bot, p) {
+  if (Vec3) return new Vec3(p[0], p[1], p[2]);
+  const q = bot.entity.position;
+  return q.offset(p[0] - q.x, p[1] - q.y, p[2] - q.z);
+}
+
+function 等(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+function 钳(v, 小, 大, 缺省) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 缺省;
+  return Math.min(Math.max(n, 小), 大);
+}
+
+/* 这些挖了没意义或者会出乱子 —— 直接拒 */
+/* ★★★ 2026-10-09：**矿石名单** —— 被埋住时**不给「先挖」** ✗
+ *   为什么单独列出来：上面那一支（"被整个埋住"）现在会给一个 `先挖` ✓
+ *   可那条**反矿透红线**不能破 ✗ ——
+ *     扫描是抽样、它会顺手报出**埋在地下**的矿石坐标 ✓（这是已知的泄漏面）
+ *     要是手这边再把"先挖哪块"告诉脑 → 那等于**拿透视指路** ✗
+ *     （脑照着挖一圈，正好把矿挖出来 ✓ 那就成了"隔着石头找矿" ✓）
+ *   规矩：**能挖的挡路方块才给** ✓ 矿石一律不给 ✓
+ *   （木头/叶子/泥土/石头这些照旧 ✓ —— 那是"想拿木头先扒叶子"，正常人干的事 ✓）
+ */
+const 是矿石 = (名) => /(_ore|ancient_debris)$/.test(String(名 || ''));
+
+const 不许挖 = new Set([
+  'bedrock', 'barrier', 'light', 'moving_piston', 'structure_void',
+  'command_block', 'chain_command_block', 'repeating_command_block',
+  'structure_block', 'jigsaw', 'end_portal', 'end_portal_frame', 'nether_portal',
+]);
+
+/* ★ M4c 补丁①：方块 → 需要哪一类工具。只列"不给工具就挖不动"的 ——
+ * 石头系（含矿、砖、混凝土…）必须有镐子，不然挖了也不掉东西；
+ * 木头/泥土/沙子徒手能挖，所以不列（不拦）。 */
+// ⚠⚠ 2026-10-07 实机翻车：原来是 `...|_block$`，**`grass_block` 也落网** ——
+//   于是它「手里没有镐子，挖不了 grass_block」，站在草地上啥也挖不动。
+//   `_block$` 本意是管 iron_block / coal_block 那种真要用镐的，
+//   但它顺手把 snow_block、hay_block、melon 这些无辜的也抓了。
+//   改成点名那几个真·矿物块。
+const 石头系 = /(_ore|stone|deepslate|cobblestone|bricks|concrete|obsidian|netherrack|furnace|anvil|terracotta|sandstone|prismarine|basalt|blackstone|tuff|calcite|dripstone|quartz|(iron|gold|diamond|emerald|coal|copper|lapis|redstone|netherite|amethyst|raw_iron|raw_gold|raw_copper)_block)/;
+/* ══════════ 方块交互表（**物理常识是查出来的，不是猜出来的**）══════════
+ *
+ * 主人 2026-10-08 晚 的指令。上面那个 `石头系` 正则 + 排除表，就是"硬造物理规则"的活标本 ✗
+ *   —— 补一次漏一次（先 `_block$` 抓了 grass_block，再加排除表，下次换个方块又是坑）。
+ *
+ * 现在改成**查表**：
+ *   来源 minecraft-data（1.21.1 官方数据，本机 node_modules 里就有）
+ *   生成 tools/生成方块交互表.js → 外挂/常识/方块交互表.json（1044 个方块）
+ *   读法 `{ 硬: 硬度, 要: [要什么工具才掉东西]（**空 = 徒手就掉**）, 类: 最快用什么 }`
+ *
+ * ⚠ 查不到时**不拦**（fail-open）：宁可像从前那样多挖一次，
+ *   也不要因为表里没写就把活卡死。
+ */
+const _方块表 = (() => {
+  /* ⚠ 别用 `path.join` —— 这个文件**没有 require('path')** ✗
+   *   第一版就是这么写的：require 抛错 → 被 catch 吞掉 → 表变成 null →
+   *   于是"查表"退化成"什么都不要求"✗（C2/C3 两条断言当场叫了）。
+   *   又一次证明：**静默的 catch 比抛出来更害人**（闸二扫出来的那 86 处同理）。 */
+  for (const 尾 of ['../../../外挂/常识/方块交互表.json',
+                    '../../外挂/常识/方块交互表.json']) {
+    try { return require(__dirname + '/' + 尾); } catch (e) { /* 换路径再试 */ }
+  }
+  return null;
+})();
+const _类到英文 = { 镐子: 'pickaxe', 斧头: 'axe', 铲子: 'shovel',
+                    锄头: 'hoe', 剑: 'sword', 剪刀: 'shears' };
+
+function 该用什么工具(名) {
+  try {
+    const 条 = _方块表 && _方块表.方块 && _方块表.方块[名];
+    if (条) {
+      // ★ 表说"不用工具"（要 = 空数组）→ null = 徒手/任意工具都行 ✓
+      //   这就是 grass_block / dirt / sand / gravel / oak_log 的真相 ✓
+      if (!条.要 || !条.要.length) return null;
+      return _类到英文[条.要[0]] || null;    // 例：stone → 'pickaxe'
+    }
+  } catch (e) { /* 查表出错 = 当查不到 */ }
+  return null;    // 表里没有 → 不要求工具（fail-open，绝不卡死）
+}
+
+function 是这类工具(名, 类) {
+  return typeof 名 === 'string' && 名.endsWith('_' + 类);
+}
+const 工具名 = { pickaxe: '镐子', axe: '斧头', shovel: '铲子' };
+
+/* ══════════ 视线遮挡与前置挖掘（2026-10-08 主人亲眼所见）══════════
+ *
+ * 实机事故：小家伙隔着泥土挖里面的石头 —— 它拿到雷达给的石头坐标，
+ * 走过去，然后对着**被泥土包住**的那块挥镐，挖不动（服务端直接中止），
+ * 在原地打转好几分钟；最后是**主人亲自把泥土挖掉**，它才拿到圆石。
+ * 三个毛病一起犯：
+ *   ① 手侧只挑"最近的石头"，**不看它露没露出来**；
+ *   ② 计划里没有"先把挡着的挖掉"这一步；
+ *   ③ 挖不动时给的理由说不清是"看不见"还是"够不着"，所以上面没法重规划。
+ *
+ * 这里一次给三样东西：`看遮挡()` / `未暴露` / `挡着`。
+ *
+ * ⚠ fail-closed：**只有"六个面全是实心"才算完全包裹**（那是不容含糊的）。
+ *   视线那条路查不出来（某些版本没有 world.raycast）时按"未知"处理，
+ *   **不拒** —— 否则探路工具一坏，它就彻底不干活了。
+ *   分得清"确定被埋"和"查不出来"，是这一段的全部难点。
+ */
+const _能穿 = new Set(['air', 'cave_air', 'void_air', 'water', 'lava', 'seagrass',
+  'kelp', 'tall_seagrass', 'snow', 'torch', 'wall_torch', 'grass', 'tall_grass',
+  'fern', 'large_fern', 'dead_bush', 'vine', 'rail', 'scaffolding']);
+
+function 看遮挡(bot, 块) {
+  const 出 = { 裸露: false, 视线: null, 挡: [] };
+  try {
+    if (!bot || !块 || !块.position) return 出;
+    const 六 = [[0, -1, 0], [0, 1, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]];
+    let 通面 = 0;
+    for (const [dx, dy, dz] of 六) {
+      let 邻 = null;
+      try { 邻 = bot.blockAt(块.position.offset(dx, dy, dz)); } catch (e) { 邻 = null; }
+      if (邻 && !_能穿.has(邻.name)) {
+        if (出.挡.length < 4) {
+          出.挡.push({ name: 邻.name, p: 邻.position.toArray(), 相对: [dx, dy, dz] });
+        }
+      } else {
+        通面++;
+      }
+    }
+    出.裸露 = 通面 > 0;
+    /* 视线：从眼睛朝方块中心射一条线，长度取"差一点点到不了方块"——
+     * 这样打中的就是**挡在前面的**东西；什么都没打中 = 通 ✓
+     * （取满长会打中目标方块自己，那就永远"通"了 ✗） */
+    try {
+      const 眼 = bot.entity.position.offset(0, 1.62, 0);
+      const 心 = 块.position.offset(0.5, 0.5, 0.5);
+      const 向 = 心.minus(眼);
+      const 长 = 向.norm();
+      let 通 = null;
+      if (长 <= 0.6) 通 = true;
+      else if (bot.world && typeof bot.world.raycast === 'function') {
+        const 中 = bot.world.raycast(眼, 向.scaled(1 / 长), Math.max(0.1, 长 - 0.05));
+        if (!中) 通 = true;
+        else {
+          const p = 中.position;
+          通 = !!(p && p.x === 块.position.x && p.y === 块.position.y && p.z === 块.position.z);
+          if (!通 && p) {
+            let 名 = '?';
+            try { const h = bot.blockAt(p); if (h) 名 = h.name; } catch (e) { /* 无所谓 */ }
+            出.挡前 = { name: 名, p: [p.x, p.y, p.z] };
+          }
+        }
+      }
+      出.视线 = 通;                       // 没 raycast 就是 null = 未知
+    } catch (e) { 出.视线 = null; }
+    return 出;
+  } catch (e) { return 出; }
+}
+
+/* 什么时候才算"读不出来" —— 空气/水/草这些不算挡。挖之前的兜底判定用它。 */
+function 是实心(名) { return typeof 名 === 'string' && !_能穿.has(名); }
+
+/* 所有"自己动腿"的动作开始前，先把控制状态清干净 ——
+ * M2.1 的教训：边跑边挥打不中，边跑边挖也挖不准。 */
+function 清控制(bot) {
+  for (const c of ['forward', 'back', 'left', 'right', 'jump', 'sprint', 'sneak']) {
+    try { bot.setControlState(c, false); } catch (e) { /* 无所谓 */ }
+  }
+}
+
+function 找最近(bot, 名, 上限) {
+  let 目标 = null, 最近 = Infinity;
+  const p = bot.entity.position;
+  for (const id in bot.entities) {
+    const e = bot.entities[id];
+    if (!e || !e.position || e === bot.entity) continue;
+    const 谁 = e.username || e.name || e.displayName || e.type;
+    if (谁 !== 名) continue;
+    const d = e.position.distanceTo(p);
+    if (d < 最近) { 最近 = d; 目标 = e; }
+  }
+  if (!目标 || 最近 > 上限) return { 目标: null, 距离: 最近 };
+  return { 目标, 距离: 最近 };
+}
+
+/* ══════════════════════════ 腿 ══════════════════════════ */
+
+// 潜行。MC 机制：潜行时**不会从方块边缘掉下去** —— 所以这也是个安全动作。
+async function 潜行(bot, a) {
+  if (a.on === true) { bot.setControlState('sneak', true); return { ok: true, 潜行: '一直开着' }; }
+  if (a.on === false) { bot.setControlState('sneak', false); return { ok: true, 潜行: '松开' }; }
+  const ms = 钳(a.ms, 200, 8000, 1200);
+  清控制(bot);
+  bot.setControlState('sneak', true);
+  await 等(ms);
+  bot.setControlState('sneak', false);
+  return { ok: true, 毫秒: ms };
+}
+
+// 跳跃。count 可以连跳。
+async function 跳跃(bot, a) {
+  const 次 = 钳(a.count, 1, 5, 1);
+  /* ★★★ 2026-10-08 主人点名的 T1「資訊有卻不用」决策点②：**跳跃不查头顶**。
+   *   人在这儿顶着天花板按 jump，是白按 —— 头撞砖，跳不起来，
+   *   而日志上却报「成功了」✗ 这跟「对着空气挥镐」是**同一类静默失败**。
+   *   规矩：**跳之前先看头上那一格**，堵着就直接拒，并说清楚撞的是什么。
+   *   （身体占 脚/脚+1 两格，所以要看的是 脚+2 —— 跳起来会顶到它。） */
+  try {
+    if (bot && bot.entity && bot.entity.position) {
+      const 头顶 = bot.blockAt(bot.entity.position.offset(0, 2, 0));
+      const 通得过 = ['air', 'cave_air', 'void_air', 'water', 'lava',
+                      'seagrass', 'kelp', 'tall_seagrass', 'snow'];
+      if (头顶 && 通得过.indexOf(头顶.name) < 0) {
+        return { ok: false, why: `头顶是「${头顶.name}」，跳起来会撞头 —— 我不跳`,
+                 取消: '头顶不通', 头顶: 头顶.name };
+      }
+    }
+  } catch (e) { /* 查不了就不拦（不许因为探路把自己弄瘫） */ }
+  for (let i = 0; i < 次; i++) {
+    bot.setControlState('jump', true);
+    await 等(100);
+    bot.setControlState('jump', false);
+    if (i < 次 - 1) await 等(260);
+  }
+  return { ok: true, 次数: 次 };
+}
+
+// 游泳下降。MC 里"水里按住潜行键"= 下沉，"按住跳跃键"= 上浮。
+async function 下潜(bot, a) {
+  const 在水里 = bot.entity.isInWater || bot.entity.isInLava;
+  if (!在水里) return { ok: false, why: '我不在水里，按潜行键是没用的' };
+  const ms = 钳(a.ms, 200, 8000, 1500);
+  清控制(bot);
+  const 起 = bot.entity.position.y;
+  bot.setControlState('sneak', true);
+  await 等(ms);
+  bot.setControlState('sneak', false);
+  // 「下沉了多少」要真的是差值 —— 之前直接返回了最终 y，那是在谎报
+  return { ok: true, 毫秒: ms, 下沉了多少: Number((起 - bot.entity.position.y).toFixed(2)) };
+}
+
+/**
+ * 跳劈 —— MC 的暴击。
+ *
+ * 暴击条件（服务端判）：**正在下坠的过程中命中**，伤害 ×1.5。
+ * 所以顺序不能错：先跳 → 等它真的开始往下掉 → 这时候才挥。
+ * 跳起来立刻挥是没用的，那还是普通伤害。
+ *
+ * 顺带一个 M2.1 的教训：**挥之前必须站住**，边跑边挥打不中。
+ */
+async function 跳劈(bot, a) {
+  const 名 = a.target;
+  if (!名) return { ok: false, why: '要告诉我打谁（target）' };
+
+  const { 目标, 距离 } = 找最近(bot, 名, 3.2);
+  if (!目标) {
+    return { ok: false, why: Number.isFinite(距离)
+      ? `目标在 ${距离.toFixed(1)} 格外，跳劈够不着（最多 3.2）`
+      : '视野里没有这个目标' };
+  }
+
+  清控制(bot);
+  await 等(60);
+
+  bot.setControlState('jump', true);
+  await 等(90);
+  bot.setControlState('jump', false);
+
+  // 等它真的在往下掉 —— 这一步是暴击的成败所在。
+  // MC 的暴击条件里有一条是 **fallDistance > 0**（已经掉了多少格），
+  // 刚过顶点 1 毫秒时那个数还是 0，加上网络延迟，服务端看到的是"还在上升"，
+  // 于是这一下就被判成普通伤害（实测：5.9 而不是 9）── 所以要多等一会儿。
+  let 下坠了 = false;
+  for (let i = 0; i < 40; i++) {
+    await 等(15);
+    try {
+      if (!bot.entity.onGround && bot.entity.velocity.y < -0.05) { 下坠了 = true; break; }
+    } catch (e) { break; }
+  }
+  if (!下坠了) return { ok: false, why: '这一跳没等来下坠（可能被天花板挡住了）' };
+
+  // 再给它 130ms 落一段：一是让 fallDistance 攒起来，
+  // 二是给服务端追上客户端的时间 —— 两条都为了让它真的算暴击。
+  await 等(130);
+  try {
+    if (bot.entity.onGround || bot.entity.velocity.y >= 0) {
+      return { ok: false, why: '还没挥它就落地了（这地方太矮，跳不出暴击）' };
+    }
+  } catch (e) { /* 读不到速度就硬挥 */ }
+
+  try {
+    await bot.lookAt(目标.position.offset(0, (目标.height || 1.8) * 0.85, 0), true);
+  } catch (e) { /* 转不过去也照样挥 */ }
+
+  /* M4.1·出手前**再量一次**（2026-10-01 实测教训）：
+   * 从"决定跳劈"到"真的挥下去"中间隔着转身、起跳、等它下坠 —— 三百多毫秒。
+   * 会跑的目标早就跑出 3 格了，那一刀服务端判"够不着"，等于白挥。
+   * 实测：97 次跳劈里有 23 次是这么白挥掉的。宁可少挥这一下，也别白费一个冷却。 */
+  const 现在距 = (目标.position && bot.entity.position)
+    ? 目标.position.distanceTo(bot.entity.position) : 距离;
+  if (目标.isValid === false) {
+    return { ok: false, why: '目标已经不在了（倒下了或者走了），不挥空拳',
+             dist: Number(现在距.toFixed(2)), 取消: '目标没了' };
+  }
+  if (现在距 > 3.0) {
+    return { ok: false, why: `这半秒里目标跑到 ${现在距.toFixed(1)} 格外了，这一下不挥`,
+             dist: Number(现在距.toFixed(2)), 取消: '跑出范围' };
+  }
+  bot.attack(目标);
+  return { ok: true, target: 名, dist: Number(现在距.toFixed(2)), 暴击: true };
+}
+
+/* ══════════════════════════ 手 ══════════════════════════ */
+
+async function 挖(bot, a) {
+  if (!Array.isArray(a.p) || a.p.length < 3) {
+    return { ok: false, why: '要给我一个坐标 p:[x,y,z]' };
+  }
+  const 块 = bot.blockAt(取坐标(bot, a.p));
+  if (!块) return { ok: false, why: '那个位置读不到方块（区块没加载？）' };
+  if (块.name === 'air' || 块.name === 'cave_air' || 块.name === 'void_air') {
+    return { ok: false, why: '那里是空气' };
+  }
+  if (不许挖.has(块.name)) return { ok: false, why: `「${块.name}」不能挖` };
+
+  // ★ 安全护栏：不许挖自己正脚下那块 —— 挖完自己就掉下去了
+  const 脚 = bot.blockAt(bot.entity.position.offset(0, -1, 0));
+  if (脚 && 脚.position.equals(块.position) && !a.允许挖脚下) {
+    return { ok: false, why: '那是我正脚下那块，挖了我自己就掉下去了' };
+  }
+
+  /* ★★★ 视线遮挡与前置挖掘（2026-10-08 主人亲眼所见那次的根治）
+   *   实机上它隔着泥土挖石头，挥了半天镐、服务端一路 abort，
+   *   最后要**主人亲手把泥土挖掉**才拿到圆石。
+   *   规矩：**只挖看得见的**。
+   *     · 六个面全被实心包住 → 不许瞄（这是"反矿透"的红线，也不该存在于计划里）；
+   *     · 是裸露的、可我这条视线被挡着 → 拒，并**告诉上面挡着的是哪一块**，
+   *       让常识树把「先把挡着的挖掉」插成前置任务 ✓ */
+  const 遮 = 看遮挡(bot, 块);
+  if (!遮.裸露) {
+    /* ★★★ 2026-10-09：**被整个埋住，也得给出「先挖那一块」** ✗
+     *   实机那一幕（主人 13:31 亲眼所见）：
+     *     手每秒回一句「「oak_log」被整个埋住了（oak_leaves 围着），我不挥」✗
+     *     脑那边**没有下一步可做** → 站着，一遍遍重试同一句 ✗
+     *     从 13:27 到 13:32 整整五分钟，**一片叶子都没被挖掉** ✓
+     *   ⚠ 原来这一支**只给理由、不给下一步** —— 而上面那一支（视线被挡）
+     *     是给了 `先挖` 的 ✓ 少给了这个，整条链就断在这儿 ✓
+     *   规矩：**理由要能变成下一步** ✓（跟"视线被挡"那一支同一个做法 ✓）
+     *   挑哪一块：① 先排掉**不能挖的**（不许挖那 12 种）✗
+     *             ② 优先挑**树叶/木头**（想拿木头的时候，挖掉叶子比挖掉别的值 ✓）
+     *             ③ 再没有就随便挑一块（能造出一个空气面就行 ✓）
+     */
+    // ★★★ 红线：**目标本身是矿石 → 一块「先挖」都不给** ✗
+    //   给了就等于告诉脑"往这儿挖能挖到矿" ✓ —— 那就是拿透视指路 ✓
+    //   （"想拿木头先扒叶子"是正常人干的事 ✓ 可没人有透视眼 ✓）
+    const 目标是矿石 = 是矿石(块.name);
+    /* ★★★★ 2026-10-09 主人给的**定义**（原话，一字不改地记在这儿）：
+     *   「老肥鱼也是疯颠了，地质学里的『**石头在泥土下面**』都要用反矿透拦住，
+     *     我允许改，因为这是**地质学的常识**，
+     *     反矿透反的是**雷达或者是记忆中没有记载过的矿物**，
+     *     说白了**别把雷达当 X 射线去定位矿物的位置**」
+     *
+     *   一句话分界：**反矿透管"矿物"，不管"石头"** ✓
+     *     · 是矿（`_ore` / `ancient_debris`）→ **照旧拦住** ✗
+     *       雷达看到的埋着的矿位置 = 那台 X 射线 ✓ 一格都不许告诉脑 ✓
+     *     · 不是矿（stone / dirt / 原木 / 沙…）→ **放行** ✓ 直接挖 ✓
+     *       "泥土下面大概率是石头"是**人类玩家本来就有的常识** ✓
+     *       没有任何信息优势 ✓（石头满地都是，谁都知道下面有 ✓）
+     *
+     *   ⚠ 老代码对 stone/dirt 也照拦 ✗ —— 后果（实机逐条）：
+     *       dig False 「stone」被整个埋住了（stone、dirt、stone、stone 围着）✗ ×4
+     *       dig False 「dirt」 被整个埋住了（dirt、dirt、dirt、dirt 围着）✗ ×6
+     *     石头**自己四面被围着** → 一步都挖不动 → 站那儿循环 ✓ = 静默 ✗
+     *   ⚠ 那一次的教训（隔着泥土挖石头、服务器一路 abort、最后要主人亲手把泥土挖掉）
+     *     仍然有效 ✓ —— 但它的答案是「**允许挖，让主链的重试/失败账去兜**」✓
+     *     不是「一律不挖」✗（一律不挖 = 连正常的往下挖都做不了 ✓ 那是因噎废食 ✗）
+     */
+    if (目标是矿石) {
+      const 谁 = 遮.挡.map((d) => d.name).join('、') || '别的东西';
+      return { ok: false, 未暴露: true, 挡着: 遮.挡, 先挖: null,
+               why: `「${块.name}」被整个埋住了（${谁} 围着），我看不见它 —— 不隔着东西挥镐` };
+    }
+    // 非矿石：**放行** ✓ 直接往下挖（人类玩家的做法 ✓）
+    // ⚠ 这个模块里没有 `log()` ✗（我第一版写了 `log(...)` → 一跑就 ReferenceError ✓
+    //   整条挖的链路当场炸 ✓ —— 这就是"改完必须跑"那一课 ✓ 用 `console.log` ✓）
+    const 谁2 = 遮.挡.map((d) => d.name).join('、') || '别的东西';
+    console.log(`[挖] 「${块.name}」被 ${谁2} 围着 —— 可它不是矿物，`
+              + `往下挖就是了 ✓（地质学常识：泥土下面大概率是石头；这不是透视）`);
+  }
+  if (遮.视线 === false && 遮.挡前) {
+    return { ok: false, 未暴露: true, 挡着: [遮.挡前], 先挖: 遮.挡前.p,
+             why: `「${块.name}」前面挡着「${遮.挡前.name}」，我得先把那一块挖掉` };
+  }
+
+  /* ★ M4c 补丁①：工具前置校验（Pre-flight Check，fail-closed）
+   * 实测事故：它"手里攥着煤在挖石头" —— equipForBlock 静默失败，然后硬挖被服务端中止，
+   * 表现是 `Digging aborted` 刷屏、任务永远超时。
+   * 规矩：**挖之前先查有没有对应的工具；没有就直接拒，绝不硬上**。 */
+  try {
+    // ★ 2026-10-08 探针：实机报「我手里没有镐子，挖不了 stone」，可背包里**确实有**
+    //   wooden_pickaxe —— 得看清到底走的是哪一支。
+    const _包 = bot.inventory.items().map((i) => i.name);
+    console.log(`[探针-挖] 目标=${块.name} ｜ 背包共 ${_包.length} 种：`
+      + `${_包.join('、') || '（空）'} ｜ 手上=${bot.heldItem ? bot.heldItem.name : '空的'}`
+      + ` ｜ 要的工具=${该用什么工具(块.name) || '不用'}`);
+  } catch (e) { /* 探针绝不许影响功能 */ }
+
+  const 要 = 该用什么工具(块.name);
+  if (要) {
+    const 手 = bot.inventory.items().filter((i) => 是这类工具(i.name, 要));
+    if (!手.length) {
+      return { ok: false, why: `我手里没有${工具名[要]}，挖不了「${块.name}」`
+               + `（手上是 ${bot.heldItem ? bot.heldItem.name : '空的'}）`,
+               取消: '缺工具' };
+    }
+    // 挑一把最好的换上（按材质）
+    const 排名 = (n) => ['wooden', 'stone', 'iron', 'golden', 'diamond', 'netherite']
+      .findIndex((m) => n.startsWith(m));
+    手.sort((a, b) => 排名(b.name) - 排名(a.name));
+    try { await bot.equip(手[0], 'hand'); } catch (e) { /* 换不上下面会再验一次 */ }
+    const 现在手 = bot.heldItem ? bot.heldItem.name : '';
+    if (!是这类工具(现在手, 要)) {
+      return { ok: false, why: `工具没换上（手上还是 ${现在手 || '空的'}），我不硬挖`,
+               取消: '换不上工具' };
+    }
+  }
+
+  清控制(bot);
+  const t0 = Date.now();
+  await bot.dig(块);
+  return { ok: true, 挖掉: 块.name, 毫秒: Date.now() - t0, 位置: 块.position.toArray() };
+}
+
+/* ══════════ 手部交互距离：4.5 格（主人 2026-10-09 点出来的通用法则）══════════
+ *
+ * 主人原话：「其实在手的交互距离都是 4.5 格」✓
+ * —— 不是只有"挖"才 4.5 ✗：**放、用、熔炉、箱子、递东西，全都一样** ✓
+ *
+ * 实机教训：放工作台那一步**一行距离校验都没有** ✗
+ * → 它换到 [-146,73,151]（**5 格以上**）→ 服务端六个面全拒 ✓
+ * → 表现成「六个面都试过了，全被拒」✗ —— 理由被埋在六个面里，看不出是"够不着" ✓
+ *
+ * 规矩：**这一把尺子只实现一处** ✓（其他动作都调它 ✓），
+ *   而且失败时**必须带机器可读的字段**（够不着 / 距 ✓）——
+ *   这样车厢才能读到它、替它"走过去再来" ✓（而不是傻站着重试 ✗）
+ */
+const 交互距离 = 4.5;
+
+function 够得着吗(bot, 坐标) {
+  try {
+    const 我 = bot && bot.entity && bot.entity.position;
+    if (!我) return { 好: true, 距: null };        // 不知道自己在哪 → 不拦（fail-open）
+    const 目标 = 取坐标(bot, 坐标);
+    const 距 = 我.distanceTo(目标);
+    // ★ 用"到方块中心"估：方块近角可以再近半格，所以留 0.5 的余量 ✓
+    if (距 > 交互距离 + 0.5) {
+      return { 好: false, 距: 距, 够不着: true,
+               why: `那地方在 ${距.toFixed(1)} 格外，够不着（手最多伸 ${交互距离} 格）—— 得先走近点` };
+    }
+    return { 好: true, 距: 距 };
+  } catch (e) {
+    return { 好: true, 距: null };                 // 量不出来就不拦（fail-open）
+  }
+}
+
+async function 放(bot, a) {
+  if (!Array.isArray(a.p) || a.p.length < 3) {
+    return { ok: false, why: '要给我一个坐标 p:[x,y,z]' };
+  }
+  const 位 = bot.blockAt(取坐标(bot, a.p));
+  if (!位) return { ok: false, why: '那个位置读不到方块' };
+  // ★★★ 2026-10-09 主人点出来的通用法则：**手的交互距离都是 4.5 格** ✓
+  //   放这一步原来**一行距离校验都没有** ✗ → 5 格外的落点，服务端六个面全拒 ✗
+  //   现在先量一把：够不着就直接说"够不着 ✓ 得先走近点"，
+  //   并且带上 `够不着: true` 让车厢能读出来 → 替它"走过去再来" ✓
+  {
+    const 量 = 够得着吗(bot, a.p);
+    if (!量.好) return { ok: false, 够不着: true, 距: 量.距, why: 量.why, 取消: '够不着' };
+  }
+  if (位.name !== 'air' && 位.name !== 'cave_air') {
+    return { ok: false, why: `那里不是空的（是 ${位.name}）` };
+  }
+  // ★ 「背包里有」≠「手上拿着」—— M2.1 攻击那次的同一个坑。
+  //   /give 出来的东西多半落在主背包里，不换到手上，服务端会直接拒放。
+  let 手上 = bot.heldItem;
+  const 是方块 = (i) => { try { return bot.isBlock(i); } catch (e) { return true; } };
+  if (a.item) {
+    const 想放 = bot.inventory.items().find((i) => i.name === a.item);
+    if (!想放) return { ok: false, why: `背包里没有「${a.item}」` };
+    if (!手上 || 手上.name !== a.item) { await bot.equip(想放, 'hand'); 手上 = bot.heldItem; }
+  } else if (!手上 || !是方块(手上)) {
+    const 候选 = bot.inventory.items().filter(是方块);
+    if (!候选.length) return { ok: false, why: '背包里一个方块都没有，没东西可放' };
+    await bot.equip(候选[0], 'hand');
+    手上 = bot.heldItem;
+  }
+  if (!手上) return { ok: false, why: '没能把方块拿到手上' };
+  if (!是方块(手上)) return { ok: false, why: `手上拿的 ${手上.name} 不是方块` };
+
+  // ★★★ 2026-10-09 主人：「放在哪里其实都无所谓，就像我平时玩的时候一样
+  //   随便找一个空地就放下了，走几步也可以。」
+  //   —— 实机症状：「place 没做成：六面全是空的，没有可以靠着放的地方」×14
+  //   我给的那个落点**悬空** ✗，于是它每 0.2 秒失败一次。
+  //   真实玩家的做法就是：**脚下有地、这一格是空 = 空地** ✓ 挑一个近的放下 ✓
+  //   规矩：指定格放不下去时，自己在 ±2 格里找一块"能放的空地" ✓
+  //        找得到就换过去放 ✓ 找不到才报失败（并说清找过哪几处）✓
+  try {
+    const 有实心邻 = (pp) => {
+      for (const [dx, dy, dz] of [[0, -1, 0], [0, 1, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]]) {
+        const h = bot.blockAt(取坐标(bot, [pp[0] + dx, pp[1] + dy, pp[2] + dz]));
+        if (h && h.name !== 'air' && h.name !== 'cave_air' && h.name !== 'water') return true;
+      }
+      return false;
+    };
+    if (!有实心邻(a.p)) {
+      let 最好的 = null, 最好距 = Infinity;
+      for (let dx = -2; dx <= 2; dx++) {
+        for (let dz = -2; dz <= 2; dz++) {
+          if (!dx && !dz) continue;
+          const 试位 = [a.p[0] + dx, a.p[1], a.p[2] + dz];
+          const 本 = bot.blockAt(取坐标(bot, 试位));
+          if (!本 || (本.name !== 'air' && 本.name !== 'cave_air')) continue;   // 本格得是空的
+          const 下 = bot.blockAt(取坐标(bot, [试位[0], 试位[1] - 1, 试位[2]]));
+          if (!下 || 下.name === 'air' || 下.name === 'cave_air') continue;    // 底下得有地
+          const 距 = Math.abs(dx) + Math.abs(dz);
+          if (距 < 最好距) { 最好距 = 距; 最好的 = 试位; }
+        }
+      }
+      if (最好的) {
+        // 换到那块空地去放（主人说的：走几步也可以 ✓）
+        const 原 = a.p;
+        a.p = 最好的;
+        console.log(`[放] 原来的落点 ${JSON.stringify(原)} 靠不住（六面全空）`
+          + ` → 就近换到空地 ${JSON.stringify(最好的)}（距离 ${最好距} 格）`);
+      }
+    }
+  } catch (e) { /* 找空地出错就按原路走，别把功能弄挂 */ }
+
+  // 找一个贴着目标位置的实心面当参考。
+  // ★ 六个面挨个试：放不下去的原因很多（面朝向、能不能看见、服务端那一侧的判定），
+  //   与其猜，不如都试一遍，并且把每一次的拒绝理由攒起来 —— 失败了要能看出为什么。
+  const 六面 = [[0, -1, 0], [0, 1, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]];
+  const 拒过 = [];
+  for (const [dx, dy, dz] of 六面) {
+    const 邻 = bot.blockAt(取坐标(bot, [a.p[0] + dx, a.p[1] + dy, a.p[2] + dz]));
+    if (!邻) continue;
+    if (邻.name === 'air' || 邻.name === 'cave_air' || 邻.name === 'water') continue;
+    if (邻.boundingBox === 'empty') continue;
+    try {
+      清控制(bot);
+      // 先看过去再放 —— 有些服务端会按视线方向判定
+      // ★ 换过落点之后**要重新取那一格** ✗ —— 我原来还看着旧位置（`位` 是换之前算的 ✓）
+      const 看位 = bot.blockAt(取坐标(bot, a.p)) || 位;
+      try { await bot.lookAt(看位.position.offset(0.5, 0.5, 0.5), true); } catch (e) {}
+      await 等(90);
+      // ⚠ 法向量是「从参考方块**指向**目标位置」，不是我算的那个「从目标指向参考」。
+      //   传反了它会跑到对称的位置去放（实测日志里出现过 at (7,...) 这种鬼坐标）。
+      // ★★★ 2026-10-09 实机抓到的真凶（石镐计划就死在这一句上）：
+      //   `placeBlock` 在某些被拒的情况下**promise 永远不 settle** ✗
+      //   ⇒ 本函数永远不 return ⇒ 手一声不吭 ⇒ 脑**干等到 60 秒超时** ✓
+      //   （实机：第 2 步「放」连超时 3 次；回执探针当场喊「发出去 8 秒没回音」✓）
+      //   规矩：**凡是"等外部答复"的地方都要有上限** ✗ 不许无声地等 ✓
+      //   ⇒ 加 2.5 秒上限：到点就当这一面被拒 ✓ 六面接着试 ✓ 函数**一定会返回** ✓
+      await Promise.race([
+        bot.placeBlock(邻, 取坐标(bot, [-dx, -dy, -dz])),
+        new Promise((_, 拒) => setTimeout(
+          () => 拒(new Error('placeBlock 2.5 秒没回音（不许无声地等 ✗）')), 2500)),
+      ]);
+      return { ok: true, 放的是: 手上.name, 位置: a.p, 用的面: [dx, dy, dz] };
+    } catch (e) {
+      拒过.push(`面(${dx},${dy},${dz}) ${String(e.message).slice(0, 42)}`);
+    }
+  }
+  if (!拒过.length) return { ok: false, why: '六面全是空的，没有可以靠着放的地方' };
+  return { ok: false, why: `六个面都试过了，全被拒：${拒过.slice(0, 3).join(' ｜ ')}` };
+}
+
+async function 合成(bot, a) {
+  const 名 = a.item;
+  if (!名) return { ok: false, why: '要告诉我要合成什么（item）' };
+  const 数 = 钳(a.count, 1, 64, 1);
+
+  let 物品定义 = null, 数据 = null;
+  try {
+    数据 = require('minecraft-data')(bot.version);
+    物品定义 = 数据.itemsByName[名];
+  } catch (e) { /* 下面靠物品名兜底 */ }
+  if (!物品定义) return { ok: false, why: `我不认识「${名}」这个东西` };
+
+  // 先试手工合成（2×2），不行再找工作台
+  let 配方表 = bot.recipesFor(物品定义.id, null, 1, null);
+  let 工作台 = null;
+  /* ★★★ 2026-10-10 半夜（主人：「拾取怎么回事」时我查出来的真凶 ✓）：
+   *   现场：「合成 crafting_table」——4 块木板、2×2、**根本不用工作台** ✓
+   *     可手里一块木板都没有 ⇒ 2×2 配方表空 ✗
+   *     ⇒ 这一支**一头扎进"找工作台"** ✗ ⇒ 回「要工作台，可我 32 格内都没找到」✗
+   *     ⇒ **答错题了** ✗（真正缺的是木板 ✓）
+   *     ⇒ 脑侧那支自愈照着这句话去"就地做一个工作台" ✓ → 又要 4 块木板 ✓ → 同一句话 ✓
+   *     ⇒ **一秒一次的死循环** ✓（主人屏幕上就是"它卡住了"✓）
+   *   规矩：**先分清"缺料"还是"缺台子"** ✓（`recipesAll` 看 `requiresTable` ✓）
+   *     · 有配方、且【不是每一条都要台子】⇒ 缺的是**料** ✗ ⇒ 落到下面那句
+   *       「材料不够，合不出…（配方要：…）」✓ 把要什么/有多少一起报回去 ✓
+   *     · 每条都要台子 ⇒ 才走原来那三段式（就近 → 32 格 → 报坐标/如实说没有 ✓）
+   */
+  let _要台子 = true;
+  if (!配方表.length) {
+    try {
+      const _全 = bot.recipesAll(物品定义.id, null, null);
+      if (_全.length) _要台子 = _全.every((r) => !!r.requiresTable);
+    } catch (e) { _要台子 = true; }     /* 查不到就照老路走 ✓（fail-safe） */
+  }
+  if (!配方表.length && _要台子) {
+    // ★★★ 2026-10-09 主人：「**怎么聪明怎么来，但是不能动宪法**」✓
+    //   原来这里是死写 `maxDistance: 4` ✗ —— 4 格之外的工作台**当它不存在** ✗
+    //   主人的判断（一针见血）：「**自己放的东西肯定要记得自己放哪儿的啊**，
+    //     不管在哪儿，总不能又退回说重做工作台吧」✓
+    //
+    //   规矩（三段式，跟"够得着/走不过去"那套一个路子 ✓）：
+    //     ① **先就近找**（4.5 格 = 手那把尺子 ✓ 能直接够到 → 照旧干 ✓）
+    //     ② 就近没有 → **放宽到 32 格再找一遍** ✓ 找到就**报回坐标** ✗
+    //        ！手**不自己走过去** ✗ —— 走位是脑的活（会打断正在走的任务 ✗）
+    //        → 结构化回执 `{ok:false, 工作台:[x,y,z], 距:N, 要走过去:true}` ✓
+    //        脑收到这条就插一步「走到那儿」，下一拍再合成 ✓（见外挂/记性）
+    //     ③ 32 格内也没有 → 才如实说"找不到" ✓（那才是真的该重做一个 ✓）
+    //
+    //   ⚠ 为什么不在手这边自己走过去 ✗：手是"身体"不是"司机" ✓
+    //     手一走位，脑那边正在走的任务当场被打断 ✓（今天就栽在这条上 ✓）
+    try {
+      工作台 = bot.findBlock({ matching: 数据.blocksByName.crafting_table.id, maxDistance: 4 });
+    } catch (e) { 工作台 = null; }
+    if (!工作台) {
+      let 远的 = null;
+      try {
+        远的 = bot.findBlock({ matching: 数据.blocksByName.crafting_table.id, maxDistance: 32 });
+      } catch (e) { 远的 = null; }
+      if (远的) {
+        const 我 = bot.entity && bot.entity.position;
+        const 距 = 我 ? Number(我.distanceTo(远的.position).toFixed(2)) : null;
+        return { ok: false,
+                 why: `合成「${名}」要工作台 —— 手边 4.5 格内没有，`
+                    + `可 ${距} 格外有一个，得先走过去 ✓`,
+                 工作台: [Math.floor(远的.position.x), Math.floor(远的.position.y),
+                          Math.floor(远的.position.z)],
+                 距, 要走过去: true };
+      }
+      return { ok: false, why: `合成「${名}」要工作台，可我 32 格内都没找到（那就得做一个了）` };
+    }
+    配方表 = bot.recipesFor(物品定义.id, null, 1, 工作台);
+  }
+  /* ★★★ 2026-10-10 半夜（主人原话：「**其实不同树种的木板也能合成工作台跟木棍和木镐**」✓）
+   *   现场：木镐做不出来 ✗ —— 手回「材料不够，合不出 wooden_pickaxe
+   *     （配方要：**cherry_planks 0/3**、stick 6/2）」
+   *     可背包里明明躺着 **4 块橡木木板** ✓（橡木和樱花木在原版 `#planks` 里是通用的 ✓）
+   *   缘由：mineflayer 按配方 JSON 里**那一种**木板变体算料 ✗
+   *     ⇒ 「requirementsMet」过不了 ⇒ 配方表空 ⇒ 明明能做却说"材料不够" ✗
+   *   规矩（按主人点名的事实）：**缺 <X>_planks、可我手里有别的木板 ⇒ 用我有的那种** ✓
+   *     · 只换"用哪种木板" ✓（形状、数量、要不要台子一个字不动 ✗）
+   *     · 换法是**改配方 delta 里的物品 id** ✓（改成我手上真有的那种木板 ✓）
+   *     · 拿不准/换不了 ⇒ 一个字不改 ✗（照旧如实报"材料不够" ✓ 绝不硬来 ✓）
+   */
+  /* ══════ ★★★ 木板跨树种通用（主人点名：「不同树种的木板也能合成工作台跟木棍和木镐」✓）══════
+   *   规则（按主人 2026-10-10 的命令重写 —— **上一次我写错了，这次一次改对** ✓）：
+   *     ① **首选**：某条配方**照 mineflayer 的口径**（delta ✓）就够料 ⇒ 一个字不改 ✓ 直接用 ✓
+   *     ② **备选**：只缺**木板**、而手里别的木板加起来够 ⇒ 换成我最多的那种 ✓
+   *        ⚠ 换的时候 **`ingredients` 与 `delta` 必须一起改** ✗
+   *          —— 我上一版**只改了 delta** ✗ ⇒ 预检查过了 ✓ 可 mineflayer 点窗口那一步
+   *             走的是 `ingredients` ✗ ⇒ 它按**旧 id** 在窗口里找料 ⇒ 找不到 ⇒
+   *             `missing ingredient` ✓ ⇒ 明明够料却报"缺料" ✓
+   *             **这就是主人 00:41 看到的那一幕的根子 ✓ 我的回归 ✓**
+   *     ③ 两条都不成立 ⇒ **一个字不动** ✗（照旧如实报"材料不够" ✓ 绝不硬来 ✓）
+   */
+  try {
+    const _件名 = (id) => { try { return String(数据.items[id].name); } catch (e) { return ""; } };
+    /* ★★★ 2026-10-10 深夜（主人：「可以了吗？」那会儿抓到的**同一个病的第二种**）：
+     *   现场：背包里有 **cobblestone 1** ✓ 可手回「配方要：**cobbled_deepslate 0/3**」✗
+     *     —— 原版 `#stone_tool_materials` 里 **圆石/深板岩圆石/黑石** 是通用的 ✓
+     *     （主人早就点过这条：「**那是石头，挖了就是圆石！**」✓）
+     *   上一版我只认 `_planks` ✗ ⇒ 石头这一族没人管 ✓ 又卡在同一种病上 ✓
+     *   规矩：**族谱写在一处** ✓，按族换料 ✓（木板一族 + 石头工具一族 ✓）
+     */
+    const _族谱 = [
+      { 名: "planks", 是: (n) => /_planks$/.test(n) },
+      { 名: "stone_tool", 是: (n) => n === "cobblestone" || n === "cobbled_deepslate"
+                                      || n === "blackstone" },
+    ];
+    const _族 = (id) => {
+      const n = _件名(id);
+      for (const g of _族谱) { try { if (g.是(n)) return g; } catch (e) {} }
+      return null;
+    };
+    const _是木板 = (id) => { const g = _族(id); return !!g && g.名 === "planks"; };
+    let _有货 = false;
+    try { _有货 = bot.inventory.items().length > 0; } catch (e) { _有货 = false; }
+    if (_有货) {
+      const _全 = bot.recipesAll(物品定义.id, null, 工作台);
+      let _首选 = null, _备选 = null;
+      for (const r of _全) {
+        const 缺口 = [];
+        for (const d of (r.delta || [])) {
+          if (d.count >= 0) continue;
+          let 有 = 0;
+          try { 有 = bot.inventory.count(d.id, d.metadata); } catch (e) { 有 = 0; }
+          if (有 < -d.count) 缺口.push({ d, 缺: -d.count - 有 });
+        }
+        if (!缺口.length) { _首选 = r; break; }              // ① 完全够料 ✓ 一个字不改 ✓
+        // 缺口必须**全在同一族里** ✓ 而且那一族我手上真有货 ⇒ 才能换 ✓
+        const 族们 = new Set();
+        let 都同族 = true;
+        for (const x of 缺口) {
+          const g = _族(x.d.id);
+          if (!g) { 都同族 = false; break; }
+          族们.add(g.名);
+        }
+        if (都同族 && 族们.size === 1) {
+          const 族名 = [...族们][0];
+          const 我有的 = [];
+          try {
+            for (const it of bot.inventory.items()) {
+              const g = _族(it.type);
+              if (g && g.名 === 族名) 我有的.push(it);
+            }
+          } catch (e) { /* 读不到就不换 ✓ */ }
+          let 总数 = 0;
+          for (const it of 我有的) 总数 += it.count;
+          if (我有的.length && 总数 >= 缺口.reduce((s2, x) => s2 + x.缺, 0)) {
+            // 挑我最多的那一种 ✓
+            const 按种 = new Map();
+            for (const it of 我有的) {
+              const n = _件名(it.type);
+              按种.set(n, (按种.get(n) || 0) + it.count);
+            }
+            let 最好 = null, 最多 = -1;
+            for (const [k, v] of 按种) if (v > 最多) { 最多 = v; 最好 = k; }
+            if (最好 && 数据.itemsByName[最好]) {
+              _备选 = { r, 新id: 数据.itemsByName[最好].id, 新名: 最好, 族: 族名 };
+            }
+          }
+        }
+      }
+      if (!_首选 && _备选) {
+        const r = _备选.r;
+        // ★★ 一致地改：**新式的 `ingredients` 和老的 `delta` 都要改** ✓（只改一个 = 我上次的回归 ✗）
+        const _同族 = (id) => { const g = _族(id); return !!g && g.名 === _备选.族; };
+        // ⚠ metadata 一定要**清成 null** ✗ —— 2026-10-10 实机：背包里明明有 2 块圆石 ✓
+        //   可 `inventory.count(id, 0)` 数出 **0** ✗（方块物品的 metadata 不是 0 ✓）
+        //   ⇒ `metadata != null` 时它按 metadata 严格匹配 ⇒ 永远数不到 ✓ ⇒ 永远"缺料" ✗
+        for (const d of (r.delta || [])) {
+          if (d.count < 0 && _同族(d.id)) { d.id = _备选.新id; d.metadata = null; }
+        }
+        for (const ing of (r.ingredients || [])) {
+          if (ing && ing.id != null && ing.id !== -1 && _同族(ing.id)) {
+            ing.id = _备选.新id;
+            if ("metadata" in ing) ing.metadata = null;
+          }
+        }
+        _首选 = r;
+      }
+      if (_首选) 配方表 = [_首选];
+    }
+  } catch (e) { /* 换木板出岔子 ⇒ 一个字不改 ✓ 后面照旧如实报 ✓ */ }
+  if (!配方表.length) {
+    /* ★★★ 2026-10-10 半夜（主人：「他是不是做出来了？！」）：
+     *   现场：脑侧背包里**明明有** 8 块橡木木板 + 14 根木棍 ✓ 可这里回「材料不够」✗
+     *     ⇒ 一句"材料不够"**谁都查不下去** ✗（脑侧只能猜、主人只能看着 ✓）
+     *   规矩（老朋友了）：**不许静默、要说清** ✓
+     *     ⇒ 把「这条配方要什么 ／ 我手里有多少」一起报回去 ✓
+     *   （只动这一支的**输出**，不改任何行为 ✗） */
+    let _要件 = '（这一版数据里没找到它的配方）';
+    try {
+      const _全 = bot.recipesAll(物品定义.id, null, 工作台);
+      if (_全.length) {
+        const _料 = [];
+        for (const _d of (_全[0].delta || [])) {
+          if (_d.count < 0) {
+            let _有 = 0;
+            try { _有 = bot.inventory.count(_d.id, _d.metadata); } catch (e) { _有 = 0; }
+            let _件 = String(_d.id);
+            try { _件 = 数据.items[_d.id].name; } catch (e) { /* 拿不到名字就报 id */ }
+            _料.push(`${_件} ${_有}/${-_d.count}`);
+          }
+        }
+        _要件 = `（配方要：${_料.join('、') || '?'}）`;
+      }
+    } catch (e) { _要件 = `（查配方时出错：${String(e.message).slice(0, 40)}）`; }
+    return { ok: false, why: `材料不够，合不出「${名}」${_要件}` };
+  }
+
+  清控制(bot);
+  /* ★★★ 2026-10-09 主人「干他」→ 当场抓到的卡点：
+   *   脑侧原话 `[回执探针] ★★ 回执丢了：命令「craft」发出去 8 秒了，一点回音都没` ✗
+   *   手侧**是实现了 craft 的** ✓ 问题在最后这一句 `await bot.craft(...)` ——
+   *   它跟当初 `placeBlock` 一个毛病：**promise 可能永远不落地** ✗
+   *   （那次实机：60 秒 ×3 超时，脑那边一路"没回音" ✓）
+   *   ⇒ 照那个**成功先例**用超时兜住 ✓ ——
+   *     宁可**如实回一句"超时"**✗，也不许一声不吭 ✓（这个项目的铁律：不许静默 ✓）
+   */
+  const 超时毫秒 = 6000;
+  const 果 = await Promise.race([
+    bot.craft(配方表[0], 数, 工作台)
+      .then(() => ({ ok: true }))
+      .catch((e) => {
+        /* ★★★ 2026-10-10 半夜（主人：「修，麻利点」那段之后）：
+         *   现场：背包里 4 块橡木木板 + 8 根木棍 ✓ 明明能做木镐 ✗
+         *     可 craft 回 `missing ingredient` ⇒ 一句话**什么都查不出来** ✗
+         *   规矩（老朋友）：**不许静默、要说清** ✓
+         *     ⇒ 把"这条配方要什么 / 我手里有多少"贴在错误后面一起报回去 ✓
+         */
+        let _细 = "";
+        try {
+          const _料 = [];
+          for (const d of ((配方表[0] && 配方表[0].delta) || [])) {
+            if (d.count >= 0) continue;
+            let _件 = String(d.id);
+            try { _件 = 数据.items[d.id].name; } catch (e2) { /* 用 id ✓ */ }
+            let _有 = 0;
+            try { _有 = bot.inventory.count(d.id, d.metadata); } catch (e2) { _有 = 0; }
+            _料.push(`${_件} ${_有}/${-d.count}`);
+          }
+          if (_料.length) _细 = `（配方要：${_料.join('、')}）`;
+        } catch (e2) { _细 = "（配方细节没取到）"; }
+        return { ok: false, why: String((e && e.message) || e) + _细 };
+      }),
+    new Promise((修) => setTimeout(
+      () => 修({ ok: false,
+                 why: `合成「${名}」超过 ${超时毫秒 / 1000} 秒没成 —— 我不干等 ✗`
+                    + `（材料不够 / 工作台被别人占着 / 服务器没应答，都可能）`,
+                 超时: true }),
+      超时毫秒)),
+  ]);
+  if (!果 || !果.ok) return 果 || { ok: false, why: `合成「${名}」没成，而且没给原因 ✗` };
+  return { ok: true, 合成: 名, 数量: 数, 用了工作台: !!工作台 };
+}
+
+async function 使用(bot, a) {
+  if (!Array.isArray(a.p) || a.p.length < 3) {
+    return { ok: false, why: '要给我一个坐标 p:[x,y,z]' };
+  }
+  const 块 = bot.blockAt(取坐标(bot, a.p));
+  if (!块) return { ok: false, why: '那个位置读不到方块' };
+  if (块.name === 'air') return { ok: false, why: '那里是空气' };
+  const 距离 = bot.entity.position.distanceTo(块.position);
+  if (距离 > 4.5) return { ok: false, why: `方块在 ${距离.toFixed(1)} 格外，够不着（最多 4.5）` };
+  清控制(bot);
+  await bot.activateBlock(块);
+  return { ok: true, 用了: 块.name, 距离: Number(距离.toFixed(2)) };
+}
+
+/* ══════════════ 递东西（2026-10-07 主人：「让他学会分我点吃的」）══════════════
+ * 把背包里的东西**丢给对方**。先转向他再丢 —— 不然会丢到自己背后去，白瞎。
+ * 零新依赖：mineflayer 自带 bot.toss(type, metadata, count)。
+ * ⚠ 别自作聪明改成"塞进对方背包" —— 那需要对方是实体交互，跨版本不稳；
+ *   丢在地上让他捡，是最稳、也最像"人"的做法。
+ */
+async function 递东西(bot, 参数) {
+  const 名 = String(参数.物品 || 参数.name || 参数.id || '');
+  const 数 = 钳(Number(参数.数量 != null ? 参数.数量 : 1), 1, 64, 1);
+  const 谁 = 参数.谁 ? String(参数.谁) : null;
+
+  let 堆 = bot.inventory.items();
+  if (名) 堆 = 堆.filter((i) => i.name === 名);
+  if (!堆.length) {
+    return { ok: false, why: 名 ? `我包里没有「${名}」` : '我包是空的', 递了: 0 };
+  }
+  const 件 = 堆.slice().sort((a, b) => b.count - a.count)[0];
+
+  // 先转向对方：有名字就找名字，没名字就找最近的那个玩家
+  try {
+    let 对 = (谁 && bot.players[谁] && bot.players[谁].entity) || null;
+    if (!对) {
+      let 最近 = Infinity;
+      for (const p of Object.values(bot.players)) {
+        if (!p.entity || p.entity === bot.entity) continue;
+        const d = p.entity.position.distanceTo(bot.entity.position);
+        if (d < 最近) { 最近 = d; 对 = p.entity; }
+      }
+    }
+    if (对) await bot.lookAt(对.position.offset(0, 1.4, 0), true);
+  } catch (e) { /* 转不过去也照丢，别因为这个把饭扣下 */ }
+
+  const 丢 = Math.min(数, 件.count);
+  await bot.toss(件.type, 件.metadata != null ? 件.metadata : null, 丢);
+  return { ok: true, 递了: 丢, 物品: 件.name, 对谁: 谁 || '最近的玩家' };
+}
+
+/* ══════════════════════════ 出口 ══════════════════════════ */
+
+const 表 = {
+  sneak: 潜行, jump: 跳跃, jumpattack: 跳劈, swimdown: 下潜,
+  dig: 挖, place: 放, craft: 合成, use: 使用,
+  furnace_put: 熔炉放料, furnace_take: 熔炉取成品,
+  chest_take: 箱子里取, chest_put: 往箱子里放,
+  递: 递东西,
+};
+
+/* ══════════════════════════ 熔炉（M4c）══════════════════════════
+ * 任务栈要"把矿石放进去、等它烧完、再把铁锭拿出来"，这三件事里
+ * 前一件和最后一件得有个"手"来做 —— 就是这两个能力。
+ * 零新依赖：mineflayer 自带 bot.openFurnace。
+ * ⚠ 实测要点：putInput/putFuel 要的是**数字 type**（不是物品名）。
+ */
+function 近处炉子(bot, p) {
+  try {
+    const 块 = bot.blockAt(取坐标(bot, p));
+    if (!块) return { 错: '那个坐标读不到方块（区块没加载？）' };
+    if (!/furnace|smoker/.test(块.name)) return { 错: `那里是「${块.name}」，不是熔炉` };
+    const 距 = bot.entity.position.distanceTo(块.position);
+    if (距 > 4.5) return { 错: `离熔炉 ${距.toFixed(1)} 格，够不着（最多 4.5）` };
+    return { 块 };
+  } catch (e) { return { 错: e.message }; }
+}
+
+async function 熔炉放料(bot, a) {
+  if (!Array.isArray(a.p) || a.p.length < 3) return { ok: false, why: '要给我熔炉坐标 p:[x,y,z]' };
+  const 找 = 近处炉子(bot, a.p);
+  if (找.错) return { ok: false, why: 找.错 };
+  let 炉 = null;
+  try {
+    炉 = await bot.openFurnace(找.块);
+    const 要放 = a.输入 || null, 要烧 = a.燃料 || null;
+    const 拿 = (名) => bot.inventory.items().find((i) => i.name === 名);
+    if (要放) {
+      const 有 = 拿(要放.name);
+      if (!有) return { ok: false, why: `背包里没有「${要放.name}」` };
+      await 炉.putInput(有.type, null, Math.min(要放.count || 1, 有.count));
+    }
+    if (要烧) {
+      const 有 = 拿(要烧.name);
+      if (!有) return { ok: false, why: `背包里没有燃料「${要烧.name}」` };
+      await 炉.putFuel(有.type, null, Math.min(要烧.count || 1, 有.count));
+    }
+    const 格 = (it) => (it ? { name: it.name, count: it.count } : null);
+    return { ok: true, 输入: 格(炉.inputItem()), 燃料: 格(炉.fuelItem()) };
+  } catch (e) {
+    return { ok: false, why: e.message };
+  } finally {
+    try { if (炉 && typeof 炉.close === 'function') 炉.close(); } catch (e) {}
+  }
+}
+
+async function 熔炉取成品(bot, a) {
+  if (!Array.isArray(a.p) || a.p.length < 3) return { ok: false, why: '要给我熔炉坐标 p:[x,y,z]' };
+  const 找 = 近处炉子(bot, a.p);
+  if (找.错) return { ok: false, why: 找.错 };
+  let 炉 = null;
+  try {
+    炉 = await bot.openFurnace(找.块);
+    const 出 = 炉.outputItem();
+    if (!出) return { ok: false, why: '输出槽是空的（还没烧完）', 取消: '输出槽空' };
+    const 名 = 出.name, 数 = 出.count;
+    await 炉.takeOutput();
+    return { ok: true, 拿到: 名, 数量: 数 };
+  } catch (e) {
+    return { ok: false, why: e.message };
+  } finally {
+    try { if (炉 && typeof 炉.close === 'function') 炉.close(); } catch (e) {}
+  }
+}
+
+/* ══════════════════════════ 箱子（M7b）══════════════════════════
+ * 任务栈要"把东西存回去 / 从箱子里拿东西"，就得有这两个能力。
+ * 零新依赖：mineflayer 自带 openBlock + window.withdraw/deposit。
+ * ⚠ 实测要点：withdraw/deposit 要的是**数字 type**（不是物品名）。
+ * ★ 安全：危险物品（TNT/打火石/岩浆桶…）一律不碰 —— fail-closed，说清原因。
+ */
+const 危险物品 = new Set(['tnt', 'flint_and_steel', 'lava_bucket', 'fire_charge',
+  'end_crystal', 'respawn_anchor', 'command_block', 'chain_command_block',
+  'repeating_command_block', 'barrier', 'structure_block', 'jigsaw', 'light',
+  'bedrock', 'debug_stick']);
+
+function 找箱子(bot, p) {
+  try {
+    const 块 = bot.blockAt(取坐标(bot, p));
+    if (!块) return { 错: '那个坐标读不到方块（区块没加载？）' };
+    if (!/(chest|barrel|shulker_box|ender_chest)/.test(块.name)) {
+      return { 错: `那里是「${块.name}」，不是箱子` };
+    }
+    const 距 = bot.entity.position.distanceTo(块.position);
+    if (距 > 4.5) return { 错: `离箱子 ${距.toFixed(1)} 格，够不着（最多 4.5）` };
+    return { 块 };
+  } catch (e) { return { 错: e.message }; }
+}
+
+async function 箱子里取(bot, a) {
+  if (!Array.isArray(a.p) || a.p.length < 3) return { ok: false, why: '要给我箱子坐标 p:[x,y,z]' };
+  const 名 = a.物品 || a.item;
+  if (!名) return { ok: false, why: '要告诉我要拿什么（物品）' };
+  if (危险物品.has(名)) return { ok: false, why: `「${名}」这种危险东西我不碰`, 取消: '危险物品' };
+  const 找 = 找箱子(bot, a.p);
+  if (找.错) return { ok: false, why: 找.错 };
+  let 箱 = null;
+  try {
+    箱 = await bot.openBlock(找.块);
+    const 有 = 箱.containerItems().filter((i) => i.name === 名);
+    if (!有.length) return { ok: false, why: `箱子里没有「${名}」` };
+    const 总数 = 有.reduce((s, i) => s + i.count, 0);
+    const 要 = Math.min(Math.max(Number(a.数量) || 1, 1), 总数);
+    await 箱.withdraw(有[0].type, null, 要);
+    return { ok: true, 拿到: 名, 数量: 要 };
+  } catch (e) {
+    return { ok: false, why: e.message };
+  } finally { try { if (箱 && typeof 箱.close === 'function') 箱.close(); } catch (e) {} }
+}
+
+async function 往箱子里放(bot, a) {
+  if (!Array.isArray(a.p) || a.p.length < 3) return { ok: false, why: '要给我箱子坐标 p:[x,y,z]' };
+  const 名 = a.物品 || a.item;
+  if (!名) return { ok: false, why: '要告诉我要放什么（物品）' };
+  if (危险物品.has(名)) return { ok: false, why: `「${名}」这种危险东西我不碰`, 取消: '危险物品' };
+  const 找 = 找箱子(bot, a.p);
+  if (找.错) return { ok: false, why: 找.错 };
+  let 箱 = null;
+  try {
+    箱 = await bot.openBlock(找.块);
+    const 有 = bot.inventory.items().filter((i) => i.name === 名);
+    if (!有.length) return { ok: false, why: `背包里没有「${名}」` };
+    const 总数 = 有.reduce((s, i) => s + i.count, 0);
+    const 保留 = Math.max(0, Number(a.保留) || 0);
+    const 该放 = Math.min(Math.max(Number(a.数量) || 总数, 1), Math.max(总数 - 保留, 0));
+    if (该放 <= 0) return { ok: false, why: `要保留 ${保留} 个，那就不用放了` };
+    await 箱.deposit(有[0].type, null, 该放);
+    return { ok: true, 放了: 名, 数量: 该放, 背包还剩: 总数 - 该放 };
+  } catch (e) {
+    return { ok: false, why: e.message };
+  } finally { try { if (箱 && typeof 箱.close === 'function') 箱.close(); } catch (e) {} }
+}
+
+module.exports = {
+  名字: 'body',
+
+  /** 主链靠它判断"这个插件到底能不能用" */
+  可用() { return true; },
+
+  /** 主链靠它知道有哪些动词该交给我 */
+  能力() { return 能力表.slice(); },
+
+  /**
+   * 执行一个动词。
+   * 返回 Promise<{ok, why?, ...}>。**永远不抛异常** —— 主链那边会当命令结果处理。
+   */
+  执行(bot, 动词, 参数) {
+    const 做 = 表[动词];
+    if (!做) return Promise.resolve({ ok: false, why: `身体插件不会「${动词}」` });
+    if (!bot || !bot.entity) return Promise.resolve({ ok: false, why: '还没进世界' });
+    return Promise.resolve()
+      .then(() => 做(bot, 参数 || {}))
+      .catch((e) => ({ ok: false, why: `${动词} 炸了：${e.message}` }));
+  },
+
+  /** 让路：主链要自己动腿时先把我的控制状态松开 */
+  停(bot) {
+    try { 清控制(bot); } catch (e) { /* 无所谓 */ }
+  },
+
+  /* ★ 2026-10-08：把「看遮挡」交出去 —— **只实现这一份**。
+   *   雷达（server.js 的扫环境）要给 scan.石头 标"露没露出来"，
+   *   用的就是同一个函数；谁也别再抄一遍（抄了就会两边不一致 ✗）。 */
+  看遮挡,
+  是实心,
+};
